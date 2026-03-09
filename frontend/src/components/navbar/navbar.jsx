@@ -2,10 +2,9 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 import './navbar.css';
 
-// A function to handle the cart button click
 const handleCartClick = () => {
-    console.log("Cart button was clicked!");
-    // You can add logic here to open a cart modal or sidebar
+    console.log("Wishlist/Cart button was clicked!");
+    // Logic to open a wishlist modal or sidebar
 };
 
 function Navbar() {
@@ -18,23 +17,31 @@ function Navbar() {
     return (
         <div className='nav-elements'>
             <div className='logo'>
-            <Link to="/"><button><img src="fevicon.svg" alt="Logo" /></button></Link>
+                <Link to="/">
+                    <button className="logo-btn">
+                        {/* Keeping your original image src, but adding text next to it */}
+                        <img src="/fevicon.svg" alt="Yahora Logo" />
+                        <span className="brand-text">Yahora</span>
+                    </button>
+                </Link>
             </div>
             <div className={`nav-links ${isMenuOpen ? 'active' : ''}`}>
                 <Link to="/"><button><p>Home</p></button></Link>
-                <Link to="/products"><button><p>Products</p></button></Link>
-                <Link to="/about"><button><p>About Us</p></button></Link>
-                <Link to="/contact"><button><p>Contact</p></button></Link>
+                <Link to="/feed"><button><p>Marketplace</p></button></Link>
+                <Link to="/hot"><button><p>Campus Hot</p></button></Link>
+                <Link to="/messages"><button><p>Messages</p></button></Link>
             </div>
-            <button className='cart-button' onClick={handleCartClick}>
+            
+            <div className="nav-actions">
+                <button className='cart-button' onClick={handleCartClick}>
                 <img className='cart' src="/cart.svg" alt="Cart" />
             </button>
-            <button className='hamburger-menu' onClick={toggleMenu}>
-                &#9776;
-            </button>
+                <button className='hamburger-menu' onClick={toggleMenu}>
+                    &#9776;
+                </button>
+            </div>
         </div>
     );
-    
 }
 
 export default Navbar;

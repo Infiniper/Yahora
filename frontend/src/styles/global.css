@@ -1,0 +1,41 @@
+/* frontend/src/styles/global.css */
+
+:root {  
+  /* Purple */
+  --purple: #800080;
+  --purple-dark: #4f014f;
+  --purple-light: #d700d7;
+  --purple-emphasis: #4c104c;
+
+  /* Pink */
+  --pink: #FF78A6;
+  --pink-dark: #EB487F;
+  --pink-light: #FFF4F7;
+  --pink-emphasis: #300B15; 
+
+  /* Blue */
+  --blue: #2BB7FF;
+  --blue-dark: #0B93D8;
+  --blue-light: #6FE1FF;
+
+  /* Text & background */
+  --black: #0B0B0B;
+  --black-soft: #1A1A1A;
+  --white: #FFFFFF;
+  --bg: #F8F9FB;
+}
+
+/* Basic global resets for a clean UI */
+body {
+  background-color: var(--bg);
+  color: var(--black-soft);
+  margin: 0;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ensure all elements box-sizing is handled cleanly */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
