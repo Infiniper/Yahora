@@ -20,8 +20,8 @@ function Navbar() {
                 <Link to="/">
                     <button className="logo-btn">
                         {/* Keeping your original image src, but adding text next to it */}
-                        <img src="/fevicon.svg" alt="Yahora Logo" />
-                        <span className="brand-text">Yahora</span>
+                        <img src="/yahora_logo.svg" alt="Yahora Logo" />
+                        {/* <span className="brand-text">Yahora</span> */}
                     </button>
                 </Link>
             </div>

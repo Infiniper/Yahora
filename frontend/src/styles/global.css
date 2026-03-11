@@ -25,14 +25,26 @@
   --bg: #F8F9FB;
 }
 
-/* Basic global resets for a clean UI */
+
 body {
   background-color: var(--bg);
   color: var(--black-soft);
   margin: 0;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  /* Inter for UI readability */
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Apply Bree Serif to all your headings and brand text */
+h1, h2, h3, h4, h5, h6, .brand-text, .brandName {
+  font-family: 'Bree Serif', serif;
+  font-weight: 400; /* Bree Serif looks best at normal weight */
+}
+
+/* Ensure all elements box-sizing is handled cleanly */
+*, *::before, *::after {
+  box-sizing: border-box;
 }
 
 /* Ensure all elements box-sizing is handled cleanly */
