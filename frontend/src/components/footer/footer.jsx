@@ -5,10 +5,13 @@ const Footer = () => {
   return (
     <footer className={styles.footer}>
       <div className={styles.description}>
-        <h2 className={styles.brandName}>Yahora</h2>
+        <img
+          src="/yahora_logo.svg"
+          alt="Yahora Logo"
+          className={styles.logo}
+        />
         <p>
-          Because Every Item Has a Memory. Where Every Thing Finds Its Next Story. 
-          A high-trust, closed-loop community marketplace exclusively for students.
+          Because Every Item Has a Memory. A high-trust, closed-loop community marketplace        exclusively for students.
         </p>
       </div>
 
