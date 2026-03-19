@@ -1,8 +1,8 @@
 import app from './app.js';
 import dotenv from 'dotenv';
 
-// Load env variables
-dotenv.config({ path: '../.env' });
+// Load env variables from the backend root
+dotenv.config(); 
 
 const PORT = process.env.PORT || 5000;
 
