@@ -1,26 +1,37 @@
-import React, { useState } from 'react';
-import './Auth.css';
+import React, { useState, useRef, useEffect } from "react";
+import "./Auth.css";
 
 const Auth = () => {
   const [step, setStep] = useState(1); // 1: Email, 2: OTP
-  const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState('');
+  const [email, setEmail] = useState("");
+  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
+
+  const videoRef = useRef(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.5;
+    }
+  }, []);
 
   // Step 1: Send Email to Backend
   const handleRequestOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
       // Connecting to Vishwajeet's backend
-      const response = await fetch('http://localhost:5000/api/auth/request-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/auth/request-otp",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email }),
+        },
+      );
 
       const data = await response.json();
 
@@ -28,10 +39,10 @@ const Auth = () => {
         setStep(2); // Move to OTP screen
         setMessage(`Code sent to ${email}`);
       } else {
-        setMessage(data.message || 'Error: Invalid university domain.');
+        setMessage(data.error || data.message || "Something went wrong");
       }
     } catch (error) {
-      setMessage('Failed to connect to server.');
+      setMessage("Failed to connect to server.");
     } finally {
       setLoading(false);
     }
@@ -41,27 +52,30 @@ const Auth = () => {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage('');
+    setMessage("");
 
     try {
-      const response = await fetch('http://localhost:5000/api/auth/verify-otp', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, otp }),
-      });
+      const response = await fetch(
+        "http://localhost:5000/api/auth/verify-otp",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp }),
+        },
+      );
 
       const data = await response.json();
 
       if (response.ok) {
         // Store session (localStorage or Context API)
-        localStorage.setItem('yahora_session', data.session.access_token);
+        localStorage.setItem("yahora_session", data.session.access_token);
         // Redirect to onboarding/profile (Update this route later)
-        window.location.href = '/onboarding'; 
+        window.location.href = "/onboarding";
       } else {
-        setMessage(data.message || 'Invalid verification code.');
+        setMessage(data.message || "Invalid verification code.");
       }
     } catch (error) {
-      setMessage('Failed to verify code.');
+      setMessage("Failed to verify code.");
     } finally {
       setLoading(false);
     }
@@ -72,10 +86,10 @@ const Auth = () => {
       {/* Left Side: Form */}
       <div className="auth-left">
         <div className="auth-form-wrapper">
-          
           {/* Typography inspiration from your image */}
           <div className="marketing-badge">
-             <span className="dot"></span> Students-only marketplace — now launching
+            <span className="dot"></span> Students-only marketplace — now
+            launching
           </div>
           <h1 className="gradient-heading">
             Buy & Sell on Your Campus, Safely.
@@ -83,11 +97,13 @@ const Auth = () => {
 
           <div className="form-card">
             <h2>Join Yahora</h2>
-            
+
             {step === 1 ? (
               <form onSubmit={handleRequestOtp}>
-                <p className="subtitle">Enter your university email to get started</p>
-                
+                <p className="subtitle">
+                  Enter your university email to get started
+                </p>
+
                 <div className="input-group">
                   <label>University Email</label>
                   <input
@@ -98,11 +114,15 @@ const Auth = () => {
                     required
                   />
                 </div>
-                
+
                 {message && <p className="form-message error">{message}</p>}
-                
-                <button type="submit" className="primary-btn" disabled={loading}>
-                  {loading ? 'Sending...' : 'Send Verification Code'}
+
+                <button
+                  type="submit"
+                  className="primary-btn"
+                  disabled={loading}
+                >
+                  {loading ? "Sending..." : "Send Verification Code"}
                 </button>
 
                 <button type="button" className="text-btn mt-3">
@@ -111,8 +131,10 @@ const Auth = () => {
               </form>
             ) : (
               <form onSubmit={handleVerifyOtp}>
-                <p className="subtitle">Enter the 6-digit code sent to <strong>{email}</strong></p>
-                
+                <p className="subtitle">
+                  Enter the 6-digit code sent to <strong>{email}</strong>
+                </p>
+
                 <div className="input-group">
                   <label>Verification Code</label>
                   <input
@@ -125,13 +147,27 @@ const Auth = () => {
                   />
                 </div>
 
-                {message && <p className={`form-message ${message.includes('sent') ? 'success' : 'error'}`}>{message}</p>}
+                {message && (
+                  <p
+                    className={`form-message ${message.includes("sent") ? "success" : "error"}`}
+                  >
+                    {message}
+                  </p>
+                )}
 
-                <button type="submit" className="primary-btn" disabled={loading}>
-                  {loading ? 'Verifying...' : 'Verify & Continue'}
+                <button
+                  type="submit"
+                  className="primary-btn"
+                  disabled={loading}
+                >
+                  {loading ? "Verifying..." : "Verify & Continue"}
                 </button>
-                
-                <button type="button" className="text-btn mt-3" onClick={() => setStep(1)}>
+
+                <button
+                  type="button"
+                  className="text-btn mt-3"
+                  onClick={() => setStep(1)}
+                >
                   Wrong email? Go back
                 </button>
               </form>
@@ -140,13 +176,12 @@ const Auth = () => {
 
           <div className="app-downloads">
             <button className="app-btn">
-               Download Android App <span className="coming-soon">Soon</span>
+              Download Android App <span className="coming-soon">Soon</span>
             </button>
             <button className="app-btn">
-               Download iOS App <span className="coming-soon">Soon</span>
+              Download iOS App <span className="coming-soon">Soon</span>
             </button>
           </div>
-
         </div>
       </div>
 
@@ -154,13 +189,14 @@ const Auth = () => {
       <div className="auth-right">
         <div className="video-container">
           {/* Replace src with your actual Supabase storage URL */}
-          <video 
-            autoPlay 
-            loop 
-            muted 
+          <video
+            ref={videoRef}
+            autoPlay
+            loop
+            muted
             playsInline
             className="feature-video"
-            src="https://www.w3schools.com/html/mov_bbb.mp4" 
+            src="https://iwhtzhejyhaqctoqsolz.supabase.co/storage/v1/object/public/yahora%20videos/yahora_login_page.mp4"
           >
             Your browser does not support the video tag.
           </video>
