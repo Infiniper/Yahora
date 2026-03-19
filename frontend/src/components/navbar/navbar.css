@@ -150,6 +150,24 @@
     cursor: pointer;
 }
 
+/* Add this to your existing navbar.css */
+.auth-btn {
+    background-color: var(--purple-dark);
+    color: var(--white);
+    padding: 0.6rem 1.2rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.auth-btn:hover {
+    background-color: var(--pink-dark);
+    transform: translateY(-1px);
+}
+/* ========================================================================================================== */
 /* Mobile Responsiveness */
 @media (max-width: 768px) {
     .nav-elements {
@@ -201,4 +219,6 @@
       justify-self: end; 
       margin-top: 0.5rem;
     }
+    
 }
+
