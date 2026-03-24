@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Yahora – IIITDM Kurnool</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              "surface-bright": "#f9f6f5",
+              "surface-container-lowest": "#ffffff",
+              "on-surface-variant": "#5c5b5b",
+              "primary-dim": "#900090",
+              "on-primary-fixed": "#000000",
+              "on-secondary-fixed": "#6d0030",
+              "surface-container": "#eae7e7",
+              "primary-container": "#ff5af9",
+              "error-dim": "#a70138",
+              "surface-tint": "#a400a4",
+              "outline": "#787676",
+              "inverse-surface": "#0e0e0e",
+              "on-error-container": "#510017",
+              "secondary-fixed-dim": "#ffadc0",
+              "on-primary-container": "#440044",
+              "on-secondary-fixed-variant": "#a1004a",
+              "on-tertiary": "#e9f4ff",
+              "background": "#f9f6f5",
+              "error-container": "#f74b6d",
+              "on-tertiary-container": "#00344e",
+              "primary-fixed-dim": "#f73af4",
+              "surface-dim": "#d6d4d3",
+              "surface-container-highest": "#dfdcdc",
+              "on-surface": "#2f2f2e",
+              "tertiary-fixed": "#41baff",
+              "primary": "#a400a4",
+              "on-primary-fixed-variant": "#540054",
+              "secondary": "#b11655",
+              "error": "#b41340",
+              "on-secondary-container": "#900042",
+              "secondary-dim": "#a00049",
+              "surface-variant": "#dfdcdc",
+              "secondary-container": "#ffc1ce",
+              "surface": "#f9f6f5",
+              "inverse-primary": "#fd41fa",
+              "on-error": "#ffefef",
+              "on-background": "#2f2f2e",
+              "on-secondary": "#ffeff1"
+              "on-primary": "#ffeef8",
+              "on-tertiary-fixed": "#001a29",
+              "on-tertiary-fixed-variant": "#003d5a",
+              "tertiary": "#00618c",
+              "surface-container-low": "#f3f0ef",
+              "tertiary-fixed-dim": "#10adf5",
+              "tertiary-dim": "#00557b",
+              "secondary-fixed": "#ffc1ce",
+              "primary-fixed": "#ff5af9",
+              "inverse-on-surface": "#9e9c9c",
+              "tertiary-container": "#41baff",
+              "surface-container-high": "#e4e2e1",
+              "outline-variant": "#afadac"
+            },
+            fontFamily: {
+              "headline": ["Plus Jakarta Sans"],
+              "body": ["Inter"],
+              "label": ["Inter"]
+            },
+            borderRadius: {"DEFAULT": "1rem", "lg": "2rem", "xl": "3rem", "full": "9999px"},
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body antialiased">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl shadow-[0_20px_40px_rgba(0,0,0,0.06)]">
+<div class="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center overflow-hidden border-2 border-primary/20">
+<img class="w-full h-full object-cover" data-alt="Portrait of a friendly college student smiling, soft natural campus lighting, high-end editorial photography style" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDP251fFp-CPaZvZP6ZfqVqDVDwMfqH2q_WTaE_5EirxOwgQwUsUXrBeW2U5gopElAggN5f0g3Hmnx_9anAtAi0Z-ZsM9jgoDudCqiAQ8s6J8tQMMV2B_QP08rcincuFyaoBDXM0WAx6ecT3RyR_0Ctr5bj3vYIM1fCQ0wnquS0ZR9CHPHleSA7mStdcwJHSV4w-5x6ZT5spZT2FaHDoHICRh9RfxsDnOMt9zzanPuHHjpNIvjkRSRsXp2aBEtP-DfyHQC8Z6MVcQ"/>
+</div>
+<div>
+<h1 class="font-headline font-bold tracking-tight text-xl bg-gradient-to-br from-fuchsia-600 to-pink-500 bg-clip-text text-transparent">Yahora</h1>
+<p class="text-[10px] font-label uppercase tracking-widest text-secondary">IIITDM Kurnool</p>
+</div>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<nav class="flex gap-6">
+<a class="text-fuchsia-600 font-bold hover:scale-105 transition-transform" href="#">Home Feed</a>
+<a class="text-zinc-500 hover:text-zinc-800 hover:scale-105 transition-transform" href="#">Discovery</a>
+<a class="text-zinc-500 hover:text-zinc-800 hover:scale-105 transition-transform" href="#">Marketplace</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-zinc-600">notifications</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-zinc-600">shopping_cart</span>
+</button>
+</div>
+</div>
+</header>
+<main class="pt-24 pb-32 px-4 max-w-7xl mx-auto">
+<!-- Seasonal Banner -->
+<section class="mb-12">
+<div class="relative w-full h-48 md:h-64 rounded-xl overflow-hidden bg-primary shadow-2xl group">
+<img class="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:scale-105 transition-transform duration-700" data-alt="Modern dorm room interior with cardboard boxes, fairy lights, and cozy decor, soft warm cinematic lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB4_TrAR0OmSAuJcp7VBnC8UgHPKm-sXUTRM1JP3RQ-cIKY0xIXFc6hKtHMGdVj1ln6urEzBhrgSj1BLTT-M9bT1jOUvlrfw6-2D48MSG27bqHyJAgJHDkuFrI2jlOxvyYyfoQod_Z9sFn3cHxHNE682d1esV2sQZ47qYLYUReGpmdrpBZeMKq2BfhRS-SRbRgumfsq8LDPEIY7Mf36ZMhq5J4iAISyw7pwjXSvs6sCHnZtgSEXKl0UYDUGqrhWUEUe0YSHFN-yeA"/>
+<div class="absolute inset-0 bg-gradient-to-r from-primary/80 to-transparent flex flex-col justify-center px-8 md:px-16">
+<span class="inline-block px-3 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[10px] font-label uppercase tracking-widest mb-4 w-fit">Campus Event</span>
+<h2 class="font-headline text-3xl md:text-5xl font-extrabold text-on-primary tracking-tight mb-2">Move-In Week Specials! 📦</h2>
+<p class="text-on-primary/80 max-w-md font-medium">Grab essential dorm gear from graduating seniors at unbeatable prices.</p>
+</div>
+</div>
+</section>
+<!-- Filters Section -->
+<section class="mb-10 flex gap-3 overflow-x-auto hide-scrollbar pb-2">
+<button class="flex items-center gap-2 px-6 py-3 bg-primary text-on-primary rounded-full shadow-lg shadow-primary/20 whitespace-nowrap">
+<span class="material-symbols-outlined text-lg">tune</span>
+<span class="font-bold text-sm">All Items</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-lowest text-on-surface rounded-full whitespace-nowrap hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-lg">apartment</span>
+<span class="font-medium text-sm">Hall of Residence 1</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-lowest text-on-surface rounded-full whitespace-nowrap hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-lg">laptop_mac</span>
+<span class="font-medium text-sm">Electronics</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-lowest text-on-surface rounded-full whitespace-nowrap hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-lg">menu_book</span>
+<span class="font-medium text-sm">Books</span>
+</button>
+<button class="flex items-center gap-2 px-6 py-3 bg-surface-container-lowest text-on-surface rounded-full whitespace-nowrap hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-lg">payments</span>
+<span class="font-medium text-sm">Under ₹500</span>
+</button>
+</section>
+<!-- Hot at IIITDM Kurnool Carousel -->
+<section class="mb-16">
+<div class="flex justify-between items-end mb-6">
+<div>
+<h3 class="font-headline text-2xl font-extrabold tracking-tight">Hot at IIITDM Kurnool</h3>
+<p class="text-on-surface-variant text-sm">Trending deals right now in your hostel</p>
+</div>
+<button class="text-primary font-bold text-sm flex items-center gap-1 group">
+                    View all <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">arrow_forward</span>
+</button>
+</div>
+<div class="flex gap-6 overflow-x-auto hide-scrollbar pb-8 -mx-4 px-4">
+<!-- Trending Item 1 -->
+<div class="min-w-[280px] bg-surface-container-lowest rounded-lg p-3 hover:shadow-2xl hover:shadow-primary/5 transition-all group">
+<div class="relative h-48 rounded-md overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Modern tablet with stylus resting on a clean wooden desk, minimalist aesthetic, professional lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC7YMal0FwL9-mkcJhLyOz4hbmVSs-tLEL3cNQwF1OibTdqSdsFmLt6Qt4obJDfOCXPMBz-u3W30Gi2Q4U8o4z2Xp2TYqyCwF-_XPXVHz98aBkMPkpy0LOqc1KwaYVjye86JcQ9VByxBOudlQboHaxx7vJCJLdG_IsyJAFikko4cuSwhvGGQU4rLzzL8kt0P3r0DrRMUi-oATalNKv8H5GLYI3sfqrCU3UWh6tg7T-wQsRsmm8qS4pYr4f6Xj3lO5bL60CinrBl1w"/>
+<div class="absolute top-3 left-3 px-2 py-1 bg-tertiary-container text-on-tertiary-container rounded-full text-[9px] font-bold uppercase tracking-widest backdrop-blur-sm">Verified Senior</div>
+</div>
+<h4 class="font-headline font-bold text-lg mb-1">iPad Air 4th Gen</h4>
+<div class="flex justify-between items-center">
+<span class="text-primary font-extrabold text-xl">₹32,000</span>
+<span class="text-xs text-on-surface-variant font-medium">Hall 2</span>
+</div>
+</div>
+<!-- Trending Item 2 -->
+<div class="min-w-[280px] bg-surface-container-lowest rounded-lg p-3 hover:shadow-2xl hover:shadow-primary/5 transition-all group">
+<div class="relative h-48 rounded-md overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Small white mini-fridge in a bright modern kitchen setting, clean and organized feel" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC9mKzGOewto8CUahBEJf27zSughUPmgm9lpBWASrdOjfCsYlOkT2M0PUP3AZRuXuOCfTS6fEqOY5NN08pbSpIWSu-kIS7wCbl1LHDPhFZnz5KbUcP3g2A_LlV81n3VnwmaSofulcg9ImyRghoJ36oqco08Av2O4rYpN_hnOfvl-VDnkabWy3G-dMPzmxJZubUqvkOI7f2zpb6uJA-8MIGxVoOVp2kHYCb277c9cqRIsaEvGh3V-EwMQt3T95X3qLZTaWXtrMXw5A"/>
+<div class="absolute top-3 left-3 px-2 py-1 bg-secondary-container text-on-secondary-container rounded-full text-[9px] font-bold uppercase tracking-widest">Hall 1 Resident</div>
+</div>
+<h4 class="font-headline font-bold text-lg mb-1">Compact Mini-Fridge</h4>
+<div class="flex justify-between items-center">
+<span class="text-primary font-extrabold text-xl">₹4,500</span>
+<span class="text-xs text-on-surface-variant font-medium">Hall 1</span>
+</div>
+</div>
+<!-- Trending Item 3 -->
+<div class="min-w-[280px] bg-surface-container-lowest rounded-lg p-3 hover:shadow-2xl hover:shadow-primary/5 transition-all group">
+<div class="relative h-48 rounded-md overflow-hidden mb-4">
+<img class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" data-alt="Stack of technical engineering textbooks on a library table, soft natural window light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAx1SVtSy30yxtrwElaIhTALiEEeJfw95cg6d9aTh0-9vcerNGyE7nAwli-oklhzXHOdUMzbWZ1XYJ01CbyuM_HKfH9-RL54mrLKl2_XoMWwaMzAjSkMucPJwEPo1oiDs7bQUAZOZw015Al9Ia0uSUbp2OkSWl3DWT9d5GOrwVULFOidePmZWeyRyqPG0I-2Pq1oU6Ry77SrgkQwOHeVUoDmE772_N68fMm8kiC6O9G9hwiX8Gi4PPK9o5qSb1qs6e40v7yekPO4w"/>
+</div>
+<h4 class="font-headline font-bold text-lg mb-1">GATE Prep Material</h4>
+<div class="flex justify-between items-center">
+<span class="text-primary font-extrabold text-xl">₹800</span>
+<span class="text-xs text-on-surface-variant font-medium">Hall 3</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Feed Bento Grid / Social Layout -->
+<section class="grid grid-cols-1 md:grid-cols-12 gap-8">
+<!-- Left Column: Community Snippets -->
+<div class="md:col-span-4 space-y-6">
+<div class="flex items-center justify-between mb-4">
+<h3 class="font-headline text-xl font-bold">Campus Buzz</h3>
+<span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+</div>
+<!-- Community Post 1 -->
+<div class="bg-surface-container-low rounded-lg p-5 hover:bg-surface-container transition-colors cursor-pointer border border-white/40">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-full bg-zinc-300 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Close-up avatar of a student, smiling, outdoor campus background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCY8BmmjHov5jEUSvPKTEH-nB_6U9GUv944yb0TBEVHC7RuGbbfFmTTVZ8Kzk8XJtqoY4TfkrfY6ga8pSQHD6FkC2ojf3e-LJNk7U4BbmiVJ62UR8OCBGZOhdJhr3_mPPLZKNPsP5u1i2l4u50QgieNWtse39oCSZ1Z5LDcZxWkHeqA8dCw_6CbH9sjbsNBnu_WxiTmA4J1MAe2hsCb7TkEX6Yk2M67G_ME8csaFrZcrgK-4dXyLkJdWbrz3MH1hIt3y47xMlmpcg"/>
+</div>
+<div>
+<p class="text-xs font-bold">Rahul Verma</p>
+<p class="text-[10px] text-on-surface-variant">2 mins ago • Hall 2</p>
+</div>
+</div>
+<p class="text-sm leading-relaxed mb-4">Anyone heading to the city this evening? Looking to carpool! 🚗</p>
+<div class="flex gap-4">
+<button class="flex items-center gap-1 text-xs font-medium text-on-surface-variant"><span class="material-symbols-outlined text-sm">favorite</span> 12</button>
+<button class="flex items-center gap-1 text-xs font-medium text-on-surface-variant"><span class="material-symbols-outlined text-sm">chat_bubble</span> 4</button>
+</div>
+</div>
+<!-- Community Post 2 -->
+<div class="bg-surface-container-low rounded-lg p-5 hover:bg-surface-container transition-colors cursor-pointer border border-white/40">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-full bg-zinc-300 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Avatar of a student girl, vibrant and cheerful, soft studio-like lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCK4Gb49EDFNhOAmzL0nfC7d6z0K0i_n8X_ivfqQZe5N3uf2EzT6fJWIr7I10sAbSwtwyt4Nn234kCMWbNjxjPLOGqUK_YYkeq8b0r24X0wmWmDh1iHmtD2Ic0MHppMeSZzPoWKB1DkIXDWHaOHofCG64fJvUdZCknyzgTsgsXsIk6y1bALhkBaoqWS-xHjbckTdmzg7X1DWHF02iSV1uFABSVMSlpAyDKRo_x3wgihTszLNUatxHXEKBUFU4iKCMaIF4b_g059xA"/>
+</div>
+<div>
+<p class="text-xs font-bold">Sneha Reddy</p>
+<p class="text-[10px] text-on-surface-variant">15 mins ago • Hall 1</p>
+</div>
+</div>
+<p class="text-sm leading-relaxed mb-4">Selling my mini-fridge, dm if interested! Moving out by Saturday. ❄️</p>
+<div class="flex gap-4">
+<button class="flex items-center gap-1 text-xs font-medium text-on-surface-variant"><span class="material-symbols-outlined text-sm">favorite</span> 8</button>
+<button class="flex items-center gap-1 text-xs font-medium text-on-surface-variant"><span class="material-symbols-outlined text-sm">chat_bubble</span> 2</button>
+</div>
+</div>
+<!-- Community Post 3 -->
+<div class="bg-surface-container-low rounded-lg p-5 hover:bg-surface-container transition-colors cursor-pointer border border-white/40">
+<div class="flex items-center gap-3 mb-3">
+<div class="w-8 h-8 rounded-full bg-zinc-300 overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="Professional student portrait, clean lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDcCG8PEnHzl_5b_lm8IczNwn_yNvylz9cSCz8PvTzVeUSmfhtERSpKOO23-R-CLLVYRdNj2wcZxljG6zwHe6Vco7oA_kqc0rwRrHzWYBAhp6JTNeqXdpLewjwVfB2Cm9w3wrqhmQd0-qPiOycPiXHdyzMJm6TlCQr6MtFgVrSHlhj1VGaVbSlbvWSjWHqKJUnXM33fSqOFO69yd-RTwt88H-YVRyDayIQScdjNjX3E7G5KKv0UkNkZOaJM28ajwqvv8758ipc-w"/>
+</div>
+<div>
+<p class="text-xs font-bold">Ankit Singh</p>
+<p class="text-[10px] text-on-surface-variant">1 hour ago • Hall 3</p>
+</div>
+</div>
+<p class="text-sm leading-relaxed mb-4">Found a pair of RayBans near the Mess. Please message me if they are yours!</p>
+<div class="flex gap-4">
+<button class="flex items-center gap-1 text-xs font-medium text-on-surface-variant"><span class="material-symbols-outlined text-sm">favorite</span> 24</button>
+<button class="flex items-center gap-1 text-xs font-medium text-on-surface-variant"><span class="material-symbols-outlined text-sm">chat_bubble</span> 11</button>
+</div>
+</div>
+</div>
+<!-- Right Column: Product Feed (Instagram Style) -->
+<div class="md:col-span-8">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-headline text-xl font-bold">Recent Listings</h3>
+</div>
+<div class="columns-1 sm:columns-2 gap-6 space-y-6">
+<!-- Product Card 1 -->
+<div class="break-inside-avoid bg-surface-container-lowest rounded-lg overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+<div class="relative">
+<img class="w-full h-auto" data-alt="High-quality noise cancelling headphones resting on a marble surface, premium product photography" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVDxRpa9q6qsIgH0USjwCOuXbKWjfTVdEEvH04F_eS-bRwPlpE0OIxAybq8mdO9f30fBQ4kUL03Oidl2Kp3FcEo5dii-UFxgARjcy74JMdkhh5u6ZWcf2jdWJemOEiyESi2vil-Wq9jQiyxZbdZDPC2a3e1bRFV0ECsjesdIMGmaOE62dQk7YGerstGg8A59ctGBo1nxE-toA4tFaH68eih0LTdncpMdOrlIQJDn7hza0t0aNQlMUKST9LXb9_Ybp7axxITD2p0Q"/>
+<div class="absolute top-4 right-4 w-10 h-10 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white">
+<span class="material-symbols-outlined">favorite</span>
+</div>
+</div>
+<div class="p-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="px-2 py-0.5 bg-tertiary-container text-on-tertiary-container text-[8px] font-bold rounded-full uppercase tracking-tighter">Mint Condition</span>
+<span class="text-on-surface-variant text-[10px] font-medium uppercase tracking-widest">Hall 1</span>
+</div>
+<h4 class="font-headline font-bold text-lg mb-1 leading-tight">Sony WH-1000XM4 Headphones</h4>
+<p class="text-primary font-black text-2xl">₹18,500</p>
+<div class="mt-4 pt-4 border-t border-surface-container-low flex items-center gap-3">
+<div class="w-6 h-6 rounded-full bg-zinc-200"></div>
+<span class="text-xs font-medium text-on-surface-variant italic">by Karthik Raja</span>
+</div>
+</div>
+</div>
+<!-- Product Card 2 -->
+<div class="break-inside-avoid bg-surface-container-lowest rounded-lg overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+<div class="relative">
+<img class="w-full h-auto" data-alt="Mechanical keyboard with vibrant RGB lighting on a gaming desk, cinematic focus" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-ARGdE9vqc_DNKT6HTavvBjTYp2POInQs22OwauoO_6-R9M6LNLXn_V774X1595SON8AVngKxU9NMSKD6im1n9kuqgzAfCNYCNsoANSOScYOJpXATZQHQudlATEZ3CiQSLzfceO6yW5Hh32_0poJDYc_9OUzxaynJKGLtW4gTg4BsYUzfl5pLk9QhrM85Id0OrtO_N3sGHSqE9f5YSeZcmFAeKTNCUkMKLVPC_klDX8I0Ihh9iCsBuCQXRqemnDUuiNZqvBUylw"/>
+</div>
+<div class="p-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="px-2 py-0.5 bg-secondary-container text-on-secondary-container text-[8px] font-bold rounded-full uppercase tracking-tighter">Hot Deal</span>
+<span class="text-on-surface-variant text-[10px] font-medium uppercase tracking-widest">Hall 3</span>
+</div>
+<h4 class="font-headline font-bold text-lg mb-1 leading-tight">Keychron K2 Mechanical Keyboard</h4>
+<p class="text-primary font-black text-2xl">₹6,200</p>
+</div>
+</div>
+<!-- Product Card 3 -->
+<div class="break-inside-avoid bg-surface-container-lowest rounded-lg overflow-hidden group hover:scale-[1.02] transition-transform duration-300">
+<div class="relative">
+<img class="w-full h-auto" data-alt="A small designer desk lamp with warm light, cozy dorm room aesthetic" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBqjgr2lPGHVvoefDKmHlH6v_0-YAywddWyt9j0uL2NPO_CjpaXS1ragLrSOKscJEgK7WnykYXq7c4ORbPaNc2nPuE9w_aDGjDTUkibV123ZUVSFn3hCHks81O1hYfBEyOIXEgOfsYAypMGuISaYUjYsUI0Pp0xWYJh2m2RyB9ytQBeeQG7ra4tqnBYkHtVn9t6uNVX16OnuAQ5ZPqyqjc7NZ4yTkoEBfyCPqIvx_sqJ1boshpQFFJUclqApsuHwgpjboa76R-EAA"/>
+</div>
+<div class="p-6">
+<div class="flex items-center gap-2 mb-3">
+<span class="text-on-surface-variant text-[10px] font-medium uppercase tracking-widest">Hall 2</span>
+</div>
+<h4 class="font-headline font-bold text-lg mb-1 leading-tight">Warm Desk Lamp (LED)</h4>
+<p class="text-primary font-black text-2xl">₹450</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-28 right-8 w-16 h-16 bg-gradient-to-br from-fuchsia-600 to-pink-500 text-on-primary rounded-full shadow-2xl flex items-center justify-center scale-100 hover:scale-110 active:scale-95 transition-transform z-40 group">
+<span class="material-symbols-outlined text-3xl font-bold">add</span>
+<span class="absolute right-full mr-4 px-4 py-2 bg-zinc-900 text-white text-xs font-bold rounded-xl opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">Sell Something</span>
+</button>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 left-0 w-full flex justify-around items-center px-4 pb-6 pt-4 bg-white/70 backdrop-blur-xl z-50 rounded-t-[3rem] shadow-[0_-10px_40px_rgba(0,0,0,0.04)] md:hidden">
+<a class="flex flex-col items-center justify-center text-pink-600 after:content-[''] after:w-1 after:h-1 after:bg-pink-600 after:rounded-full after:mt-1" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-medium uppercase tracking-widest font-body mt-1">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:text-fuchsia-500 transition-colors" href="#">
+<span class="material-symbols-outlined">explore</span>
+<span class="text-[10px] font-medium uppercase tracking-widest font-body mt-1">Discover</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:text-fuchsia-500 transition-colors" href="#">
+<span class="material-symbols-outlined">storefront</span>
+<span class="text-[10px] font-medium uppercase tracking-widest font-body mt-1">Market</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:text-fuchsia-500 transition-colors" href="#">
+<span class="material-symbols-outlined">groups</span>
+<span class="text-[10px] font-medium uppercase tracking-widest font-body mt-1">Community</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:text-fuchsia-500 transition-colors" href="#">
+<span class="material-symbols-outlined">chat_bubble</span>
+<span class="text-[10px] font-medium uppercase tracking-widest font-body mt-1">Chat</span>
+</a>
+<a class="flex flex-col items-center justify-center text-zinc-400 hover:text-fuchsia-500 transition-colors" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-medium uppercase tracking-widest font-body mt-1">Profile</span>
+</a>
+</nav>
+</body></html>
