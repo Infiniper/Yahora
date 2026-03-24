@@ -12,7 +12,7 @@
 }
 
 .brandName {
-  font-size: 2rem;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--white);
   margin-bottom: 1rem;
@@ -28,13 +28,13 @@
 h4 {
   color: var(--blue-light);
   margin-bottom: 1rem;
-  font-size: 1.1rem;
+  font-size: 0.1rem;
   font-weight: 600;
 }
 
 .footer p, .footer a, .footer li {
   color: var(--white);
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   line-height: 1.6;
   opacity: 0.9;
 }
@@ -68,7 +68,7 @@ li {
 .newsletter { 
   grid-area: newsletter; 
   text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
   padding-top: 2rem;
   margin-top: 1rem;
 }
@@ -76,7 +76,7 @@ li {
 .copyright { 
   grid-area: copyright;
   text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 1px solid rgba(255, 255, 255, 0.5);
   padding-top: 1.5rem;
   margin-top: 0.5rem;
 }
@@ -90,13 +90,13 @@ li {
 }
 
 .newsletterInput {
-  padding: 0.8rem 1rem;
+  padding: 0.4rem 0.8rem;
   border: none;
   border-radius: 8px;
   background-color: var(--white);
   color: var(--black);
   width: 300px;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
 }
 
 .newsletterInput:focus {
@@ -104,14 +104,14 @@ li {
 }
 
 .newsletterButton {
-  padding: 0.8rem 1.5rem;
+  padding: 0.5rem 1rem;
   border: none;
   border-radius: 8px;
   background-color: var(--purple-light);
   color: var(--white);
   cursor: pointer;
   font-weight: bold;
-  transition: background-color 0.2s ease-in-out;
+  transition: background-color 0.3s ease-in-out;
 }
 
 .newsletterButton:hover {
