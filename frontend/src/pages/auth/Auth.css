@@ -20,7 +20,7 @@
   position: relative;
   overflow-y: auto;
   /* Soft, distinct light background so the white card pops */
-  background: #f2e5e1; 
+  background: var(--pink-light); 
 }
 
 .auth-form-wrapper {

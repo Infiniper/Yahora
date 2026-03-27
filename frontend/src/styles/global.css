@@ -10,7 +10,8 @@
   /* Pink */
   --pink: #FF78A6;
   --pink-dark: #EB487F;
-  --pink-light: #FFB7CE;
+  --pink-light: ##f4e0e4;
+  --pink-bg: #fef4f6;
   --pink-emphasis: #300B15; 
 
   /* Blue */
@@ -22,7 +23,7 @@
   --black: #0B0B0B;
   --black-soft: #1A1A1A;
   --white: #FFFFFF;
-  --bg: #F8F9FB;
+  --bg: #f2e5e1;
 }
 
 
