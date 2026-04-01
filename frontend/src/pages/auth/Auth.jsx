@@ -56,9 +56,17 @@ const Auth = () => {
         },
       );
       const data = await response.json();
+      // Inside frontend/src/pages/auth/Auth.jsx -> handleVerifyOtp
+
       if (response.ok) {
         localStorage.setItem("yahora_session", data.session.access_token);
-        window.location.href = "/onboarding";
+
+        // NEW LOGIC: Route based on profile completion status
+        if (!data.userProfile.is_profile_complete) {
+          window.location.href = "/onboarding";
+        } else {
+          window.location.href = "/"; // Send straight to feed if complete
+        }
       } else {
         setMessage(data.message || "Invalid verification code.");
       }
@@ -82,9 +90,7 @@ const Auth = () => {
             Students-only marketplace — now launching
           </div>
 
-          <h1 className="gradient-heading">
-            Buy &amp; Sell on Your Campus.
-          </h1>
+          <h1 className="gradient-heading">Buy &amp; Sell on Your Campus.</h1>
 
           {/* Glass Form Card */}
           <div className="form-card">
@@ -191,7 +197,7 @@ const Auth = () => {
               <span className="coming-soon">Soon</span>
             </button>
             <button className="app-btn ios-btn">
-              <img src="/apple.svg" alt="apple"/>
+              <img src="/apple.svg" alt="apple" />
               iOS App
               <span className="coming-soon">Soon</span>
             </button>
