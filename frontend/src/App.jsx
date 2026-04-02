@@ -4,7 +4,7 @@ import Navbar from './components/navbar/navbar';
 import Footer from './components/footer/footer';
 import Auth from './pages/auth/Auth';
 import Home from './pages/Home/Home';
-import Onboarding from './pages/onboarding/Onboarding'; // Add this line
+import Onboarding from './pages/onboarding/onboarding'; // Add this line
 
 function App() {
   return (
