@@ -11,7 +11,7 @@ import {
   GraduationCap, 
   Award 
 } from "lucide-react";
-import styles from "./Onboarding.module.css";
+import styles from "./onboarding.module.css";
 
 const Onboarding = () => {
   const navigate = useNavigate();
