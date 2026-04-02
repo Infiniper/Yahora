@@ -117,16 +117,25 @@ export const verifyOtp = async (req, res) => {
 };
 
 // Onboarding Controller
+// Inside backend/src/modules/auth/auth.controller.js
+
 export const completeOnboarding = async (req, res) => {
     try {
-        // In a fully secured app, you'd extract userId from the JWT middleware.
-        // For MVP, Neeraj can send the userId in the body.
-        const { userId, full_name, avatar_url, department, year_of_study, bio } = req.body;
+        const { 
+            userId, 
+            full_name, 
+            avatar_url, 
+            qualification, 
+            course_id, 
+            year_of_study, 
+            specialization_id, 
+            bio 
+        } = req.body;
 
-        // 1. Validate required MVP fields
-        if (!userId || !full_name || !department || !year_of_study) {
+        // 1. Validate the new mandatory fields
+        if (!userId || !full_name || !qualification || !course_id || !year_of_study || !specialization_id) {
             return res.status(400).json({ 
-                error: 'Missing required fields. Name, department, and year of study are mandatory.' 
+                error: 'Missing required fields. Name, Qualification, Course, Year, and Specialization are mandatory.' 
             });
         }
 
@@ -139,22 +148,20 @@ export const completeOnboarding = async (req, res) => {
             .from('users')
             .update({
                 full_name,
-                avatar_url: avatar_url || null, // Optional
-                department,
-                year_of_study,
-                bio: bio || null, // Optional
-                is_profile_complete: true // Lock the onboarding!
+                avatar_url: avatar_url || null,
+                qualification, // Frontend string (e.g., 'Graduation')
+                course_id,     // UUID from the database
+                year_of_study, // Frontend string (e.g., '3rd year')
+                specialization_id, // UUID from the database
+                bio: bio || null,
+                is_profile_complete: true
             })
             .eq('id', userId)
             .select()
             .single();
 
-        if (updateError) {
-            console.error('Supabase Update Error:', updateError);
-            return res.status(500).json({ error: 'Failed to save profile data.' });
-        }
+        if (updateError) throw updateError;
 
-        // 3. Success response
         res.status(200).json({
             message: 'Profile completed successfully!',
             userProfile: updatedUser
