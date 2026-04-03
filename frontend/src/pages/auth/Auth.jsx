@@ -1,7 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./Auth.css";
 
 const Auth = () => {
+  const navigate = useNavigate();
   const [step, setStep] = useState(1); // 1: Email, 2: OTP
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -69,7 +71,7 @@ const Auth = () => {
             localStorage.setItem("yahora_user_id", userId);
         }
 
-        window.location.href = "/onboarding";
+        navigate("/onboarding"); 
       } else {
         setMessage(data.message || "Invalid verification code.");
       }
