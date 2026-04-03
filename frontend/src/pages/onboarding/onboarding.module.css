@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: center;
   background-color: var(--bg);
-  padding: 4rem 1rem;
+  padding: 2rem 1rem;
   position: relative;
   overflow: hidden;
 }
@@ -19,8 +19,7 @@
   border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 1.5rem;
   padding: 3rem;
-  width: 100%;
-  max-width: 650px;
+  width: 55%;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
   position: relative;
   z-index: 2;
@@ -44,9 +43,9 @@
 }
 
 .formSection {
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 1px solid rgba(0,0,0,0.05);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  /* border-bottom: 1px solid rgba(0,0,0,0.05); */
 }
 
 .formSection:last-of-type {
@@ -199,17 +198,36 @@
   font-size: 1.1rem;
 }
 
+
+/* 📱 Mobile (0 – 600px) */
 @media (max-width: 600px) {
   .inputRow {
     grid-template-columns: 1fr;
-    gap: 0;
+    gap: 0.5rem;
   }
+
   .onboardingCard {
-    padding: 2rem 1.5rem;
+    padding: 2.5rem 2.5rem;
+    width: 100%;
+  }
+}
+
+/* 📲 Tablet (601px – 1100px) */
+@media (min-width: 601px) and (max-width: 768px) {
+  .inputRow {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .onboardingCard {
+    padding: 2.5rem 2.5rem;
+    width: 85%;
+    margin: 0 auto; /* center align */
   }
 }
 
 /* --- BACKGROUND GLOW ORBS --- */
+/* 
 .glowOrb {
   position: absolute;
   border-radius: 50%;
@@ -233,8 +251,9 @@
   background: var(--pink-dark);
   bottom: -50px;
   right: -50px;
-  animation-delay: -3s; /* Desync the floating animation */
-} 
+  animation-delay: -3s; /* Desync the floating animation 
+}  
+*/
 
 @keyframes float {
   0%, 100% { transform: translateY(0); }
@@ -268,6 +287,10 @@
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 8px 20px rgba(128, 0, 128, 0.3);
+  width: 15rem;
+  display: block;
+  margin: 0.5rem auto; /* centers horizontally */
+
 }
 
 .btnPrimary:hover:not(:disabled) {
