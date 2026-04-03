@@ -1,5 +1,5 @@
 import express from 'express';
-import { requestOtp, verifyOtp } from './auth.controller.js';
+import { requestOtp, verifyOtp, completeOnboarding } from './auth.controller.js';
 
 const router = express.Router();
 
@@ -8,5 +8,8 @@ router.post('/request-otp', requestOtp);
 
 // POST /api/auth/verify-otp
 router.post('/verify-otp', verifyOtp);
+
+// POST /api/auth/onboarding
+router.post('/onboarding', completeOnboarding);
 
 export default router;

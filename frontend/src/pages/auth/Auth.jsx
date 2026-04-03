@@ -21,7 +21,7 @@ const Auth = () => {
     setMessage("");
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/request-otp",
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/request-otp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -48,7 +48,7 @@ const Auth = () => {
     setMessage("");
     try {
       const response = await fetch(
-        "http://localhost:5000/api/auth/verify-otp",
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/verify-otp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -59,14 +59,17 @@ const Auth = () => {
       // Inside frontend/src/pages/auth/Auth.jsx -> handleVerifyOtp
 
       if (response.ok) {
+        // Save the session token
         localStorage.setItem("yahora_session", data.session.access_token);
-
-        // NEW LOGIC: Route based on profile completion status
-        if (!data.userProfile.is_profile_complete) {
-          window.location.href = "/onboarding";
-        } else {
-          window.location.href = "/"; // Send straight to feed if complete
+        
+        // NEW: Save the User ID so Onboarding.jsx can send it to the backend
+        // We use || to catch it depending on how your backend named the user object
+        const userId = data.userProfile?.id || data.userAuth?.id || data.user?.id;
+        if (userId) {
+            localStorage.setItem("yahora_user_id", userId);
         }
+
+        window.location.href = "/onboarding";
       } else {
         setMessage(data.message || "Invalid verification code.");
       }

@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
-import authRoutes from './modules/auth/auth.routes.js'; // Import the new routes
+import authRoutes from './modules/auth/auth.routes.js'; 
+import academicRoutes from './modules/academic/academic.routes.js';
 
 const app = express();
 
@@ -16,7 +17,8 @@ app.get('/', (req, res) => {
     res.send('Yahora API is successfully running! 🚀...');
 });
 
-// Mount the authentication routes
 app.use('/api/auth', authRoutes);
+
+app.use('/api/academic', academicRoutes);
 
 export default app;

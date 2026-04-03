@@ -58,7 +58,7 @@ export const verifyOtp = async (req, res) => {
             return res.status(400).json({ error: 'Email and OTP are required' });
         }
 
-        // Ask Supabase to verify the token
+        // 1. Verify token with Supabase
         const { data, error } = await supabase.auth.verifyOtp({
             email,
             token: otp,
@@ -67,17 +67,108 @@ export const verifyOtp = async (req, res) => {
 
         if (error) throw error;
 
-        // At this point, the user is successfully logged in.
-        // We will add the Profile Creation/Onboarding logic here in the next step!
+        // 2. Extract domain and get university_id
+        const domain = email.split('@')[1];
+        const { data: university, error: uniError } = await supabase
+            .from('universities')
+            .select('id')
+            .eq('domain', domain)
+            .single();
 
+        if (uniError || !university) throw new Error('University not found for this domain.');
+
+        // 3. Check if user already exists in our public 'users' table
+        let { data: publicUser, error: userFetchError } = await supabase
+            .from('users')
+            .select('*')
+            .eq('id', data.user.id)
+            .single();
+
+        // 4. If they don't exist, this is their first time logging in. Create the base profile.
+        if (!publicUser) {
+            const { data: newUser, error: insertError } = await supabase
+                .from('users')
+                .insert([{ 
+                    id: data.user.id, 
+                    university_id: university.id,
+                    is_profile_complete: false // Explicitly set to false
+                }])
+                .select()
+                .single();
+
+            if (insertError) throw insertError;
+            publicUser = newUser;
+        }
+
+        // 5. Send response to frontend
+        // Neeraj will check `userProfile.is_profile_complete`. 
+        // If false, he routes them to /onboarding. If true, to /home.
         res.status(200).json({
             message: 'Authentication successful',
-            session: data.session, // Send the JWT token to the frontend
-            user: data.user
+            session: data.session, 
+            userAuth: data.user,
+            userProfile: publicUser 
         });
 
     } catch (error) {
         console.error('OTP Verify Error:', error);
         res.status(500).json({ error: 'Internal server error while verifying OTP.' });
+    }
+};
+
+// Onboarding Controller
+// Inside backend/src/modules/auth/auth.controller.js
+
+export const completeOnboarding = async (req, res) => {
+    try {
+        const { 
+            userId, 
+            full_name, 
+            avatar_url, 
+            qualification, 
+            course_id, 
+            year_of_study, 
+            specialization_id, 
+            bio 
+        } = req.body;
+
+        // 1. Validate the new mandatory fields
+        if (!userId || !full_name || !qualification || !course_id || !year_of_study || !specialization_id) {
+            return res.status(400).json({ 
+                error: 'Missing required fields. Name, Qualification, Course, Year, and Specialization are mandatory.' 
+            });
+        }
+
+        if (bio && bio.length > 250) {
+            return res.status(400).json({ error: 'Bio must be 250 characters or less.' });
+        }
+
+        // 2. Update the user record in Supabase
+        const { data: updatedUser, error: updateError } = await supabase
+            .from('users')
+            .update({
+                full_name,
+                avatar_url: avatar_url || null,
+                qualification, // Frontend string (e.g., 'Graduation')
+                course_id,     // UUID from the database
+                year_of_study, // Frontend string (e.g., '3rd year')
+                specialization_id, // UUID from the database
+                bio: bio || null,
+                is_profile_complete: true
+            })
+            .eq('id', userId)
+            .select()
+            .single();
+
+        if (updateError) throw updateError;
+
+        res.status(200).json({
+            message: 'Profile completed successfully!',
+            userProfile: updatedUser
+        });
+
+    } catch (error) {
+        console.error('Onboarding Error:', error);
+        res.status(500).json({ error: 'Internal server error during onboarding.' });
     }
 };

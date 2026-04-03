@@ -86,8 +86,6 @@ const MOCK_LISTINGS = [
       "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&q=80&w=800",
     seller: "Gyanendra Srivastava",
   },
-
-  // 🔥 NEW ITEM 3
   {
     id: 3,
     title: "IKEA Study Table + Chair Set",
@@ -99,8 +97,6 @@ const MOCK_LISTINGS = [
       "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=800",
     seller: "Dikhsha Prajapati",
   },
-
-  // 🔥 NEW ITEM 4
   {
     id: 4,
     title: "Hero Sprint Pro Bicycle",

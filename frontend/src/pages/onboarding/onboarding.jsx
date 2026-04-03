@@ -1,6 +1,5 @@
-// Onboarding JSX file
 // frontend/src/pages/onboarding/Onboarding.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
 import { 
@@ -10,9 +9,12 @@ import {
   ImagePlus, 
   Sparkles, 
   GraduationCap, 
-  Award 
+  Award,
+  Loader2 // Imported the loading spinner icon
 } from "lucide-react";
 import styles from "./onboarding.module.css";
+// IMPORT YOUR FRONTEND SUPABASE CLIENT
+import { supabase } from "../../config/supabaseClient.js"; 
 
 const Onboarding = () => {
   const navigate = useNavigate();
@@ -36,13 +38,17 @@ const Onboarding = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // NEW: State and Ref for Image Upload
+  const [uploadingImage, setUploadingImage] = useState(false);
+  const fileInputRef = useRef(null);
+
   // 3. Fetch Courses and Specializations on Mount
   useEffect(() => {
     const fetchAcademicData = async () => {
       try {
         const [coursesRes, specsRes] = await Promise.all([
-          fetch("http://localhost:5000/api/academic/courses"),
-          fetch("http://localhost:5000/api/academic/specializations")
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/academic/courses`),
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/academic/specializations`)
         ]);
 
         if (coursesRes.ok && specsRes.ok) {
@@ -74,6 +80,49 @@ const Onboarding = () => {
     setFormData((prev) => ({ ...prev, [actionMeta.name]: selectedOption.value }));
   };
 
+  // NEW: Handle Image Upload to Supabase Storage
+  const handleImageUpload = async (event) => {
+    try {
+      setError("");
+      const file = event.target.files[0];
+      if (!file) return;
+
+      // Basic validation (limit to 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setError("Image size must be less than 5MB.");
+        return;
+      }
+
+      setUploadingImage(true);
+
+      // Create a unique file name to prevent overwriting (e.g., profiles/16839213-abc123.jpg)
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      const filePath = `profiles/${fileName}`; 
+
+      // Upload to Supabase Storage (in the 'avatars' bucket)
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      // Get the Public URL to display and save to database
+      const { data: publicUrlData } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update state with the new image URL
+      setFormData((prev) => ({ ...prev, avatarUrl: publicUrlData.publicUrl }));
+
+    } catch (error) {
+      console.error("Upload error:", error);
+      setError("Failed to upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
@@ -96,7 +145,7 @@ const Onboarding = () => {
       const token = localStorage.getItem("yahora_session"); 
       const userId = localStorage.getItem("yahora_user_id") || "replace-with-actual-uuid"; 
       
-      const response = await fetch("http://localhost:5000/api/auth/onboarding", {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/onboarding`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -105,7 +154,7 @@ const Onboarding = () => {
         body: JSON.stringify({
           userId: userId, 
           full_name: formData.fullName,
-          avatar_url: formData.avatarUrl,
+          avatar_url: formData.avatarUrl, // This will now securely save the Supabase URL
           qualification: formData.qualification,
           course_id: formData.courseId,
           year_of_study: formData.yearOfStudy,
@@ -198,15 +247,35 @@ const Onboarding = () => {
             
             <div className={styles.avatarUploadWrapper}>
               <div className={styles.avatarPreview}>
+                {/* Dynamically show the loader, the uploaded image, or the default placeholder */}
                 {formData.avatarUrl ? (
-                  <img src={formData.avatarUrl} alt="Profile preview" />
+                  <img src={formData.avatarUrl} alt="Profile preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                ) : uploadingImage ? (
+                  <Loader2 size={40} color="#888" style={{ animation: "spin 1s linear infinite" }} />
                 ) : (
                   <User size={40} color="#888" />
                 )}
               </div>
               <div className={styles.avatarActions}>
-                <button type="button" className={`${styles.cuteBtn} ${styles.avatarBtn}`}>
-                  <ImagePlus size={16} /> Upload Photo (Optional)
+                
+                {/* HIDDEN INPUT FOR FILE UPLOAD */}
+                <input 
+                  type="file" 
+                  accept="image/png, image/jpeg, image/webp"
+                  style={{ display: "none" }}
+                  ref={fileInputRef}
+                  onChange={handleImageUpload}
+                  disabled={uploadingImage}
+                />
+
+                {/* BUTTON TO TRIGGER HIDDEN INPUT */}
+                <button 
+                  type="button" 
+                  className={`${styles.cuteBtn} ${styles.avatarBtn}`}
+                  onClick={() => fileInputRef.current.click()}
+                  disabled={uploadingImage}
+                >
+                  <ImagePlus size={16} /> {uploadingImage ? "Uploading..." : "Upload Photo (Optional)"}
                 </button>
                 <p className={styles.helperText}>A real photo builds trust.</p>
               </div>
@@ -219,7 +288,7 @@ const Onboarding = () => {
                 <input
                   type="text"
                   name="fullName"
-                  placeholder="e.g., Anmol Singh"
+                  placeholder="Enter Your Name"
                   value={formData.fullName}
                   onChange={handleChange}
                   required
@@ -254,7 +323,7 @@ const Onboarding = () => {
               </div>
 
               <div className={styles.inputGroup}>
-                <label>COURSE <span className={styles.required}>*</span></label>
+                <label>COURSE (Select 'Others' if not listed) <span className={styles.required}>*</span></label>
                 <div style={{ position: 'relative', zIndex: 50 }}>
                   <Select
                     name="courseId"
@@ -291,7 +360,7 @@ const Onboarding = () => {
               </div>
 
               <div className={styles.inputGroup}>
-                <label>SPECIALIZATION <span className={styles.required}>*</span></label>
+                <label>SPECIALIZATION (Select 'Others' if not listed)<span className={styles.required}>*</span></label>
                 <div style={{ position: 'relative', zIndex: 40 }}>
                   <Select
                     name="specializationId"
