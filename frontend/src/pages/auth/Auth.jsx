@@ -66,15 +66,22 @@ const Auth = () => {
         // Save the session token
         localStorage.setItem("yahora_session", data.session.access_token);
 
-        // NEW: Save the User ID so Onboarding.jsx can send it to the backend
-        // We use || to catch it depending on how your backend named the user object
+        // Save the User ID so Onboarding.jsx (or other pages) can send it to the backend
         const userId =
           data.userProfile?.id || data.userAuth?.id || data.user?.id;
         if (userId) {
           localStorage.setItem("yahora_user_id", userId);
         }
 
-        navigate("/onboarding");
+        // --- NEW CONDITIONAL REDIRECT LOGIC ---
+        // If the profile is already complete, send them to the dashboard/home.
+        // Otherwise, send them to the onboarding page.
+        if (data.userProfile && data.userProfile.is_profile_complete) {
+          navigate("/dashboard"); // or "/" if you want to send them to the home feed first
+        } else {
+          navigate("/onboarding");
+        }
+        
       } else {
         setMessage(data.message || "Invalid verification code.");
       }
