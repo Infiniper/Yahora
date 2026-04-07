@@ -1,7 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes.js'; 
-import academicRoutes from './modules/academic/academic.routes.js';
+import academicRoutes from './modules/academic/academic.routes.js';import universityRoutes from './modules/university/university.routes.js'; 
+import userRoutes from './modules/user/user.routes.js';
 
 const app = express();
 
@@ -18,7 +19,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
-
 app.use('/api/academic', academicRoutes);
+app.use('/api/universities', universityRoutes);
+app.use('/api/user', userRoutes);
 
 export default app;
