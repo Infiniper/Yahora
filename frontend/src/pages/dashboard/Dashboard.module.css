@@ -1,0 +1,374 @@
+/* frontend/src/pages/dashboard/Dashboard.module.css */
+
+.dashboardContainer {
+  min-height: 100vh;
+  background-color: var(--bg);
+  padding-bottom: 4rem;
+}
+
+/* --- BANNER --- */
+.banner {
+  width: 100%;
+  height: 280px;
+  background: linear-gradient(135deg, var(--purple-dark) 0%, var(--pink-dark) 100%);
+  position: relative;
+  transition: height 0.4s ease;
+}
+
+/* --- LAYOUT GRID --- */
+.dashboardLayout {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 2.5rem;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  position: relative;
+  align-items: start; /* Crucial for sticky to work */
+}
+
+/* --- LEFT COLUMN (d2 Sticky Sidebar) --- */
+.profileSidebar {
+  position: sticky;
+  top: 100px; /* Sticks 100px from top when scrolled */
+  margin-top: -120px; /* Pulls it up over the banner (d1 look) */
+  transition: margin-top 0.4s ease;
+  z-index: 10;
+}
+
+.profileCard {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 1.5rem;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  transition: all 0.4s ease;
+}
+
+/* --- AVATAR --- */
+.avatarWrapper {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+}
+
+.avatarContainer {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  border-radius: 50%;
+  padding: 6px;
+  background: white;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.1);
+  transition: all 0.4s ease;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.editAvatarBtn {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--purple);
+  color: white;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(128, 0, 128, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.editAvatarBtn:hover {
+  transform: scale(1.1);
+  background: var(--pink-dark);
+}
+
+/* --- USER INFO --- */
+.userName {
+  font-family: 'Bree Serif', serif;
+  font-size: 2.2rem;
+  color: var(--black);
+  margin: 0;
+  text-align: center;
+  transition: font-size 0.4s ease;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.bioSection {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  background: var(--pink-bg);
+  padding: 1rem;
+  border-radius: 1rem;
+}
+
+.bioText {
+  font-size: 0.9rem;
+  color: var(--black-soft);
+  line-height: 1.5;
+  margin: 0;
+  flex: 1;
+}
+
+.divider {
+  border: none;
+  border-top: 1px solid #eaeaea;
+  margin: 2rem 0;
+}
+
+/* --- ACADEMIC GRID --- */
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.sectionHeader h3 {
+  font-family: 'Inter', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--purple-dark);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+}
+
+.academicGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.academicItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.academicIcon {
+  color: var(--pink-dark);
+  flex-shrink: 0;
+}
+
+.label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #888;
+  margin-bottom: 0.2rem;
+}
+
+.value {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--black-soft);
+  font-weight: 500;
+}
+
+.iconBtn {
+  background: transparent;
+  border: none;
+  color: #aaa;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+.iconBtn:hover {
+  color: var(--purple);
+  background: var(--pink-bg);
+}
+
+/* --- THE SCROLLED ANIMATION (d1 -> d2) --- */
+.scrolled .profileCard {
+  padding: 1.5rem; /* Shrinks padding */
+}
+
+.scrolled .avatarContainer {
+  width: 100px; /* Shrinks Avatar smoothly */
+  height: 100px;
+}
+
+.scrolled .userName {
+  font-size: 1.5rem; /* Shrinks Name */
+}
+
+
+/* --- RIGHT COLUMN (Tabs & Content) --- */
+.dashboardMain {
+  margin-top: 2rem;
+}
+
+.tabsContainer {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #eaeaea;
+  padding-bottom: 1px;
+}
+
+.tabBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+  border: none;
+  padding: 1rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #888;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.tabBtn::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: var(--purple);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
+}
+
+.tabBtn.activeTab {
+  color: var(--purple-dark);
+}
+
+.tabBtn.activeTab::after {
+  transform: scaleX(1);
+}
+
+.badge {
+  background: var(--pink-bg);
+  color: var(--pink-dark);
+  font-size: 0.75rem;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* --- PRODUCTS GRID --- */
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.productCard {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.04);
+  border: 1px solid #eaeaea;
+  transition: transform 0.3s ease;
+}
+
+.productCard:hover {
+  transform: translateY(-5px);
+}
+
+.productImageWrapper {
+  position: relative;
+  height: 200px;
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.activeBadge, .soldBadge, .purchasedBadge {
+  position: absolute;
+  top: 1rem;
+  left: 1rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 2rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: white;
+}
+
+.activeBadge { background: #10B981; }
+.soldBadge { background: #6B7280; }
+.purchasedBadge { background: var(--blue); }
+
+.productInfo {
+  padding: 1.5rem;
+}
+
+.productInfo h4 {
+  margin: 0 0 0.5rem 0;
+  font-family: 'Inter', sans-serif;
+  color: var(--black);
+}
+
+.price {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--purple);
+  margin: 0 0 1rem 0;
+}
+
+.date {
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.editBtn {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--purple);
+  background: transparent;
+  color: var(--purple);
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.editBtn:hover {
+  background: var(--purple-light);
+  color: white;
+}
+
+/* --- RESPONSIVE DESIGN (Mobile & Tablets) --- */
+@media (max-width: 968px) {
+  .dashboardLayout {
+    grid-template-columns: 1fr; /* Stacks column on top of each other */
+    padding: 0 1rem;
+  }
+  
+  .profileSidebar {
+    position: static; /* Removes sticky behavior on mobile */
+    margin-top: -80px;
+  }
+  
+  .dashboardMain {
+    margin-top: 0;
+  }
+}
