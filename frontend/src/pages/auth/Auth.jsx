@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import UniversityModal from "../../components/modal/UniversityModal";
 import "./Auth.css";
 
 const Auth = () => {
@@ -10,6 +11,7 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const videoRef = useRef(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -63,15 +65,16 @@ const Auth = () => {
       if (response.ok) {
         // Save the session token
         localStorage.setItem("yahora_session", data.session.access_token);
-        
+
         // NEW: Save the User ID so Onboarding.jsx can send it to the backend
         // We use || to catch it depending on how your backend named the user object
-        const userId = data.userProfile?.id || data.userAuth?.id || data.user?.id;
+        const userId =
+          data.userProfile?.id || data.userAuth?.id || data.user?.id;
         if (userId) {
-            localStorage.setItem("yahora_user_id", userId);
+          localStorage.setItem("yahora_user_id", userId);
         }
 
-        navigate("/onboarding"); 
+        navigate("/onboarding");
       } else {
         setMessage(data.message || "Invalid verification code.");
       }
@@ -141,10 +144,19 @@ const Auth = () => {
                 {message && <p className="form-message error">{message}</p>}
 
                 <div className="text-center mt-2">
-                  <button type="button" className="cute-btn">
+                  <button
+                    type="button"
+                    className="cute-btn"
+                    onClick={() => setIsModalOpen(true)}
+                  >
                     See Supported Universities
                   </button>
                 </div>
+                {/* Render the university modal */}
+                <UniversityModal
+                  isOpen={isModalOpen}
+                  onClose={() => setIsModalOpen(false)}
+                />
               </form>
             ) : (
               <form onSubmit={handleVerifyOtp}>
