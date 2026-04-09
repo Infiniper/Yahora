@@ -166,7 +166,7 @@ const Onboarding = () => {
       const data = await response.json();
 
       if (response.ok) {
-        navigate("/");
+        navigate("/dashboard"); // Now beautifully routes to their new profile!
       } else {
         setError(data.error || data.message || "Failed to save profile.");
       }

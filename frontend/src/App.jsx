@@ -5,6 +5,7 @@ import Footer from './components/footer/footer';
 import Auth from './pages/auth/Auth';
 import Home from './pages/Home/Home';
 import Onboarding from './pages/onboarding/onboarding'; // Add this line
+import Dashboard from './pages/dashboard/Dashboard';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
           <Route path="/hot" element={<div className="container mt-4"><h3>Hot Items on Campus</h3></div>} />
           <Route path="/messages" element={<div className="container mt-4"><h3>Direct Messaging</h3></div>} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/dashboard" element={<Dashboard />} />
         </Routes>
       </main>
 
