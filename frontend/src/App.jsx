@@ -24,7 +24,8 @@ function App() {
         </Routes>
       </main>
 
-      <Footer />
+      {/* Conditionally hide the footer ONLY on the dashboard */}
+      {location.pathname !== '/dashboard' && <Footer />}
     </div>
   );
 }

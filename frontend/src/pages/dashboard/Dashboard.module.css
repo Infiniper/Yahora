@@ -1,244 +1,357 @@
 /* frontend/src/pages/dashboard/Dashboard.module.css */
 
-/* ──────────────── Loading ──────────────── */
-.loading {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  height: 100vh; gap: 16px; color: var(--purple);
-  font-family: 'Bree Serif', serif; font-size: 1.1rem;
+/* ══════════════════════════════════════════════
+   ANIMATION KEYFRAMES
+   Defined first so they can be referenced anywhere below.
+══════════════════════════════════════════════ */
+
+/* Hero: staggered children entrance */
+@keyframes heroItemIn {
+  from { opacity: 0; transform: translateY(32px); }
+  to   { opacity: 1; transform: translateY(0);    }
 }
 
-.spinner {
-  width: 36px; height: 36px;
-  border: 3px solid var(--pink-light);
-  border-top-color: var(--purple);
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
+/* Hero: exit — the whole view collapses upward, blurs, and vanishes */
+@keyframes heroExit {
+  0%   { opacity: 1; transform: scale(1)    translateY(0);    filter: blur(0);    }
+  100% { opacity: 0; transform: scale(0.91) translateY(-52px); filter: blur(12px); }
 }
 
+/* Colour-wash overlay: soft gradient flash bridging the two UIs */
+@keyframes overlayFlash {
+  0%   { opacity: 0; }
+  38%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+/* Dashboard sidebar: slides in from the left */
+@keyframes sidebarIn {
+  from { opacity: 0; transform: translateX(-52px); }
+  to   { opacity: 1; transform: translateX(0);     }
+}
+
+/* Dashboard main content: slides in from the right */
+@keyframes contentIn {
+  from { opacity: 0; transform: translateX(52px); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+/* Sidebar children: stagger fade-up
+   (opacity only — transform on sidebar parent is enough;
+   keeping children opacity-only means their hover effects stay intact) */
+@keyframes sidebarChildIn {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* Grid items: opacity only — cards have hover transform:translateY(-4px)
+   Animating transform here would lock that CSS property after fill-mode
+   and silently break the hover. Opacity is safe because cards have no
+   opacity hover effect. */
+@keyframes cardFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* Tab content grid: fade in on every tab switch */
+@keyframes gridIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0);    }
+}
+
+/* FAB: spring pop with rotation */
+@keyframes fabPop {
+  0%   { opacity: 0; transform: scale(0)    rotate(-180deg); }
+  60%  { opacity: 1; transform: scale(1.15) rotate(8deg);    }
+  100% { opacity: 1; transform: scale(1)    rotate(0deg);    }
+}
+
+/* Loading spinner */
 @keyframes spin { to { transform: rotate(360deg); } }
 
-/* ──────────────── Dashboard Root ──────────────── */
-.dash {
-  position: fixed; /* sticky during transition */
-  top: 0; left: 0; right: 0; bottom: 0;
-  overflow: hidden;
-  pointer-events: none; /* let scroll pass through */
+/* ══════════════════════════════════════════════
+   LOADING STATE
+══════════════════════════════════════════════ */
+.loading {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  height: 80vh; gap: 16px; color: var(--purple);
+  font-family: 'Bree Serif', serif; font-size: 1.1rem;
+}
+.spinner {
+  width: 40px; height: 40px;
+  border: 4px solid var(--pink-light);
+  border-top-color: var(--purple);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
 }
 
-.dashInner {
-  pointer-events: all;
-  width: 100%; height: 100%;
+/* ══════════════════════════════════════════════
+   DASHBOARD ROOT
+══════════════════════════════════════════════ */
+.dashboardRoot {
   position: relative;
+  width: 100%;
+  background: var(--bg);
+  /* No min-height here — heroView controls its own height,
+     dashView grows naturally with content.               */
 }
 
-.scrollSentinel {
-  position: absolute;
-  top: 0; left: 0; width: 1px; height: 260px;
+/* ══════════════════════════════════════════════
+   TRANSITION OVERLAY
+   Covers the full viewport with a warm gradient
+   flash that acts as a cinematic cut point.
+══════════════════════════════════════════════ */
+.transitionOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
   pointer-events: none;
+  background: linear-gradient(135deg, #FFF4F7 0%, #ffffff 50%, #F8F0FF 100%);
+  animation: overlayFlash 0.48s cubic-bezier(0.4, 0, 0.6, 1) both;
 }
 
-.content {
-  position: fixed;
-  top: 0; left: 0; right: 0;
-  height: 100dvh;
-  display: grid;
-}
-
-/* ──────────────── TOP NAV ──────────────── */
-.nav {
-  position: fixed; top: 0; left: 0; right: 0;
-  z-index: 100;
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 32px;
-  background: transparent;
-}
-
-.navBrand {
-  font-family: 'Bree Serif', serif;
-  font-size: 1.5rem;
-  background: linear-gradient(135deg, var(--purple), var(--pink-dark));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  letter-spacing: -0.5px;
-}
-
-.navActions { display: flex; gap: 10px; }
-
-.iconBtn {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(8px);
-  border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  color: #666;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.1);
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
-}
-
-.iconBtn:hover { background: white; color: var(--purple); transform: translateY(-1px); }
-
-/* ──────────────── HERO SECTION (d1) ──────────────── */
-.hero {
-  position: fixed;
-  top: 0; left: 0; right: 0;
+/* ══════════════════════════════════════════════
+   UI 1 — HERO VIEW
+   Normal document flow (NOT position:fixed).
+   Takes up the full visible viewport below the navbar.
+══════════════════════════════════════════════ */
+.heroView {
+  min-height: calc(100vh - 4.5rem); /* 4.5 rem = navbar height */
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  padding-top: 80px;
-  padding-inline: 24px;
-  transition: none; /* managed via JS */
+  justify-content: center;
+  gap: 32px;
+  padding: 40px 24px 60px;
 }
 
+/* ── Hero exit animation ──
+   Applied by adding the heroExiting class.
+   !important overrides any fill-mode still running on children. */
+.heroExiting {
+  animation: heroExit 0.44s cubic-bezier(0.55, 0, 1, 0.45) forwards !important;
+  pointer-events: none;
+}
+
+/* ── Hero children — staggered entrance ──
+   Only animate opacity + translateY on containers that have no
+   direct hover-transform effects of their own.              */
 .heroHeader {
   display: flex;
+  flex-direction: row;
   align-items: center;
-  gap: 32px;
-  width: 100%;
-  max-width: 860px;
-  background: white;
-  border-radius: 24px;
-  padding: 28px 36px;
-  box-shadow: 0 4px 28px rgba(0,0,0,0.07);
-  position: relative;
-}
-
-.heroText { flex: 1; }
-
-.heroEyebrow {
-  font-size: 0.7rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--pink-dark);
-  font-weight: 700;
-  margin-bottom: 6px;
-}
-
-.heroGreeting {
-  font-family: 'Bree Serif', serif;
-  font-size: clamp(1.4rem, 2.5vw, 1.85rem);
-  color: var(--black-soft);
-  margin-bottom: 8px;
-}
-
-.heroSub {
-  font-size: 0.9rem;
-  color: #777;
-  line-height: 1.5;
-}
-
-.heroIcons {
-  display: flex; flex-direction: column; gap: 10px;
-  margin-left: auto;
+  gap: 55px;
+  width: 75%;
+  /* Stagger slot 1 */
+  animation: heroItemIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
 }
 
 .heroCards {
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 18px;
-  width: 100%;
-  max-width: 860px;
-  margin-top: 18px;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 24px;
+  width: 75%;
+  /* Stagger slot 2 */
+  animation: heroItemIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
 }
 
-@media (max-width: 680px) {
-  .heroCards { grid-template-columns: 1fr; }
-  .heroHeader { flex-direction: column; text-align: center; padding: 20px; }
-  .heroIcons { flex-direction: row; margin: 0 auto; }
+/* sellBtn has a hover transform (translateY(-5px)), so we animate
+   only opacity here to avoid locking the transform property.   */
+.sellBtn {
+  display: block;
+  width: 190px;
+  padding: 10px 0;
+  border-radius: 99px;
+  border: none;
+  cursor: pointer;
+  background: linear-gradient(135deg, var(--purple), var(--pink-dark));
+  color: white;
+  font-family: 'Bree Serif', serif;
+  font-size: 1.1rem;
+  letter-spacing: 0.03em;
+  box-shadow: 0 8px 30px rgba(128, 0, 128, 0.30);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  /* Stagger slot 3 — opacity only */
+  animation: cardFadeIn 0.55s ease 0.32s both;
+}
+.sellBtn:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(128, 0, 128, 0.40);
 }
 
-/* ── Academic Card ── */
-.academicCard {
+/* ── Hero typography ── */
+.heroText { display: flex; flex-direction: column; align-items: center; text-align: center; }
+
+.heroEyebrow {
+  font-size: 0.8rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--pink-dark);
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+.heroGreeting {
+  font-family: 'Bree Serif', serif;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+  color: var(--black-soft);
+  margin-bottom: 8px;
+  line-height: 1.1;
+}
+.heroSub {
+  font-size: 1.05rem;
+  color: #666;
+  max-width: 400px;
+  line-height: 1.5;
+}
+
+/* ── Hero icon buttons ── */
+.heroIcons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-left: auto;
+}
+.iconBtn {
+  width: 48px; height: 48px;
+  border-radius: 50%;
   background: white;
-  border-radius: 20px;
-  padding: 24px 28px;
-  box-shadow: 0 4px 28px rgba(0,0,0,0.07);
+  border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  color: #666;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+.iconBtn:hover {
+  color: var(--purple);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.10);
 }
 
-.cardTitleRow {
+/* ── Hero info cards ── */
+.academicCard,
+.bioCard {
+  background: white;
+  border-radius: 24px;
+  padding: 32px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+}
+.cardTitleRow,
+.bioCardHead {
   display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 12px;
 }
-
 .sectionTitle {
   font-family: 'Bree Serif', serif;
-  font-size: 1.15rem;
+  font-size: 1.3rem;
   color: var(--black-soft);
 }
-
-.updateBtn {
-  display: flex; align-items: center; gap: 6px;
-  background: none; border: none; cursor: pointer;
-  color: var(--purple);
-  font-size: 0.82rem; font-weight: 600;
-  padding: 6px 10px; border-radius: 8px;
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
-}
-
-.updateBtn:hover { background: var(--pink-light); }
-
 .acadGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 22px 32px;
+  gap: 24px 32px;
 }
-
 .acadLabel {
-  font-size: 0.67rem;
-  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
   color: #aaa;
-  margin-bottom: 4px;
+  margin-bottom: 6px;
+  font-weight: 700;
 }
-
 .acadValue {
-  font-size: 1rem;
+  font-size: 1.1rem;
   font-weight: 600;
   color: var(--black-soft);
 }
+.bioText {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.7;
+  font-style: italic;
+  margin-bottom: 16px;
+}
+.tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag {
+  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+  padding: 6px 14px; border-radius: 99px; border: 1.5px solid #e0e0e0;
+  color: #555; text-transform: uppercase;
+}
 
-/* ── Bio Card ── */
-.bioCard {
-  background: white;
-  border-radius: 20px;
-  padding: 24px 28px;
-  box-shadow: 0 4px 28px rgba(0,0,0,0.07);
+/* ══════════════════════════════════════════════
+   UI 2 — DASHBOARD / SPLIT VIEW
+   Both sidebar and mainContent slide in from
+   opposite sides using independent animations.
+══════════════════════════════════════════════ */
+.dashView {
+  display: flex;
+  gap: 48px;
+  max-width: 1240px;
+  margin: 0 3%;
+  padding: 40px 24px 80px;
+  /* The dashView container itself fades in instantly;
+     the cinematic entrance is handled by its children. */
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 340px;
+  flex-shrink: 0;
+  position: sticky;
+  top: 100px;
+  height: max-content;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 20px;
+  padding-bottom: 24px;
+  /* Entrance: slides in from the left */
+  animation: sidebarIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.bioCardHead {
-  display: flex; align-items: center; justify-content: space-between;
+/* Sidebar children stagger (opacity + small translateY) */
+.sidebarProfileCard {
+  background: white;
+  border-radius: 24px;
+  padding: 32px 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  animation: sidebarChildIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
 }
-
-.bioText {
-  font-size: 0.88rem;
-  color: #555;
-  line-height: 1.65;
-  font-style: italic;
+.sidebarDetailsCard {
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  animation: sidebarChildIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.20s both;
 }
-
-.tags { display: flex; flex-wrap: wrap; gap: 8px; }
-
-.tag {
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  padding: 4px 12px;
-  border-radius: 99px;
-  border: 1.5px solid #e0e0e0;
-  color: #555;
-  text-transform: uppercase;
+.listNewCard {
+  background: white;
+  border-radius: 24px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  border: 2px dashed #e8e0e8;
+  transition: border-color 0.25s ease, background 0.25s ease;
+  animation: sidebarChildIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both;
 }
+.listNewCard:hover { border-color: var(--purple); background: var(--pink-light); }
 
-/* Sell CTA */
-.sellBtn {
-  display: block;
-  width: 280px;
-  margin: 20px auto 0;
-  padding: 16px 0;
+.sidebarActions {
+  display: flex;
+  gap: 12px;
+  margin-top: 8px;
+  animation: sidebarChildIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.36s both;
+}
+.completeBtn {
+  width: 100%;
+  padding: 16px;
   border-radius: 99px;
   border: none;
   cursor: pointer;
@@ -246,379 +359,279 @@
   color: white;
   font-family: 'Bree Serif', serif;
   font-size: 1rem;
-  letter-spacing: 0.03em;
-  box-shadow: 0 6px 24px rgba(128,0,128,0.30);
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 6px 20px rgba(128, 0, 128, 0.25);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  animation: sidebarChildIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
 }
+.completeBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(128, 0, 128, 0.35); }
 
-.sellBtn:hover { transform: translateY(-2px); box-shadow: 0 10px 32px rgba(128,0,128,0.35); }
-
-/* ──────────────── SPLIT LAYOUT (d2) ──────────────── */
-.split {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  display: flex;
-  gap: 0;
-  pointer-events: none;
-}
-
-/* LEFT SIDEBAR */
-.sidebar {
-  width: 320px;
-  flex-shrink: 0;
-  height: 100dvh;
-  overflow-y: auto;
-  padding: 72px 20px 32px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  scrollbar-width: none;
-  pointer-events: all;
-}
-
-.sidebar::-webkit-scrollbar { display: none; }
-
-.sidebarProfileCard {
-  background: white;
-  border-radius: 20px;
-  padding: 24px;
-  box-shadow: 0 4px 28px rgba(0,0,0,0.07);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 10px;
-  text-align: center;
-}
-
+/* Sidebar profile text */
 .sidebarName {
   font-family: 'Bree Serif', serif;
-  font-size: 1.25rem;
+  font-size: 1.5rem;
   color: var(--black-soft);
-  margin-top: 4px;
+  margin-top: 16px;
+  margin-bottom: 6px;
 }
-
 .sidebarUni {
-  display: flex; align-items: center; gap: 6px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
   color: var(--purple);
-  font-size: 0.82rem; font-weight: 600;
+  font-size: 0.9rem; font-weight: 600;
 }
-
-.sidebarUniDot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  background: var(--purple);
-  flex-shrink: 0;
-}
-
+.sidebarUniDot { width: 8px; height: 8px; border-radius: 50%; background: var(--purple); }
 .sidebarBio {
-  font-size: 0.82rem; color: #666; line-height: 1.6;
-  text-align: left; width: 100%;
-  margin-top: 6px;
-  padding-top: 12px;
-  border-top: 1px solid #f0f0f0;
+  width: 100%; margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid #f0f0f0; text-align: left;
 }
 
-.sidebarBioLabel {
-  font-size: 0.65rem; letter-spacing: 0.1em;
-  text-transform: uppercase; color: #aaa;
-  margin-bottom: 4px; font-weight: 700;
-}
-
-/* detail pills */
-.detailRow {
-  display: flex; flex-direction: column; gap: 8px; width: 100%;
-}
-
-.detailPill {
-  background: #f8f5f7;
-  border-radius: 12px;
-  padding: 10px 14px;
-}
-
+/* Sidebar detail pills */
+.detailRow { display: flex; flex-direction: column; gap: 12px; }
+.detailPill { background: #f8f5f7; border-radius: 16px; padding: 14px 18px; }
 .detailPillLabel {
-  font-size: 0.63rem; letter-spacing: 0.1em;
-  text-transform: uppercase; color: #aaa;
-  margin-bottom: 2px; font-weight: 700;
+  font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: #999; margin-bottom: 4px; font-weight: 700;
 }
+.detailPillValue { font-size: 0.95rem; font-weight: 600; color: var(--black-soft); }
+.yearSpecRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-.detailPillValue {
-  font-size: 0.88rem; font-weight: 600; color: var(--black-soft);
-}
-
-.yearSpecRow { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-
-.completeBtn {
-  width: 100%;
-  padding: 14px;
-  border-radius: 99px;
-  border: none; cursor: pointer;
-  background: linear-gradient(135deg, var(--purple), var(--pink-dark));
-  color: white;
-  font-family: 'Bree Serif', serif;
-  font-size: 0.95rem;
-  box-shadow: 0 4px 18px rgba(128,0,128,0.25);
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
-  margin-top: 4px;
-}
-
-.completeBtn:hover { opacity: 0.9; transform: translateY(-1px); }
-
-.listNewCard {
-  background: white;
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 4px 28px rgba(0,0,0,0.07);
-  display: flex; flex-direction: column;
-  align-items: center; gap: 8px;
-  cursor: pointer;
-  border: 2px dashed #e8e0e8;
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
-}
-
-.listNewCard:hover { border-color: var(--purple); }
-
+/* Sidebar "list new" internals */
 .listNewIcon {
-  width: 40px; height: 40px; border-radius: 50%;
-  background: var(--pink-light);
+  width: 50px; height: 50px;
+  border-radius: 50%;
+  background: white;
   display: flex; align-items: center; justify-content: center;
   color: var(--purple);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
+.listNewTitle { font-weight: 700; font-size: 1rem; color: var(--black-soft); }
+.listNewSub   { font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; }
 
-.listNewTitle { font-weight: 600; font-size: 0.9rem; color: var(--black-soft); }
-.listNewSub { font-size: 0.72rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; }
-
-.sidebarActions {
-  display: flex; gap: 10px;
-  margin-top: 4px;
-}
-
+/* Sidebar icon buttons */
 .sidebarIconBtn {
-  flex: 1;
-  height: 44px;
-  border-radius: 12px;
+  flex: 1; height: 54px;
+  border-radius: 20px;
   background: white;
   border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: #777;
-  box-shadow: 0 4px 28px rgba(0,0,0,0.07);
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  transition: color 0.25s ease, transform 0.25s ease, box-shadow 0.25s ease;
+}
+.sidebarIconBtn:hover {
+  color: var(--purple);
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.10);
 }
 
-.sidebarIconBtn:hover { color: var(--purple); }
-
-/* RIGHT CONTENT PANEL */
+/* ── Main Content ── */
 .mainContent {
   flex: 1;
-  height: 100dvh;
-  overflow-y: auto;
-  padding: 72px 24px 40px;
-  scrollbar-width: thin;
-  scrollbar-color: #ddd transparent;
-  pointer-events: all;
+  /* Entrance: slides in from the right, with a small delay after sidebar */
+  animation: contentIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 
-.mainContent::-webkit-scrollbar { width: 5px; }
-.mainContent::-webkit-scrollbar-thumb { background: #ddd; border-radius: 99px; }
-
-/* Tabs */
+/* ── Tabs ── */
 .tabs {
-  display: flex; gap: 28px;
-  border-bottom: none;
-  margin-bottom: 24px;
+  display: flex;
+  gap: 32px;
+  border-bottom: 2px solid #eee;
+  margin-bottom: 32px;
+  animation: sidebarChildIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
 }
-
 .tab {
   background: none; border: none; cursor: pointer;
-  font-size: 1rem; font-weight: 600;
-  color: #aaa;
-  padding: 8px 0;
-  position: relative;
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  font-size: 1.1rem; font-weight: 600; color: #aaa;
+  padding: 12px 0; position: relative;
+  transition: color 0.25s ease;
 }
-
-.tabActive {
-  color: var(--black-soft);
-}
-
+.tabActive { color: var(--black-soft); }
 .tabActive::after {
   content: '';
-  position: absolute;
-  bottom: 0; left: 0; right: 0;
-  height: 3px;
-  border-radius: 2px;
+  position: absolute; bottom: -2px; left: 0; right: 0;
+  height: 4px; border-radius: 4px 4px 0 0;
   background: linear-gradient(90deg, var(--purple), var(--pink-dark));
-  animation: tabIn 0.2s ease;
 }
 
-@keyframes tabIn { from { width: 0; } to { width: 100%; } }
-
-/* Product Grid */
+/* ── Product grid ──
+   key={tab} in JSX triggers remount + re-animation on every tab switch. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+  animation: gridIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
+
+/* Stagger the cards via nth-child.
+   IMPORTANT: only opacity is animated here (see cardFadeIn keyframe).
+   The card hover uses transform:translateY(-4px) — if we also animated
+   transform here with fill-mode:both, the browser would lock the
+   transform property and hover would silently stop working.         */
+.grid > *:nth-child(1)  { animation: cardFadeIn 0.45s ease 0.08s  both; }
+.grid > *:nth-child(2)  { animation: cardFadeIn 0.45s ease 0.14s  both; }
+.grid > *:nth-child(3)  { animation: cardFadeIn 0.45s ease 0.20s  both; }
+.grid > *:nth-child(4)  { animation: cardFadeIn 0.45s ease 0.26s  both; }
+.grid > *:nth-child(5)  { animation: cardFadeIn 0.45s ease 0.32s  both; }
+.grid > *:nth-child(6)  { animation: cardFadeIn 0.45s ease 0.38s  both; }
+.grid > *:nth-child(n+7){ animation: cardFadeIn 0.45s ease 0.42s  both; }
 
 .emptyState {
-  grid-column: 1/-1;
-  text-align: center;
-  padding: 60px 0;
-  color: #bbb;
-  font-size: 0.95rem;
+  grid-column: 1 / -1;
+  text-align: center; padding: 80px 0;
+  color: #bbb; font-size: 1.1rem; line-height: 1.6;
 }
 
-/* ── Product Card Styles ── */
+/* ══════════════════════════════════════════════
+   PRODUCT / PURCHASE CARDS
+══════════════════════════════════════════════ */
 .card {
   background: white;
-  border-radius: 20px;
+  border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 4px 28px rgba(0,0,0,0.07);
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  /* Only transition transform + box-shadow here — this is what the
+     hover uses. If animations locked transform we'd handle it above. */
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
 }
-
-.card:hover { transform: translateY(-3px); box-shadow: 0 8px 36px rgba(0,0,0,0.13); }
+.card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12); }
 
 .cardImgWrap { position: relative; aspect-ratio: 4/3; overflow: hidden; }
-
-.cardImg { width: 100%; height: 100%; object-fit: cover; transition: transform 0.4s ease; }
-
-.card:hover .cardImg { transform: scale(1.04); }
+.cardImg {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.card:hover .cardImg { transform: scale(1.05); }
 
 .cardBadge {
-  position: absolute; top: 12px; left: 12px;
-  font-size: 0.65rem; font-weight: 800;
-  letter-spacing: 0.1em;
-  padding: 4px 10px; border-radius: 6px;
+  position: absolute; top: 16px; left: 16px;
+  font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
+  padding: 6px 12px; border-radius: 8px;
 }
-
-.cardBody { padding: 16px 18px; }
-
-.cardHead { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
-
-.cardTitle { font-family: 'Bree Serif', serif; font-size: 0.95rem; color: var(--black-soft); flex: 1; }
-
-.cardPrice { font-size: 0.95rem; font-weight: 700; flex-shrink: 0; }
-
-.cardDesc { 
-  font-size: 0.78rem; color: #888; line-height: 1.5; margin-bottom: 12px; 
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; 
+.cardBody { padding: 20px; }
+.cardHead {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 12px; margin-bottom: 8px;
 }
-
-.cardFoot { display: flex; align-items: center; justify-content: space-between; }
-
-.cardViews, .cardSoldTo {
-  display: flex; align-items: center; gap: 5px;
-  font-size: 0.72rem; font-weight: 600;
-  color: #aaa; letter-spacing: 0.06em; text-transform: uppercase;
+.cardTitle { font-family: 'Bree Serif', serif; font-size: 1.1rem; color: var(--black-soft); flex: 1; }
+.cardPrice { font-size: 1.1rem; font-weight: 700; flex-shrink: 0; }
+.cardDesc {
+  font-size: 0.9rem; color: #888; line-height: 1.5; margin-bottom: 16px;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
 }
-
-.cardActions { display: flex; gap: 8px; }
-
+.cardFoot {
+  display: flex; align-items: center; justify-content: space-between;
+  border-top: 1px solid #f0f0f0; padding-top: 16px;
+}
+.cardViews,
+.cardSoldTo {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 0.75rem; font-weight: 700; color: #aaa;
+  letter-spacing: 0.08em; text-transform: uppercase;
+}
+.cardActions { display: flex; gap: 10px; }
 .cardBtn {
-  width: 30px; height: 30px; border-radius: 50%;
-  border: none; cursor: pointer;
+  width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  transition: filter 0.2s ease, transform 0.2s ease;
 }
-
-.cardBtnChat { background: var(--pink-bg); color: var(--pink-dark); }
+.cardBtnChat { background: var(--pink-light); color: var(--pink-dark); }
 .cardBtnEdit { background: #f0eaf5; color: var(--purple); }
-.cardBtn:hover { filter: brightness(0.93); }
+.cardBtn:hover { filter: brightness(0.95); transform: scale(1.05); }
 
-/* FAB */
+/* ══════════════════════════════════════════════
+   FAB
+══════════════════════════════════════════════ */
 .fab {
-  position: fixed; bottom: 28px; right: 28px;
-  width: 52px; height: 52px; border-radius: 50%;
+  position: fixed;
+  bottom: 32px; right: 32px;
+  width: 64px; height: 64px;
+  border-radius: 50%;
   background: linear-gradient(135deg, var(--purple), var(--pink-dark));
   border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: white;
-  box-shadow: 0 6px 24px rgba(128,0,128,0.35);
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
-  z-index: 200;
+  box-shadow: 0 8px 30px rgba(128, 0, 128, 0.35);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  z-index: 100;
+}
+.fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 12px 40px rgba(128, 0, 128, 0.45); }
+
+/* Spring pop — delayed so it appears after the layout has settled */
+.fabEnter {
+  animation: fabPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.45s both;
 }
 
-.fab:hover { transform: scale(1.1) rotate(90deg); }
-
-/* ── Editable Field ── */
-.ef { display: flex; flex-direction: column; gap: 4px; }
-.efLabel { font-size: 0.65rem; letter-spacing: 0.1em; text-transform: uppercase; color: #aaa; font-weight: 700; }
-.efDisplay { display: flex; align-items: center; gap: 6px; }
-.efValue { font-size: 0.88rem; color: var(--black-soft); font-weight: 500; }
+/* ══════════════════════════════════════════════
+   EDITABLE FIELD
+══════════════════════════════════════════════ */
+.ef  { display: flex; flex-direction: column; gap: 6px; }
+.efLabel {
+  font-size: 0.75rem; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #aaa; font-weight: 700;
+}
+.efDisplay { display: flex; align-items: flex-start; gap: 8px; }
+.efValue   { font-size: 0.95rem; color: var(--black-soft); line-height: 1.5; }
 .efTrigger {
   background: none; border: none; cursor: pointer;
-  color: #ccc; padding: 2px;
-  transition: color 0.15s;
+  color: #ccc; margin-top: 2px;
+  transition: color 0.2s ease;
 }
 .efTrigger:hover { color: var(--purple); }
-.efEdit { display: flex; flex-direction: column; gap: 6px; }
+.efEdit  { display: flex; flex-direction: column; gap: 8px; }
 .efInput {
-  width: 100%; padding: 8px 10px;
-  border: 1.5px solid var(--purple);
-  border-radius: 8px;
-  font-size: 0.85rem;
-  font-family: inherit;
-  outline: none;
-  resize: vertical;
+  width: 100%; padding: 12px 14px;
+  border: 2px solid var(--purple); border-radius: 12px;
+  font-size: 0.95rem; font-family: inherit;
+  outline: none; resize: vertical;
 }
-.efActions { display: flex; gap: 6px; }
+.efActions { display: flex; gap: 8px; }
 .efBtn {
-  height: 28px; width: 28px; border-radius: 6px;
-  border: none; cursor: pointer;
+  height: 36px; width: 36px; border-radius: 8px; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  font-size: 0.75rem; transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
-.efBtnSave { background: var(--purple); color: white; }
+.efBtnSave   { background: var(--purple); color: white; }
 .efBtnCancel { background: #f0f0f0; color: #555; }
-.efBtn:hover { opacity: 0.85; }
+.efBtn:hover { opacity: 0.85; transform: translateY(-1px); }
 
-/* ── Avatar ── */
-.avatarWrap {
-  position: relative;
-  width: var(--av-size);
-  height: var(--av-size);
-  flex-shrink: 0;
-}
-
+/* ══════════════════════════════════════════════
+   AVATAR
+══════════════════════════════════════════════ */
+.avatarWrap { position: relative; width: var(--av-size); height: var(--av-size); flex-shrink: 0; }
 .avatarRing {
   width: 100%; height: 100%;
-  border-radius: 50%;
-  padding: 3px;
+  border-radius: 50%; padding: 4px;
   background: linear-gradient(135deg, var(--purple), var(--pink));
+  box-shadow: 0 8px 24px rgba(128, 0, 128, 0.20);
 }
-
 .avatarImg {
   width: 100%; height: 100%;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid white;
+  border-radius: 50%; object-fit: cover;
+  border: 4px solid white; background: white;
 }
-
 .avatarEdit {
-  position: absolute; bottom: 3px; right: 3px;
-  width: 26px; height: 26px; border-radius: 50%;
-  background: white; border: 1.5px solid #eee;
-  cursor: pointer;
+  position: absolute; bottom: 4px; right: 4px;
+  width: 36px; height: 36px; border-radius: 50%;
+  background: white; border: none; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
   color: var(--purple);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-  transition: all 0.22s cubic-bezier(.4,0,.2,1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+.avatarEdit:hover { background: var(--purple); color: white; transform: scale(1.1); }
+
+/* ══════════════════════════════════════════════
+   RESPONSIVE
+══════════════════════════════════════════════ */
+@media (max-width: 960px) {
+  .heroCards { grid-template-columns: 1fr; }
+  .dashView  { flex-direction: column; }
+  .sidebar   { width: 100%; position: static; }
 }
 
-.avatarEdit:hover { background: var(--purple); color: white; }
-
-/* ──────────────── Responsive ──────────────── */
-@media (max-width: 900px) {
-  .sidebar { width: 280px; }
-}
-@media (max-width: 700px) {
-  .sidebar { width: 100%; }
-  .split { flex-direction: column; }
-}
-@media (max-width: 480px) {
-  .nav { padding: 12px 16px; }
-  .hero { padding-top: 68px; padding-inline: 12px; }
-  .heroHeader { padding: 18px; gap: 14px; }
-  .heroCards { gap: 12px; }
-  .grid { grid-template-columns: 1fr; }
+@media (max-width: 600px) {
+  .heroHeader  { flex-direction: column; gap: 24px; }
+  .heroIcons   { margin-left: 0; flex-direction: row; }
+  .heroGreeting { font-size: 2rem; }
+  .grid        { grid-template-columns: 1fr; }
 }
