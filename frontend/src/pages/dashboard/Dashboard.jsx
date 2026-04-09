@@ -1,25 +1,21 @@
 // frontend/src/pages/dashboard/Dashboard.jsx
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './Dashboard.module.css';
 
 /* ─────────────────────────────────────────────
-   HELPERS
+   CONSTANTS
 ───────────────────────────────────────────── */
-const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
-const lerp = (a, b, t) => a + (b - a) * t;
-const ease = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
-
 const STATUS_CONFIG = {
-  available: { label: 'ACTIVE',   bg: '#1a1a2e', color: '#4ade80' },
-  pending:   { label: 'PENDING',  bg: '#1a1a2e', color: '#facc15' },
-  sold:      { label: 'SOLD',     bg: '#1a1a2e', color: '#f87171' },
+  available: { label: 'ACTIVE',  bg: '#1a1a2e', color: '#4ade80' },
+  pending:   { label: 'PENDING', bg: '#1a1a2e', color: '#facc15' },
+  sold:      { label: 'SOLD',    bg: '#1a1a2e', color: '#f87171' },
 };
 
 const fmt = (n) => `₹${Number(n).toLocaleString('en-IN')}`;
 
 /* ─────────────────────────────────────────────
-   ICON SET
+   ICONS
 ───────────────────────────────────────────── */
 const PenIcon = ({ size = 16 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
@@ -34,7 +30,8 @@ const BellIcon = ({ size = 18 }) => (
 );
 const GearIcon = ({ size = 18 }) => (
   <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-    <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    <circle cx="12" cy="12" r="3"/>
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
   </svg>
 );
 const EyeIcon = ({ size = 14 }) => (
@@ -69,12 +66,10 @@ const XIcon = ({ size = 14 }) => (
 );
 
 /* ─────────────────────────────────────────────
-   SUB-COMPONENTS
+   SUB-COMPONENTS 
 ───────────────────────────────────────────── */
-
 function Avatar({ src, size, editable, onEdit }) {
-  // Use a fallback placeholder if no avatar URL is present
-  const imageSource = src || "https://via.placeholder.com/150?text=User";
+  const imageSource = src || 'https://via.placeholder.com/250?text=User';
   return (
     <div className={styles.avatarWrap} style={{ '--av-size': size + 'px' }}>
       <div className={styles.avatarRing}>
@@ -82,7 +77,7 @@ function Avatar({ src, size, editable, onEdit }) {
       </div>
       {editable && (
         <button className={styles.avatarEdit} onClick={onEdit} title="Change photo">
-          <PenIcon size={12} />
+          <PenIcon size={14} />
         </button>
       )}
     </div>
@@ -91,22 +86,20 @@ function Avatar({ src, size, editable, onEdit }) {
 
 function EditableField({ label, value, onSave, textarea, placeholder }) {
   const [editing, setEditing] = useState(false);
-  const [draft, setDraft] = useState(value || '');
-
-  const save = () => { onSave(draft); setEditing(false); };
+  const [draft, setDraft]     = useState(value || '');
+  const save   = () => { onSave(draft); setEditing(false); };
   const cancel = () => { setDraft(value || ''); setEditing(false); };
-
   return (
     <div className={styles.ef}>
-      <div className={styles.efLabel}>{label}</div>
+      {label && <div className={styles.efLabel}>{label}</div>}
       {editing ? (
         <div className={styles.efEdit}>
           {textarea
             ? <textarea className={styles.efInput} value={draft} onChange={e => setDraft(e.target.value)} placeholder={placeholder} rows={3} />
-            : <input className={styles.efInput} value={draft} onChange={e => setDraft(e.target.value)} placeholder={placeholder} />
+            : <input    className={styles.efInput} value={draft} onChange={e => setDraft(e.target.value)} placeholder={placeholder} />
           }
           <div className={styles.efActions}>
-            <button className={`${styles.efBtn} ${styles.efBtnSave}`} onClick={save}><CheckIcon /></button>
+            <button className={`${styles.efBtn} ${styles.efBtnSave}`}   onClick={save}><CheckIcon /></button>
             <button className={`${styles.efBtn} ${styles.efBtnCancel}`} onClick={cancel}><XIcon /></button>
           </div>
         </div>
@@ -121,9 +114,8 @@ function EditableField({ label, value, onSave, textarea, placeholder }) {
 }
 
 function ProductCard({ item, owned }) {
-  const st = STATUS_CONFIG[item.status] || STATUS_CONFIG.available;
-  const imageUrl = item.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
-  
+  const st       = STATUS_CONFIG[item.status] || STATUS_CONFIG.available;
+  const imageUrl = item.image_urls?.[0] || 'https://via.placeholder.com/300?text=No+Image';
   return (
     <div className={styles.card}>
       <div className={styles.cardImgWrap}>
@@ -133,7 +125,13 @@ function ProductCard({ item, owned }) {
       <div className={styles.cardBody}>
         <div className={styles.cardHead}>
           <h3 className={styles.cardTitle}>{item.title}</h3>
-          <span className={styles.cardPrice} style={{ color: item.status === 'sold' ? '#999' : 'var(--pink-dark)', textDecoration: item.status === 'sold' ? 'line-through' : 'none' }}>{fmt(item.price)}</span>
+          <span
+            className={styles.cardPrice}
+            style={{
+              color: item.status === 'sold' ? '#999' : 'var(--pink-dark)',
+              textDecoration: item.status === 'sold' ? 'line-through' : 'none',
+            }}
+          >{fmt(item.price)}</span>
         </div>
         <p className={styles.cardDesc}>{item.description || item.product?.description}</p>
         <div className={styles.cardFoot}>
@@ -156,9 +154,8 @@ function ProductCard({ item, owned }) {
 }
 
 function PurchaseCard({ item }) {
-  const p = item.product;
-  const imageUrl = p.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
-
+  const p        = item.product;
+  const imageUrl = p.image_urls?.[0] || 'https://via.placeholder.com/300?text=No+Image';
   return (
     <div className={styles.card}>
       <div className={styles.cardImgWrap}>
@@ -171,7 +168,9 @@ function PurchaseCard({ item }) {
           <span className={styles.cardPrice} style={{ color: 'var(--blue)' }}>{fmt(p.price)}</span>
         </div>
         <div className={styles.cardFoot}>
-          <span className={styles.cardViews}><ClockIcon /> {new Date(item.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+          <span className={styles.cardViews}>
+            <ClockIcon /> {new Date(item.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+          </span>
         </div>
       </div>
     </div>
@@ -184,224 +183,241 @@ function PurchaseCard({ item }) {
 export default function Dashboard() {
   const navigate = useNavigate();
 
-  /* state */
-  const [data, setData]       = useState(null);
+  const [data,    setData]    = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError]     = useState(null);
-  const [tab, setTab]         = useState('listings'); 
-  const [progress, setProgress] = useState(0); 
+  const [error,   setError]   = useState(null);
+  const [tab,     setTab]     = useState('listings');
 
-  /* refs */
-  const rafRef     = useRef(null);
-  const targetProg = useRef(0);
-  const curProg    = useRef(0);
+  // Simple boolean state replacing the glitchy 3-phase timer
+  const [isDashboard, setIsDashboard] = useState(false); 
 
-  /* ── Fetch Data directly from Backend ── */
+  /* ── Fetch ── */
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
         const userId = localStorage.getItem('yahora_user_id');
-        const token = localStorage.getItem('yahora_session');
-        
-        if (!userId || !token) {
-          // If no user is logged in, redirect them out of the protected route
-          navigate('/auth');
-          return;
-        }
+        const token  = localStorage.getItem('yahora_session');
+        if (!userId || !token) { navigate('/auth'); return; }
 
-        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/${userId}/dashboard`, {
-          headers: { "Authorization": `Bearer ${token}` }
-        });
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch dashboard data");
-        }
-
-        const result = await response.json();
-        setData(result);
+        const res = await fetch(
+          `${import.meta.env.VITE_API_BASE_URL}/api/user/${userId}/dashboard`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        if (!res.ok) throw new Error('Failed to fetch dashboard data');
+        setData(await res.json());
       } catch (err) {
-        console.error("Dashboard fetch failed:", err);
-        setError("Could not load dashboard. Please try refreshing.");
+        console.error('Dashboard fetch failed:', err);
+        setError('Could not load dashboard. Please try refreshing.');
       } finally {
         setLoading(false);
       }
     };
-
     fetchDashboard();
   }, [navigate]);
 
-  /* ── Scroll → progress (0→1 over first 260 px of scroll) ── */
+  /* ── Smooth Scroll Intent Logic (Desktop & Mobile) ── */
   useEffect(() => {
-    const SCROLL_RANGE = 260;
+    let touchStartY = 0;
+    let isCooldown = false;
 
-    const onScroll = () => {
-      targetProg.current = clamp(window.scrollY / SCROLL_RANGE, 0, 1);
+    const startCooldown = () => {
+      isCooldown = true;
+      setTimeout(() => { isCooldown = false; }, 800); // Prevents rapid accidental toggles
     };
 
-    const tick = () => {
-      curProg.current = lerp(curProg.current, targetProg.current, 0.09);
-      const p = ease(curProg.current);
-      setProgress(p);
-      rafRef.current = requestAnimationFrame(tick);
+    const handleWheel = (e) => {
+      if (isCooldown) return;
+      
+      // Scrolling DOWN in Hero view
+      if (!isDashboard && e.deltaY > 20) {
+        setIsDashboard(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' }); // Reset scroll position naturally
+        startCooldown();
+      } 
+      // Scrolling UP in Dashboard view (ONLY when at the very top of the page)
+      else if (isDashboard && e.deltaY < -20 && window.scrollY <= 0) {
+        setIsDashboard(false);
+        startCooldown();
+      }
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
-    rafRef.current = requestAnimationFrame(tick);
+    const handleTouchStart = (e) => {
+      touchStartY = e.touches[0].clientY;
+    };
+
+    const handleTouchMove = (e) => {
+      if (isCooldown) return;
+      const delta = touchStartY - e.touches[0].clientY; // Positive = scrolling down
+
+      if (!isDashboard && delta > 30) {
+        setIsDashboard(true);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        startCooldown();
+      } 
+      else if (isDashboard && delta < -30 && window.scrollY <= 0) {
+        setIsDashboard(false);
+        startCooldown();
+      }
+    };
+
+    // Attach passive listeners to not block scrolling threads
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    window.addEventListener('touchstart', handleTouchStart, { passive: true });
+    window.addEventListener('touchmove', handleTouchMove, { passive: true });
+
     return () => {
-      window.removeEventListener('scroll', onScroll);
-      cancelAnimationFrame(rafRef.current);
+      window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchstart', handleTouchStart);
+      window.removeEventListener('touchmove', handleTouchMove);
     };
-  }, []);
+  }, [isDashboard]);
 
-  /* ── Profile update handler (PUT Request to Backend) ── */
+  /* ── Profile field update ── */
   const updateField = useCallback(async (field, value) => {
-    // 1. Optimistic UI Update (Updates screen instantly so the user doesn't have to wait)
     setData(prev => ({ ...prev, profile: { ...prev.profile, [field]: value } }));
-    
-    // 2. Network Request
     try {
       const userId = localStorage.getItem('yahora_user_id');
-      const token = localStorage.getItem('yahora_session');
+      const token  = localStorage.getItem('yahora_session');
       if (!userId || !token) return;
-
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/${userId}/profile`, {
-        method: "PUT",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
-        },
-        body: JSON.stringify({ [field]: value })
+      await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/${userId}/profile`, {
+        method:  'PUT',
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+        body:    JSON.stringify({ [field]: value }),
       });
-
-      if (!response.ok) throw new Error("Failed to save changes");
-    } catch (error) {
-      console.error("Failed to update profile field:", error);
-      // Optional: You could revert the UI state here if the network request fails
+    } catch (e) {
+      console.error('Failed to update profile field:', e);
     }
   }, []);
 
+  /* ── Guards ── */
   if (loading) return (
     <div className={styles.loading}>
       <div className={styles.spinner} />
       <span>Loading your dashboard…</span>
     </div>
   );
-
-  if (error) return (
-    <div className={styles.loading}>
-      <span>{error}</span>
-    </div>
-  );
-
-  if (!data) return null;
+  if (error) return <div className={styles.loading}><span>{error}</span></div>;
+  if (!data)  return null;
 
   const { profile, listings, purchases } = data;
   const firstName = (profile.full_name || 'User').split(' ')[0];
 
-  /* interpolated style helpers */
-  const p = progress; // 0 = hero, 1 = split
-
   return (
-    <div style={{ background: 'var(--bg)', minHeight: '200vh' }}>
+    <div className={styles.dashboardRoot} style={{ position: 'relative', minHeight: '100vh', overflowX: 'hidden' }}>
 
-      {/*
-        ── HERO VIEW (d1) ──
-        Fades & slides up as user scrolls
-      */}
-      <div
-        className={styles.hero}
+      {/* ══════════════════════════════════════
+          UI 1 — HERO VIEW
+          Uses CSS inline styles to smoothly fade and scale out.
+          When active, position is relative so it dictates document height.
+      ══════════════════════════════════════ */}
+      <div 
+        className={styles.heroView} 
         style={{
-          opacity: 1 - p * 1.6,
-          transform: `translateY(${-p * 40}px)`,
-          pointerEvents: p > 0.5 ? 'none' : 'all',
-          zIndex: 10,
+          opacity: isDashboard ? 0 : 1,
+          transform: isDashboard ? 'translateY(-40px) scale(0.96)' : 'translateY(0) scale(1)',
+          pointerEvents: isDashboard ? 'none' : 'all',
+          transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+          position: isDashboard ? 'absolute' : 'relative',
+          width: '100%',
+          top: 0,
+          zIndex: isDashboard ? 0 : 10
         }}
       >
-        {/* Header card */}
+        {/* Row 1: avatar + greeting + icon buttons */}
         <div className={styles.heroHeader}>
-          <Avatar src={profile.avatar_url} size={84} editable onEdit={() => {}} />
+          <Avatar src={profile.avatar_url} size={240} editable onEdit={() => {}} />
           <div className={styles.heroText}>
             <div className={styles.heroEyebrow}>Student Dashboard</div>
             <div className={styles.heroGreeting}>Hi, {firstName}! 👋</div>
-            <div className={styles.heroSub}>Manage your academic journey and marketplace activities all in one place.</div>
+            <div className={styles.heroSub}>
+              Manage your academic journey and marketplace activities.
+            </div>
           </div>
           <div className={styles.heroIcons}>
-            <button className={styles.iconBtn}><BellIcon /></button>
-            <button className={styles.iconBtn}><GearIcon /></button>
+            <button className={styles.iconBtn} title="Notifications"><BellIcon /></button>
+            <button className={styles.iconBtn} title="Settings"><GearIcon /></button>
           </div>
         </div>
 
-        {/* Academic + Bio cards */}
+        {/* Row 2: info cards */}
         <div className={styles.heroCards}>
-          {/* Academic */}
           <div className={styles.academicCard}>
             <div className={styles.cardTitleRow}>
               <span className={styles.sectionTitle}>Academic Profile</span>
-              <button className={styles.updateBtn}><PenIcon size={14} /> Update</button>
             </div>
             <div className={styles.acadGrid}>
               <div>
                 <div className={styles.acadLabel}>Qualification</div>
-                <div className={styles.acadValue}>{profile.qualification || 'Not set'}</div>
+                <div className={styles.acadValue}>{profile.qualification || '—'}</div>
               </div>
               <div>
                 <div className={styles.acadLabel}>Course</div>
-                <div className={styles.acadValue}>{profile.courseName || 'Not set'}</div>
+                <div className={styles.acadValue}>{profile.courseName || '—'}</div>
               </div>
               <div>
                 <div className={styles.acadLabel}>Current Year</div>
-                <div className={styles.acadValue}>{profile.year_of_study || 'Not set'}</div>
+                <div className={styles.acadValue}>{profile.year_of_study || '—'}</div>
               </div>
               <div>
                 <div className={styles.acadLabel}>Specialization</div>
-                <div className={styles.acadValue}>{profile.specializationName || 'Not set'}</div>
+                <div className={styles.acadValue}>{profile.specializationName || '—'}</div>
               </div>
             </div>
           </div>
 
-          {/* Bio */}
           <div className={styles.bioCard}>
             <div className={styles.bioCardHead}>
               <span className={styles.sectionTitle}>Short Bio</span>
-              <button className={styles.iconBtn} style={{ width: 32, height: 32 }}><PenIcon size={13} /></button>
             </div>
             <p className={styles.bioText}>"{profile.bio || 'Tell the campus who you are!'}"</p>
             <div className={styles.tags}>
-              {['Campus', 'Student', 'Yahora'].map(t => <span key={t} className={styles.tag}>{t}</span>)}
+              {['Campus', 'Student', 'Yahora'].map(t => (
+                <span key={t} className={styles.tag}>{t}</span>
+              ))}
             </div>
           </div>
         </div>
 
-        {/* Sell CTA */}
-        <button className={styles.sellBtn}>Sell Something</button>
+        {/* Row 3: CTA */}
+        <button className={styles.sellBtn} onClick={() => {
+          setIsDashboard(true);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }}>
+          Manage Your Items
+        </button>
+
       </div>
 
-      {/*
-        ── SPLIT VIEW (d2) ──
-        Fades in as user scrolls
-      */}
-      <div
-        className={styles.split}
+      {/* ══════════════════════════════════════
+          UI 2 — SPLIT / DASHBOARD VIEW
+          Smoothly fades and slides UP when triggered.
+          When active, it becomes relative to push the layout properly.
+      ══════════════════════════════════════ */}
+      <div 
+        className={styles.dashView}
         style={{
-          opacity: p < 0.3 ? 0 : (p - 0.3) / 0.7,
-          pointerEvents: p < 0.5 ? 'none' : 'all',
-          zIndex: 9,
+          opacity: isDashboard ? 1 : 0,
+          transform: isDashboard ? 'translateY(0)' : 'translateY(40px)',
+          pointerEvents: isDashboard ? 'all' : 'none',
+          transition: 'opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+          position: isDashboard ? 'relative' : 'absolute',
+          width: '100%',
+          top: 0,
+          zIndex: isDashboard ? 10 : 0
         }}
       >
-        {/* ─ Left Sidebar ─ */}
+        {/* ─ Left Sidebar (sticky) ─ */}
         <div className={styles.sidebar}>
-          {/* Profile card */}
+
           <div className={styles.sidebarProfileCard}>
-            <Avatar src={profile.avatar_url} size={100} editable onEdit={() => {}} />
+            <Avatar src={profile.avatar_url} size={140} editable onEdit={() => {}} />
             <div className={styles.sidebarName}>{profile.full_name}</div>
             <div className={styles.sidebarUni}>
               <span className={styles.sidebarUniDot} />
               {profile.university || 'Your University'}
             </div>
             <div className={styles.sidebarBio}>
-              <div className={styles.sidebarBioLabel}>Bio</div>
               <EditableField
-                label=""
                 value={profile.bio}
                 placeholder="Tell the campus who you are…"
                 textarea
@@ -409,9 +425,20 @@ export default function Dashboard() {
               />
             </div>
           </div>
+        
+          <div className={styles.sidebarActions}>
+            <button className={styles.sidebarIconBtn} title="Notifications"><BellIcon /></button>
+            <button className={styles.sidebarIconBtn} title="Settings"><GearIcon /></button>
+          </div>
 
-          {/* Detail pills */}
-          <div style={{ background: 'white', borderRadius: '20px', padding: '16px', boxShadow: '0 4px 28px rgba(0,0,0,0.07)' }}>
+          <div className={styles.listNewCard}>
+            <div className={styles.listNewIcon}><PlusIcon size={20} /></div>
+            <div className={styles.listNewTitle}>List New Item</div>
+            <div className={styles.listNewSub}>Earn some campus cash</div>
+          </div>
+
+
+          <div className={styles.sidebarDetailsCard}>
             <div className={styles.detailRow}>
               <div className={styles.detailPill}>
                 <div className={styles.detailPillLabel}>Qualification</div>
@@ -434,33 +461,24 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Complete profile */}
           {!profile.is_profile_complete && (
-            <button className={styles.completeBtn} onClick={() => navigate('/onboarding')}>Complete Profile</button>
+            <button className={styles.completeBtn} onClick={() => navigate('/onboarding')}>
+              Complete Profile
+            </button>
           )}
 
-          {/* List New Item */}
-          <div className={styles.listNewCard}>
-            <div className={styles.listNewIcon}><PlusIcon size={18} /></div>
-            <div className={styles.listNewTitle}>List New Item</div>
-            <div className={styles.listNewSub}>Earn some campus cash</div>
-          </div>
+          
 
-          {/* Bottom icon buttons */}
-          <div className={styles.sidebarActions}>
-            <button className={styles.sidebarIconBtn} title="Notifications"><BellIcon /></button>
-            <button className={styles.sidebarIconBtn} title="Settings"><GearIcon /></button>
-          </div>
         </div>
 
-        {/* ─ Right Main Panel ─ */}
+        {/* ─ Right main content ─ */}
         <div className={styles.mainContent}>
-          {/* Tabs */}
+
           <div className={styles.tabs}>
             {[
-              { key: 'listings',  label: 'My Items' },
-              { key: 'purchases', label: 'Bought Items' },
-              { key: 'watchlist', label: 'Watchlist' },
+              { key: 'listings',  label: 'My Items'     },
+              { key: 'purchases', label: 'Bought Items'  },
+              { key: 'watchlist', label: 'Watchlist'     },
             ].map(t => (
               <button
                 key={t.key}
@@ -472,38 +490,39 @@ export default function Dashboard() {
             ))}
           </div>
 
-          {/* Tab Content */}
-          <div className={styles.grid}>
+          <div className={styles.grid} key={tab}>
             {tab === 'listings' && (
               listings.length
                 ? listings.map(item => <ProductCard key={item.id} item={item} owned />)
                 : <div className={styles.emptyState}>You haven't listed anything yet.<br />Hit the + button to start selling!</div>
             )}
-
             {tab === 'purchases' && (
               purchases.length
                 ? purchases.map(item => <PurchaseCard key={item.id} item={item} />)
                 : <div className={styles.emptyState}>You haven't bought anything yet.<br />Go explore the marketplace!</div>
             )}
-
             {tab === 'watchlist' && (
               <div className={styles.emptyState}>Your wishlist is empty.<br />Swipe right on items you love!</div>
             )}
           </div>
+
         </div>
       </div>
 
-      {/* FAB — always visible in split view */}
-      <button
-        className={styles.fab}
+      {/* ── FAB — gracefully fades in/out with the Dashboard state ── */}
+      <button 
+        className={styles.fab} 
         title="List a new item"
-        style={{ opacity: p, pointerEvents: p > 0.5 ? 'all' : 'none' }}
+        style={{
+          opacity: isDashboard ? 1 : 0,
+          transform: isDashboard ? 'scale(1) rotate(0deg)' : 'scale(0) rotate(-180deg)',
+          pointerEvents: isDashboard ? 'all' : 'none',
+          transition: 'opacity 0.4s ease, transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        }}
       >
-        <PlusIcon size={22} />
+        <PlusIcon size={24} />
       </button>
 
-      {/* Scroll sentinel — enables scrolling for animation */}
-      <div style={{ height: '400vh' }} aria-hidden="true" />
     </div>
   );
 }
