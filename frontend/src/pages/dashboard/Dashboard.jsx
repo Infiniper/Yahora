@@ -1,267 +1,509 @@
 // frontend/src/pages/dashboard/Dashboard.jsx
-import React, { useState, useEffect } from "react";
-import { 
-  Edit2, 
-  MapPin, 
-  GraduationCap, 
-  BookOpen, 
-  Calendar, 
-  Award,
-  Package,
-  ShoppingBag,
-  Camera
-} from "lucide-react";
-import styles from "./Dashboard.module.css";
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import styles from './Dashboard.module.css';
 
-const Dashboard = () => {
-  const [userData, setUserData] = useState({
-    profile: null,
-    listings: [],
-    purchases: []
-  });
+/* ─────────────────────────────────────────────
+   HELPERS
+───────────────────────────────────────────── */
+const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+
+const STATUS_CONFIG = {
+  available: { label: 'ACTIVE',   bg: '#1a1a2e', color: '#4ade80' },
+  pending:   { label: 'PENDING',  bg: '#1a1a2e', color: '#facc15' },
+  sold:      { label: 'SOLD',     bg: '#1a1a2e', color: '#f87171' },
+};
+
+const fmt = (n) => `₹${Number(n).toLocaleString('en-IN')}`;
+
+/* ─────────────────────────────────────────────
+   ICON SET
+───────────────────────────────────────────── */
+const PenIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+  </svg>
+);
+const BellIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+  </svg>
+);
+const GearIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+  </svg>
+);
+const EyeIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+const ChatIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+const ClockIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+  </svg>
+);
+const PlusIcon = ({ size = 20 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+  </svg>
+);
+const CheckIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12"/>
+  </svg>
+);
+const XIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+  </svg>
+);
+
+/* ─────────────────────────────────────────────
+   SUB-COMPONENTS
+───────────────────────────────────────────── */
+
+function Avatar({ src, size, editable, onEdit }) {
+  // Use a fallback placeholder if no avatar URL is present
+  const imageSource = src || "https://via.placeholder.com/150?text=User";
+  return (
+    <div className={styles.avatarWrap} style={{ '--av-size': size + 'px' }}>
+      <div className={styles.avatarRing}>
+        <img src={imageSource} alt="avatar" className={styles.avatarImg} />
+      </div>
+      {editable && (
+        <button className={styles.avatarEdit} onClick={onEdit} title="Change photo">
+          <PenIcon size={12} />
+        </button>
+      )}
+    </div>
+  );
+}
+
+function EditableField({ label, value, onSave, textarea, placeholder }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value || '');
+
+  const save = () => { onSave(draft); setEditing(false); };
+  const cancel = () => { setDraft(value || ''); setEditing(false); };
+
+  return (
+    <div className={styles.ef}>
+      <div className={styles.efLabel}>{label}</div>
+      {editing ? (
+        <div className={styles.efEdit}>
+          {textarea
+            ? <textarea className={styles.efInput} value={draft} onChange={e => setDraft(e.target.value)} placeholder={placeholder} rows={3} />
+            : <input className={styles.efInput} value={draft} onChange={e => setDraft(e.target.value)} placeholder={placeholder} />
+          }
+          <div className={styles.efActions}>
+            <button className={`${styles.efBtn} ${styles.efBtnSave}`} onClick={save}><CheckIcon /></button>
+            <button className={`${styles.efBtn} ${styles.efBtnCancel}`} onClick={cancel}><XIcon /></button>
+          </div>
+        </div>
+      ) : (
+        <div className={styles.efDisplay}>
+          <span className={styles.efValue}>{value || <em style={{ color: '#aaa' }}>Not set</em>}</span>
+          <button className={styles.efTrigger} onClick={() => setEditing(true)}><PenIcon size={13} /></button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ProductCard({ item, owned }) {
+  const st = STATUS_CONFIG[item.status] || STATUS_CONFIG.available;
+  const imageUrl = item.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
+  
+  return (
+    <div className={styles.card}>
+      <div className={styles.cardImgWrap}>
+        <img src={imageUrl} alt={item.title} className={styles.cardImg} />
+        <span className={styles.cardBadge} style={{ background: st.bg, color: st.color }}>{st.label}</span>
+      </div>
+      <div className={styles.cardBody}>
+        <div className={styles.cardHead}>
+          <h3 className={styles.cardTitle}>{item.title}</h3>
+          <span className={styles.cardPrice} style={{ color: item.status === 'sold' ? '#999' : 'var(--pink-dark)', textDecoration: item.status === 'sold' ? 'line-through' : 'none' }}>{fmt(item.price)}</span>
+        </div>
+        <p className={styles.cardDesc}>{item.description || item.product?.description}</p>
+        <div className={styles.cardFoot}>
+          {item.status === 'sold' && item.sold_to
+            ? <span className={styles.cardSoldTo}><ClockIcon /> SOLD TO @{item.sold_to}</span>
+            : item.views !== undefined
+              ? <span className={styles.cardViews}><EyeIcon /> {item.views} VIEWS</span>
+              : <span />
+          }
+          {owned && item.status !== 'sold' && (
+            <div className={styles.cardActions}>
+              <button className={`${styles.cardBtn} ${styles.cardBtnChat}`} title="Messages"><ChatIcon size={14} /></button>
+              <button className={`${styles.cardBtn} ${styles.cardBtnEdit}`} title="Edit listing"><PenIcon size={13} /></button>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PurchaseCard({ item }) {
+  const p = item.product;
+  const imageUrl = p.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
+
+  return (
+    <div className={styles.card}>
+      <div className={styles.cardImgWrap}>
+        <img src={imageUrl} alt={p.title} className={styles.cardImg} />
+        <span className={styles.cardBadge} style={{ background: '#1a1a2e', color: '#60a5fa' }}>BOUGHT</span>
+      </div>
+      <div className={styles.cardBody}>
+        <div className={styles.cardHead}>
+          <h3 className={styles.cardTitle}>{p.title}</h3>
+          <span className={styles.cardPrice} style={{ color: 'var(--blue)' }}>{fmt(p.price)}</span>
+        </div>
+        <div className={styles.cardFoot}>
+          <span className={styles.cardViews}><ClockIcon /> {new Date(item.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─────────────────────────────────────────────
+   MAIN DASHBOARD COMPONENT
+───────────────────────────────────────────── */
+export default function Dashboard() {
+  const navigate = useNavigate();
+
+  /* state */
+  const [data, setData]       = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [activeTab, setActiveTab] = useState("listings"); // 'listings' or 'purchases'
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [error, setError]     = useState(null);
+  const [tab, setTab]         = useState('listings'); 
+  const [progress, setProgress] = useState(0); 
 
-  // Handle Scroll for d1 -> d2 UI Transition
-  useEffect(() => {
-    const handleScroll = () => {
-      // Trigger the layout shift when scrolled past the banner (approx 120px)
-      if (window.scrollY > 120) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
-    };
+  /* refs */
+  const rafRef     = useRef(null);
+  const targetProg = useRef(0);
+  const curProg    = useRef(0);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Fetch Dashboard Data (Connecting to Vishwajeet's Backend)
+  /* ── Fetch Data directly from Backend ── */
   useEffect(() => {
     const fetchDashboard = async () => {
       try {
-        const userId = localStorage.getItem("yahora_user_id"); // Or however you store it
-        const token = localStorage.getItem("yahora_session");
-
-        if (!userId) {
-          setError("User not found. Please log in.");
-          setLoading(false);
+        const userId = localStorage.getItem('yahora_user_id');
+        const token = localStorage.getItem('yahora_session');
+        
+        if (!userId || !token) {
+          // If no user is logged in, redirect them out of the protected route
+          navigate('/auth');
           return;
         }
 
-        const response = await fetch(`http://localhost:5000/api/user/${userId}/dashboard`, {
-          headers: {
-            "Authorization": `Bearer ${token}`
-          }
+        const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/${userId}/dashboard`, {
+          headers: { "Authorization": `Bearer ${token}` }
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setUserData(data);
-        } else {
-          // Mock data fallback for UI testing if backend isn't ready yet
-          setUserData({
-            profile: {
-              full_name: "Anmol Singh",
-              avatar_url: "https://i.pravatar.cc/300?img=11",
-              qualification: "Graduation",
-              courseName: "B.Tech Computer Science",
-              year_of_study: "3rd year",
-              specializationName: "Artificial Intelligence",
-              bio: "CSE student at IIITK. Selling mostly electronics, books, and hostel essentials. Open to negotiations!"
-            },
-            listings: [
-              { id: 1, title: "Sony WH-1000XM4", price: "₹5000", status: "available", image_urls: ["https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?w=500"] },
-              { id: 2, title: "DSA Notes (Handwritten)", price: "₹200", status: "sold", image_urls: ["https://images.unsplash.com/photo-1517842645767-c639042777db?w=500"] }
-            ],
-            purchases: [
-              { id: 1, product: { title: "IKEA Desk Lamp", price: "₹450", image_urls: ["https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=500"] } }
-            ]
-          });
+        if (!response.ok) {
+          throw new Error("Failed to fetch dashboard data");
         }
+
+        const result = await response.json();
+        setData(result);
       } catch (err) {
-        setError("Network error fetching dashboard.");
+        console.error("Dashboard fetch failed:", err);
+        setError("Could not load dashboard. Please try refreshing.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchDashboard();
+  }, [navigate]);
+
+  /* ── Scroll → progress (0→1 over first 260 px of scroll) ── */
+  useEffect(() => {
+    const SCROLL_RANGE = 260;
+
+    const onScroll = () => {
+      targetProg.current = clamp(window.scrollY / SCROLL_RANGE, 0, 1);
+    };
+
+    const tick = () => {
+      curProg.current = lerp(curProg.current, targetProg.current, 0.09);
+      const p = ease(curProg.current);
+      setProgress(p);
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    rafRef.current = requestAnimationFrame(tick);
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
-  if (loading) return <div className={styles.loadingScreen}>Loading your campus life...</div>;
-  if (error) return <div className={styles.errorScreen}>{error}</div>;
+  /* ── Profile update handler (PUT Request to Backend) ── */
+  const updateField = useCallback(async (field, value) => {
+    // 1. Optimistic UI Update (Updates screen instantly so the user doesn't have to wait)
+    setData(prev => ({ ...prev, profile: { ...prev.profile, [field]: value } }));
+    
+    // 2. Network Request
+    try {
+      const userId = localStorage.getItem('yahora_user_id');
+      const token = localStorage.getItem('yahora_session');
+      if (!userId || !token) return;
 
-  const { profile, listings, purchases } = userData;
+      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/user/${userId}/profile`, {
+        method: "PUT",
+        headers: { 
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}` 
+        },
+        body: JSON.stringify({ [field]: value })
+      });
+
+      if (!response.ok) throw new Error("Failed to save changes");
+    } catch (error) {
+      console.error("Failed to update profile field:", error);
+      // Optional: You could revert the UI state here if the network request fails
+    }
+  }, []);
+
+  if (loading) return (
+    <div className={styles.loading}>
+      <div className={styles.spinner} />
+      <span>Loading your dashboard…</span>
+    </div>
+  );
+
+  if (error) return (
+    <div className={styles.loading}>
+      <span>{error}</span>
+    </div>
+  );
+
+  if (!data) return null;
+
+  const { profile, listings, purchases } = data;
+  const firstName = (profile.full_name || 'User').split(' ')[0];
+
+  /* interpolated style helpers */
+  const p = progress; // 0 = hero, 1 = split
 
   return (
-    <div className={`${styles.dashboardContainer} ${isScrolled ? styles.scrolled : ""}`}>
-      
-      {/* Top Banner (d1 focus) */}
-      <div className={styles.banner}>
-        <div className={styles.bannerOverlay}></div>
+    <div style={{ background: 'var(--bg)', minHeight: '200vh' }}>
+
+      {/*
+        ── HERO VIEW (d1) ──
+        Fades & slides up as user scrolls
+      */}
+      <div
+        className={styles.hero}
+        style={{
+          opacity: 1 - p * 1.6,
+          transform: `translateY(${-p * 40}px)`,
+          pointerEvents: p > 0.5 ? 'none' : 'all',
+          zIndex: 10,
+        }}
+      >
+        {/* Header card */}
+        <div className={styles.heroHeader}>
+          <Avatar src={profile.avatar_url} size={84} editable onEdit={() => {}} />
+          <div className={styles.heroText}>
+            <div className={styles.heroEyebrow}>Student Dashboard</div>
+            <div className={styles.heroGreeting}>Hi, {firstName}! 👋</div>
+            <div className={styles.heroSub}>Manage your academic journey and marketplace activities all in one place.</div>
+          </div>
+          <div className={styles.heroIcons}>
+            <button className={styles.iconBtn}><BellIcon /></button>
+            <button className={styles.iconBtn}><GearIcon /></button>
+          </div>
+        </div>
+
+        {/* Academic + Bio cards */}
+        <div className={styles.heroCards}>
+          {/* Academic */}
+          <div className={styles.academicCard}>
+            <div className={styles.cardTitleRow}>
+              <span className={styles.sectionTitle}>Academic Profile</span>
+              <button className={styles.updateBtn}><PenIcon size={14} /> Update</button>
+            </div>
+            <div className={styles.acadGrid}>
+              <div>
+                <div className={styles.acadLabel}>Qualification</div>
+                <div className={styles.acadValue}>{profile.qualification || 'Not set'}</div>
+              </div>
+              <div>
+                <div className={styles.acadLabel}>Course</div>
+                <div className={styles.acadValue}>{profile.courseName || 'Not set'}</div>
+              </div>
+              <div>
+                <div className={styles.acadLabel}>Current Year</div>
+                <div className={styles.acadValue}>{profile.year_of_study || 'Not set'}</div>
+              </div>
+              <div>
+                <div className={styles.acadLabel}>Specialization</div>
+                <div className={styles.acadValue}>{profile.specializationName || 'Not set'}</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Bio */}
+          <div className={styles.bioCard}>
+            <div className={styles.bioCardHead}>
+              <span className={styles.sectionTitle}>Short Bio</span>
+              <button className={styles.iconBtn} style={{ width: 32, height: 32 }}><PenIcon size={13} /></button>
+            </div>
+            <p className={styles.bioText}>"{profile.bio || 'Tell the campus who you are!'}"</p>
+            <div className={styles.tags}>
+              {['Campus', 'Student', 'Yahora'].map(t => <span key={t} className={styles.tag}>{t}</span>)}
+            </div>
+          </div>
+        </div>
+
+        {/* Sell CTA */}
+        <button className={styles.sellBtn}>Sell Something</button>
       </div>
 
-      <div className={styles.dashboardLayout}>
-        
-        {/* LEFT COLUMN: User Profile Details (Sticky Sidebar in d2) */}
-        <aside className={styles.profileSidebar}>
-          <div className={styles.profileCard}>
-            
-            {/* Avatar Section */}
-            <div className={styles.avatarWrapper}>
-              <div className={styles.avatarContainer}>
-                <img 
-                  src={profile?.avatar_url || "https://via.placeholder.com/150"} 
-                  alt="Profile" 
-                  className={styles.avatar}
-                />
-                <button className={styles.editAvatarBtn} title="Update Photo">
-                  <Camera size={16} />
-                </button>
-              </div>
+      {/*
+        ── SPLIT VIEW (d2) ──
+        Fades in as user scrolls
+      */}
+      <div
+        className={styles.split}
+        style={{
+          opacity: p < 0.3 ? 0 : (p - 0.3) / 0.7,
+          pointerEvents: p < 0.5 ? 'none' : 'all',
+          zIndex: 9,
+        }}
+      >
+        {/* ─ Left Sidebar ─ */}
+        <div className={styles.sidebar}>
+          {/* Profile card */}
+          <div className={styles.sidebarProfileCard}>
+            <Avatar src={profile.avatar_url} size={100} editable onEdit={() => {}} />
+            <div className={styles.sidebarName}>{profile.full_name}</div>
+            <div className={styles.sidebarUni}>
+              <span className={styles.sidebarUniDot} />
+              {profile.university || 'Your University'}
             </div>
-
-            {/* Name & Bio */}
-            <div className={styles.userInfo}>
-              <div className={styles.nameRow}>
-                <h1 className={styles.userName}>Hi! {profile?.full_name?.split(' ')[0]}</h1>
-                <button className={styles.iconBtn} title="Edit Name"><Edit2 size={16} /></button>
-              </div>
-              
-              <div className={styles.bioSection}>
-                <p className={styles.bioText}>{profile?.bio || "No bio added yet."}</p>
-                <button className={styles.iconBtn} title="Edit Bio"><Edit2 size={14} /></button>
-              </div>
+            <div className={styles.sidebarBio}>
+              <div className={styles.sidebarBioLabel}>Bio</div>
+              <EditableField
+                label=""
+                value={profile.bio}
+                placeholder="Tell the campus who you are…"
+                textarea
+                onSave={v => updateField('bio', v)}
+              />
             </div>
-
-            <hr className={styles.divider} />
-
-            {/* Academic Details Grid */}
-            <div className={styles.academicSection}>
-              <div className={styles.sectionHeader}>
-                <h3>Academic Details</h3>
-                <button className={styles.iconBtn} title="Edit Academics"><Edit2 size={16} /></button>
-              </div>
-              
-              <div className={styles.academicGrid}>
-                <div className={styles.academicItem}>
-                  <GraduationCap className={styles.academicIcon} />
-                  <div>
-                    <span className={styles.label}>QUALIFICATION</span>
-                    <span className={styles.value}>{profile?.qualification}</span>
-                  </div>
-                </div>
-                <div className={styles.academicItem}>
-                  <BookOpen className={styles.academicIcon} />
-                  <div>
-                    <span className={styles.label}>COURSE</span>
-                    <span className={styles.value}>{profile?.courseName}</span>
-                  </div>
-                </div>
-                <div className={styles.academicItem}>
-                  <Calendar className={styles.academicIcon} />
-                  <div>
-                    <span className={styles.label}>YEAR OF STUDY</span>
-                    <span className={styles.value}>{profile?.year_of_study}</span>
-                  </div>
-                </div>
-                <div className={styles.academicItem}>
-                  <Award className={styles.academicIcon} />
-                  <div>
-                    <span className={styles.label}>SPECIALIZATION</span>
-                    <span className={styles.value}>{profile?.specializationName}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
-        </aside>
 
-        {/* RIGHT COLUMN: Products & Tabs (Scrolls up in d2) */}
-        <main className={styles.dashboardMain}>
-          
-          {/* Custom Tabs */}
-          <div className={styles.tabsContainer}>
-            <button 
-              className={`${styles.tabBtn} ${activeTab === "listings" ? styles.activeTab : ""}`}
-              onClick={() => setActiveTab("listings")}
-            >
-              <Package size={18} />
-              My Listings
-              <span className={styles.badge}>{listings.length}</span>
-            </button>
-            <button 
-              className={`${styles.tabBtn} ${activeTab === "purchases" ? styles.activeTab : ""}`}
-              onClick={() => setActiveTab("purchases")}
-            >
-              <ShoppingBag size={18} />
-              Purchased
-              <span className={styles.badge}>{purchases.length}</span>
-            </button>
+          {/* Detail pills */}
+          <div style={{ background: 'white', borderRadius: '20px', padding: '16px', boxShadow: '0 4px 28px rgba(0,0,0,0.07)' }}>
+            <div className={styles.detailRow}>
+              <div className={styles.detailPill}>
+                <div className={styles.detailPillLabel}>Qualification</div>
+                <div className={styles.detailPillValue}>{profile.qualification || '—'}</div>
+              </div>
+              <div className={styles.detailPill}>
+                <div className={styles.detailPillLabel}>Course</div>
+                <div className={styles.detailPillValue}>{profile.courseName || '—'}</div>
+              </div>
+              <div className={styles.yearSpecRow}>
+                <div className={styles.detailPill}>
+                  <div className={styles.detailPillLabel}>Year</div>
+                  <div className={styles.detailPillValue}>{profile.year_of_study || '—'}</div>
+                </div>
+                <div className={styles.detailPill}>
+                  <div className={styles.detailPillLabel}>Specialization</div>
+                  <div className={styles.detailPillValue}>{profile.specializationName || '—'}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Complete profile */}
+          {!profile.is_profile_complete && (
+            <button className={styles.completeBtn} onClick={() => navigate('/onboarding')}>Complete Profile</button>
+          )}
+
+          {/* List New Item */}
+          <div className={styles.listNewCard}>
+            <div className={styles.listNewIcon}><PlusIcon size={18} /></div>
+            <div className={styles.listNewTitle}>List New Item</div>
+            <div className={styles.listNewSub}>Earn some campus cash</div>
+          </div>
+
+          {/* Bottom icon buttons */}
+          <div className={styles.sidebarActions}>
+            <button className={styles.sidebarIconBtn} title="Notifications"><BellIcon /></button>
+            <button className={styles.sidebarIconBtn} title="Settings"><GearIcon /></button>
+          </div>
+        </div>
+
+        {/* ─ Right Main Panel ─ */}
+        <div className={styles.mainContent}>
+          {/* Tabs */}
+          <div className={styles.tabs}>
+            {[
+              { key: 'listings',  label: 'My Items' },
+              { key: 'purchases', label: 'Bought Items' },
+              { key: 'watchlist', label: 'Watchlist' },
+            ].map(t => (
+              <button
+                key={t.key}
+                className={`${styles.tab} ${tab === t.key ? styles.tabActive : ''}`}
+                onClick={() => setTab(t.key)}
+              >
+                {t.label}
+              </button>
+            ))}
           </div>
 
           {/* Tab Content */}
-          <div className={styles.tabContent}>
-            
-            {/* LISTINGS VIEW */}
-            {activeTab === "listings" && (
-              <div className={styles.productsGrid}>
-                {listings.length === 0 ? (
-                  <div className={styles.emptyState}>You haven't listed any items yet.</div>
-                ) : (
-                  listings.map(item => (
-                    <div key={item.id} className={styles.productCard}>
-                      <div className={styles.productImageWrapper}>
-                        <img src={item.image_urls[0]} alt={item.title} className={styles.productImage} />
-                        {item.status === 'sold' && <div className={styles.soldBadge}>SOLD</div>}
-                        {item.status === 'available' && <div className={styles.activeBadge}>AVAILABLE</div>}
-                      </div>
-                      <div className={styles.productInfo}>
-                        <h4>{item.title}</h4>
-                        <p className={styles.price}>{item.price}</p>
-                        <div className={styles.productActions}>
-                          <button className={styles.editBtn}>Edit Details</button>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+          <div className={styles.grid}>
+            {tab === 'listings' && (
+              listings.length
+                ? listings.map(item => <ProductCard key={item.id} item={item} owned />)
+                : <div className={styles.emptyState}>You haven't listed anything yet.<br />Hit the + button to start selling!</div>
             )}
 
-            {/* PURCHASES VIEW */}
-            {activeTab === "purchases" && (
-              <div className={styles.productsGrid}>
-                {purchases.length === 0 ? (
-                  <div className={styles.emptyState}>You haven't purchased anything yet.</div>
-                ) : (
-                  purchases.map(item => (
-                    <div key={item.id} className={styles.productCard}>
-                      <div className={styles.productImageWrapper}>
-                        <img src={item.product.image_urls[0]} alt={item.product.title} className={styles.productImage} />
-                        <div className={styles.purchasedBadge}>PURCHASED</div>
-                      </div>
-                      <div className={styles.productInfo}>
-                        <h4>{item.product.title}</h4>
-                        <p className={styles.price}>{item.product.price}</p>
-                        <p className={styles.date}>Bought on: {new Date(item.created_at).toLocaleDateString()}</p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+            {tab === 'purchases' && (
+              purchases.length
+                ? purchases.map(item => <PurchaseCard key={item.id} item={item} />)
+                : <div className={styles.emptyState}>You haven't bought anything yet.<br />Go explore the marketplace!</div>
             )}
 
+            {tab === 'watchlist' && (
+              <div className={styles.emptyState}>Your wishlist is empty.<br />Swipe right on items you love!</div>
+            )}
           </div>
-        </main>
+        </div>
       </div>
+
+      {/* FAB — always visible in split view */}
+      <button
+        className={styles.fab}
+        title="List a new item"
+        style={{ opacity: p, pointerEvents: p > 0.5 ? 'all' : 'none' }}
+      >
+        <PlusIcon size={22} />
+      </button>
+
+      {/* Scroll sentinel — enables scrolling for animation */}
+      <div style={{ height: '400vh' }} aria-hidden="true" />
     </div>
   );
-};
-
-export default Dashboard;
+}
