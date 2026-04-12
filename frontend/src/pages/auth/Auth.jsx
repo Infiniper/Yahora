@@ -1,10 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import UniversityModal from "../../components/modal/UniversityModal";
+import { useAuth } from '../../contexts/AuthContext'; 
 import "./Auth.css";
 
 const Auth = () => {
   const navigate = useNavigate();
+  const { login } = useAuth(); 
   const [step, setStep] = useState(1); // 1: Email, 2: OTP
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -60,24 +62,19 @@ const Auth = () => {
         },
       );
       const data = await response.json();
-      // Inside frontend/src/pages/auth/Auth.jsx -> handleVerifyOtp
 
       if (response.ok) {
-        // Save the session token
-        localStorage.setItem("yahora_session", data.session.access_token);
-
-        // Save the User ID so Onboarding.jsx (or other pages) can send it to the backend
-        const userId =
-          data.userProfile?.id || data.userAuth?.id || data.user?.id;
+        // Extract User ID
+        const userId = data.userProfile?.id || data.userAuth?.id || data.user?.id;
+        
+        // 👈 NEW: Use context login function to save session & instantly update global state
         if (userId) {
-          localStorage.setItem("yahora_user_id", userId);
+          login(data.session.access_token, userId);
         }
 
-        // --- NEW CONDITIONAL REDIRECT LOGIC ---
-        // If the profile is already complete, send them to the dashboard/home.
-        // Otherwise, send them to the onboarding page.
+        // --- CONDITIONAL REDIRECT LOGIC ---
         if (data.userProfile && data.userProfile.is_profile_complete) {
-          navigate("/dashboard"); // or "/" if you want to send them to the home feed first
+          navigate("/dashboard"); 
         } else {
           navigate("/onboarding");
         }
@@ -130,7 +127,6 @@ const Auth = () => {
                 </p>
 
                 <label className="input-label">UNIVERSITY EMAIL ADDRESS</label>
-                {/* Modern Pill Input Wrapper */}
                 <div className="modern-input-group">
                   <input
                     type="email"
@@ -159,7 +155,6 @@ const Auth = () => {
                     See Supported Universities
                   </button>
                 </div>
-                {/* Render the university modal */}
                 <UniversityModal
                   isOpen={isModalOpen}
                   onClose={() => setIsModalOpen(false)}
@@ -240,7 +235,6 @@ const Auth = () => {
             playsInline
             className="feature-video"
             src="https://iwhtzhejyhaqctoqsolz.supabase.co/storage/v1/object/public/yahora%20videos/yahora_login_page_girl.mp4"
-            // src="https://iwhtzhejyhaqctoqsolz.supabase.co/storage/v1/object/public/yahora%20videos/yahora_login_page.mp4"
           >
             Your browser does not support the video tag.
           </video>
