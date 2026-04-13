@@ -80,7 +80,7 @@ function Avatar({ src, size, editable, onEdit }) {
           <PenIcon size={14} />
         </button>
       )}
-    </div>
+    </div> 
   );
 }
 
@@ -325,7 +325,7 @@ export default function Dashboard() {
       >
         {/* Row 1: avatar + greeting + icon buttons */}
         <div className={styles.heroHeader}>
-          <Avatar src={profile.avatar_url} size={240} editable onEdit={() => {}} />
+          <Avatar src={profile.avatar_url} size={160} editable onEdit={() => {}} />
           <div className={styles.heroText}>
             <div className={styles.heroEyebrow}>Student Dashboard</div>
             <div className={styles.heroGreeting}>Hi, {firstName}! 👋</div>

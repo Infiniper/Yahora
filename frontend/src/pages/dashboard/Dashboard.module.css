@@ -121,8 +121,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 32px;
-  padding: 40px 24px 60px;
+  gap: 28px;
+  padding: 40px 0px 60px 0px;
 }
 
 /* ── Hero exit animation ──
@@ -148,9 +148,9 @@
 
 .heroCards {
   display: grid;
-  grid-template-columns: 1.2fr 1fr;
+  grid-template-columns: 1.5fr 1fr;
   gap: 24px;
-  width: 75%;
+  width: 80%;
   /* Stagger slot 2 */
   animation: heroItemIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
 }
@@ -159,15 +159,15 @@
    only opacity here to avoid locking the transform property.   */
 .sellBtn {
   display: block;
-  width: 190px;
-  padding: 10px 0;
+  width: 175px;
+  padding: 9px 0;
   border-radius: 99px;
   border: none;
   cursor: pointer;
   background: linear-gradient(135deg, var(--purple), var(--pink-dark));
   color: white;
   font-family: 'Bree Serif', serif;
-  font-size: 1.1rem;
+  font-size: 1rem;
   letter-spacing: 0.03em;
   box-shadow: 0 8px 30px rgba(128, 0, 128, 0.30);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
@@ -249,7 +249,7 @@
 }
 .acadGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
   gap: 24px 32px;
 }
 .acadLabel {
@@ -261,12 +261,12 @@
   font-weight: 700;
 }
 .acadValue {
-  font-size: 1.1rem;
+  font-size: 0.85rem;
   font-weight: 600;
   color: var(--black-soft);
 }
 .bioText {
-  font-size: 1rem;
+  font-size: 0.9rem;
   color: #555;
   line-height: 1.7;
   font-style: italic;
@@ -274,7 +274,7 @@
 }
 .tags { display: flex; flex-wrap: wrap; gap: 8px; }
 .tag {
-  font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em;
+  font-size: 0.65rem; font-weight: 700; letter-spacing: 0.08em;
   padding: 6px 14px; border-radius: 99px; border: 1.5px solid #e0e0e0;
   color: #555; text-transform: uppercase;
 }
@@ -289,7 +289,7 @@
   gap: 48px;
   max-width: 1240px;
   margin: 0 3%;
-  padding: 40px 24px 80px;
+  padding: 40px 18px 80px 18px;
   /* The dashView container itself fades in instantly;
      the cinematic entrance is handled by its children. */
 }
@@ -625,13 +625,14 @@
 ══════════════════════════════════════════════ */
 @media (max-width: 960px) {
   .heroCards { grid-template-columns: 1fr; }
-  .dashView  { flex-direction: column; }
+  .dashView  { flex-direction: column; margin: 0 0;}
   .sidebar   { width: 100%; position: static; }
 }
 
 @media (max-width: 600px) {
   .heroHeader  { flex-direction: column; gap: 24px; }
   .heroIcons   { margin-left: 0; flex-direction: row; }
+  .dashView  { flex-direction: column; margin: 0 0;}
   .heroGreeting { font-size: 2rem; }
   .grid        { grid-template-columns: 1fr; }
 }
