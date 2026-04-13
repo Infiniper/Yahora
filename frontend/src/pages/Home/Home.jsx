@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import UniversityModal from "../../components/modal/UniversityModal";
+import { useAuth } from "../../contexts/AuthContext";
 // Import the elegant line icons from lucide-react
 import {
   ShieldCheck,
@@ -115,6 +116,7 @@ const Home = () => {
   const [likedItems, setLikedItems] = useState({});
   const videoRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     if (videoRef.current) {
@@ -140,18 +142,20 @@ const Home = () => {
             <span className="hero-badge">Buy and sell within your campus.</span>
             <h1 className="hero-title">Keep the Story Going.</h1>
             <div className="hero-buttons">
-              <button 
-              className="btn-secondary"
-              onClick={() => setIsModalOpen(true)}
-              >View Supported Campuses</button>
+              <button
+                className="btn-secondary"
+                onClick={() => setIsModalOpen(true)}
+              >
+                View Supported Campuses
+              </button>
             </div>
           </div>
         </div>
       </section>
       {/* Render the modal at the bottom of your component */}
-      <UniversityModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <UniversityModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
       />
 
       {/* 2. SPLIT SECTION: BUZZ & LISTINGS */}
@@ -379,9 +383,28 @@ const Home = () => {
         </p>
         <div className="cta-buttons">
           {/* <button className="btn-primary">View Supported Campuses</button> */}
-          <Link to="/auth" className="btn-outline">
-            Sign Up Now
-          </Link>
+
+          {isAuthenticated ? (
+            <Link
+              to="/dashboard"
+              className="btn-outline"
+              onClick={() =>
+                window.scrollTo({ top: 0, left: 0, behavior: "instant" })
+              }
+            >
+              Marketplace
+            </Link>
+          ) : (
+            <Link
+              to="/auth"
+              className="btn-outline"
+              onClick={() =>
+                window.scrollTo({ top: 0, left: 0, behavior: "instant" })
+              }
+            >
+              Sign Up Now
+            </Link>
+          )}
         </div>
       </section>
     </div>
