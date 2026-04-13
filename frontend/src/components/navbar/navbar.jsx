@@ -134,7 +134,7 @@ function Navbar() {
               </button>
 
               {isDropdownOpen && (
-                <div className=".profile-dropdown">
+                <div className="profile-dropdown">
                   <Link to="/dashboard" onClick={() => setIsDropdownOpen(false)}>
                     Dashboard
                   </Link>
