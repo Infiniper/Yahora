@@ -22,7 +22,7 @@ export const getDashboardData = async (req, res) => {
         // B. Fetch User's Listings
         const { data: listings, error: listingsError } = await supabase
             .from('products')
-            .select('id, title, price, status, image_urls, created_at')
+            .select('id, title, description, category, price, status, image_urls, created_at')
             .eq('seller_id', userId)
             .order('created_at', { ascending: false });
 

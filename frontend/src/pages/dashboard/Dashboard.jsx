@@ -252,8 +252,10 @@ function EditableField({ label, value, onSave, textarea, placeholder }) {
 
 function ProductCard({ item, owned }) {
   const st = STATUS_CONFIG[item.status] || STATUS_CONFIG.available;
+  // If no images exist, fallback to placeholder
   const imageUrl =
     item.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
+
   return (
     <div className={styles.card}>
       <div className={styles.cardImgWrap}>
@@ -278,9 +280,29 @@ function ProductCard({ item, owned }) {
             {fmt(item.price)}
           </span>
         </div>
+
+        {/* 👇 NEW: Category Badge */}
+        {item.category && (
+          <div
+            style={{
+              fontSize: "11px",
+              color: "var(--purple)",
+              background: "rgba(128, 0, 128, 0.1)",
+              padding: "4px 10px",
+              borderRadius: "12px",
+              display: "inline-block",
+              marginBottom: "8px",
+              fontWeight: "600",
+            }}
+          >
+            {item.category}
+          </div>
+        )}
+
         <p className={styles.cardDesc}>
           {item.description || item.product?.description}
         </p>
+
         <div className={styles.cardFoot}>
           {item.status === "sold" && item.sold_to ? (
             <span className={styles.cardSoldTo}>
@@ -727,9 +749,15 @@ export default function Dashboard() {
           </div>
 
           <div className={styles.listNewCard}>
-            <div className={styles.listNewIcon}>
+            <button
+              className={styles.listNewIcon}
+              onClick={() => {
+                navigate("/sell");
+                window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+              }}
+            >
               <PlusIcon size={20} />
-            </div>
+            </button>
             <div className={styles.listNewTitle}>List New Item</div>
             <div className={styles.listNewSub}>Earn some campus cash</div>
           </div>
@@ -846,7 +874,10 @@ export default function Dashboard() {
         <button
           className={styles.fab}
           title="List a new item"
-          onClick={() => navigate("/sell")} 
+          onClick={() => {
+            navigate("/sell");
+            window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+          }}
         >
           <PlusIcon size={24} />
         </button>

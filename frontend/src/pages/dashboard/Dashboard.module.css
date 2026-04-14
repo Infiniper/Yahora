@@ -397,12 +397,23 @@
 
 /* Sidebar "list new" internals */
 .listNewIcon {
-  width: 50px; height: 50px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: white;
-  display: flex; align-items: center; justify-content: center;
+
+  background: rgb(242, 239, 239);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   color: var(--purple);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  /* 🔥 Reset button defaults */
+  border: none;
+  outline: none;
+  padding: 0;
+  cursor: pointer;
 }
 .listNewTitle { font-weight: 700; font-size: 1rem; color: var(--black-soft); }
 .listNewSub   { font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; }

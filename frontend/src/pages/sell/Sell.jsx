@@ -4,101 +4,78 @@ import { useNavigate } from 'react-router-dom';
 import styles from './Sell.module.css';
 
 const CATEGORIES = [
-  "Electronics & Tech",
-  "Furniture & Decor",
-  "Books & Study Materials",
-  "Clothing & Accessories",
-  "Vehicles & Bikes",
-  "Appliances",
-  "Sports & Fitness",
-  "Miscellaneous"
+  { label: "Electronics & Tech",       icon: "💻" },
+  { label: "Furniture & Decor",        icon: "🪑" },
+  { label: "Books & Study Materials",  icon: "📚" },
+  { label: "Clothing & Accessories",   icon: "👕" },
+  { label: "Vehicles & Bikes",         icon: "🚲" },
+  { label: "Appliances",               icon: "🍳" },
+  { label: "Sports & Fitness",         icon: "🏋️" },
+  { label: "Miscellaneous",            icon: "📦" },
 ];
 
 export default function Sell() {
-  const navigate = useNavigate();
+  const navigate     = useNavigate();
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     title: '',
     description: '',
     price: '',
-    category: ''
+    category: '',
   });
-  
-  const [images, setImages] = useState([]); // Stores the actual File objects
+  const [images,  setImages]  = useState([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error,   setError]   = useState('');
 
-  const handleInputChange = (e) => {
+  /* ── handlers (logic unchanged) ── */
+  const handleInputChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
-    
-    // Check limit (max 5 images)
     if (images.length + files.length > 5) {
-      setError("You can only upload a maximum of 5 images.");
+      setError('You can only upload a maximum of 5 images.');
       return;
     }
     setError('');
     setImages(prev => [...prev, ...files]);
   };
 
-  const removeImage = (indexToRemove) => {
-    setImages(images.filter((_, index) => index !== indexToRemove));
-  };
+  const removeImage = (indexToRemove) =>
+    setImages(images.filter((_, i) => i !== indexToRemove));
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
-    if (images.length === 0) {
-      setError("Please add at least one photo.");
-      return;
-    }
-    if (!formData.category) {
-      setError("Please select a category.");
-      return;
-    }
+    if (images.length === 0) { setError('Please add at least one photo.'); return; }
+    if (!formData.category)  { setError('Please select a category.');       return; }
 
     setLoading(true);
-
     try {
       const userId = localStorage.getItem('yahora_user_id');
-      const token = localStorage.getItem('yahora_session');
-      
-      if (!userId || !token) {
-        navigate('/auth');
-        return;
-      }
+      const token  = localStorage.getItem('yahora_session');
+      if (!userId || !token) { navigate('/auth'); return; }
 
-      // We use FormData to send files + text fields together
       const submitData = new FormData();
-      submitData.append('seller_id', userId);
-      submitData.append('title', formData.title);
+      submitData.append('seller_id',   userId);
+      submitData.append('title',       formData.title);
       submitData.append('description', formData.description);
-      submitData.append('price', formData.price);
-      submitData.append('category', formData.category);
-      
-      images.forEach(image => {
-        submitData.append('images', image);
-      });
+      submitData.append('price',       formData.price);
+      submitData.append('category',    formData.category);
+      images.forEach(img => submitData.append('images', img));
 
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products`, {
-        method: 'POST',
-        headers: { Authorization: `Bearer ${token}` }, // Fetch handles multipart boundaries automatically
-        body: submitData
+        method:  'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body:    submitData,
       });
 
       if (!res.ok) {
         const data = await res.json();
         throw new Error(data.error || 'Failed to create listing');
       }
-
-      // Success! Redirect back to dashboard to see the new item
       navigate('/dashboard');
-
     } catch (err) {
       setError(err.message);
     } finally {
@@ -106,110 +83,221 @@ export default function Sell() {
     }
   };
 
+  /* ── render ── */
   return (
-    <div className={styles.sellContainer}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>List a New Item</h1>
-        <p className={styles.subtitle}>Turn your unused campus gear into cash.</p>
-      </div>
+    <div className={styles.page}>
 
-      {error && <div className={styles.errorMsg}>{error}</div>}
+      {/* ── decorative background orbs ── */}
+      <div className={styles.orb1} />
+      <div className={styles.orb2} />
 
-      <form onSubmit={handleSubmit}>
-        
-        {/* Images Section */}
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Photos (Max 5)</label>
-          <div className={styles.imageUploadWrap}>
-            {images.map((img, index) => (
-              <div key={index} className={styles.previewWrap}>
-                {/* Generate a temporary URL to preview the selected file */}
-                <img src={URL.createObjectURL(img)} alt="preview" className={styles.previewImg} />
-                <button type="button" onClick={() => removeImage(index)} className={styles.removeBtn}>✕</button>
-              </div>
-            ))}
-            
-            {images.length < 5 && (
-              <div className={styles.uploadBox} onClick={() => fileInputRef.current.click()}>
-                <span style={{ fontSize: '24px', marginBottom: '4px' }}>+</span>
-                <span style={{ fontSize: '14px' }}>Add Photo</span>
-              </div>
-            )}
-          </div>
-          <input 
-            type="file" 
-            accept="image/*" 
-            multiple 
-            ref={fileInputRef} 
-            onChange={handleImageChange} 
-            style={{ display: 'none' }} 
-          />
-        </div>
+      <div className={styles.wrapper}>
 
-        {/* Title */}
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Title</label>
-          <input 
-            type="text" 
-            name="title"
-            required
-            placeholder="e.g., Slightly used Study Table" 
-            className={styles.input}
-            value={formData.title}
-            onChange={handleInputChange}
-          />
-        </div>
+        {/* ════ LEFT: branding panel ════ */}
+        <aside className={styles.aside}>
+          <div className={styles.asideStickyContent}>
+            <div className={styles.asideBadge}>Campus Marketplace</div>
+            <h2 className={styles.asideHeading}>
+              Turn your<br />
+              <em>unused gear</em><br />
+              into cash.
+            </h2>
+            <p className={styles.asideSub}>
+              Every item you list reaches only verified students on your campus. Quick, safe, and scam-free.
+            </p>
 
-        {/* Price & Category Row */}
-        <div style={{ display: 'flex', gap: '16px' }}>
-          <div className={styles.formGroup} style={{ flex: 1 }}>
-            <label className={styles.label}>Price (₹)</label>
-            <input 
-              type="number" 
-              name="price"
-              required
-              min="0"
-              placeholder="0.00" 
-              className={styles.input}
-              value={formData.price}
-              onChange={handleInputChange}
-            />
-          </div>
-
-          <div className={styles.formGroup} style={{ flex: 1 }}>
-            <label className={styles.label}>Category</label>
-            <select 
-              name="category"
-              className={styles.select}
-              value={formData.category}
-              onChange={handleInputChange}
-            >
-              <option value="" disabled>Select a category</option>
-              {CATEGORIES.map(cat => (
-                <option key={cat} value={cat}>{cat}</option>
+            <div className={styles.asideTips}>
+              {[
+                { icon: '📸', tip: 'Clear photos sell 3× faster' },
+                { icon: '✍️', tip: 'Honest titles build trust'  },
+                { icon: '💰', tip: 'Fair price = quicker deal'  },
+              ].map(({ icon, tip }) => (
+                <div key={tip} className={styles.tipRow}>
+                  <span className={styles.tipIcon}>{icon}</span>
+                  <span className={styles.tipText}>{tip}</span>
+                </div>
               ))}
-            </select>
+            </div>
+
+            {/* decorative card mock */}
+            <div className={styles.mockCard}>
+              <div className={styles.mockImgStrip} />
+              <div className={styles.mockBody}>
+                <div className={styles.mockTitle} />
+                <div className={styles.mockPrice} />
+                <div className={styles.mockMeta} />
+              </div>
+            </div>
           </div>
-        </div>
+        </aside>
 
-        {/* Description */}
-        <div className={styles.formGroup}>
-          <label className={styles.label}>Description</label>
-          <textarea 
-            name="description"
-            required
-            placeholder="Describe the condition, age, and reason for selling..." 
-            className={styles.textarea}
-            value={formData.description}
-            onChange={handleInputChange}
-          />
-        </div>
+        {/* ════ RIGHT: form ════ */}
+        <main className={styles.formPanel}>
 
-        <button type="submit" className={styles.submitBtn} disabled={loading}>
-          {loading ? 'Posting your item...' : 'Post Item'}
-        </button>
+          <div className={styles.formHeader}>
+            <h1 className={styles.formTitle}>List a New Item</h1>
+            <p className={styles.formSub}>Fill in the details below — it only takes 60 seconds.</p>
+          </div>
 
-      </form>
+          {error && (
+            <div className={styles.errorMsg}>
+              <span className={styles.errorIcon}>⚠️</span>
+              {error}
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} noValidate>
+
+            {/* ── Photos ── */}
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>
+                <span className={styles.sectionNum}>01</span>
+                Photos
+                <span className={styles.sectionHint}>Up to 5 · First photo is the cover</span>
+              </div>
+
+              <div className={styles.imageGrid}>
+                {images.map((img, idx) => (
+                  <div
+                    key={idx}
+                    className={`${styles.previewWrap} ${idx === 0 ? styles.coverWrap : ''}`}
+                  >
+                    <img
+                      src={URL.createObjectURL(img)}
+                      alt={`preview ${idx + 1}`}
+                      className={styles.previewImg}
+                    />
+                    {idx === 0 && <span className={styles.coverBadge}>Cover</span>}
+                    <button
+                      type="button"
+                      onClick={() => removeImage(idx)}
+                      className={styles.removeBtn}
+                      title="Remove"
+                    >✕</button>
+                  </div>
+                ))}
+
+                {images.length < 5 && (
+                  <button
+                    type="button"
+                    className={styles.uploadBox}
+                    onClick={() => fileInputRef.current.click()}
+                  >
+                    <span className={styles.uploadPlus}>+</span>
+                    <span className={styles.uploadLabel}>
+                      {images.length === 0 ? 'Add Photos' : 'Add More'}
+                    </span>
+                  </button>
+                )}
+              </div>
+
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                style={{ display: 'none' }}
+              />
+            </div>
+
+            {/* ── Title ── */}
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>
+                <span className={styles.sectionNum}>02</span>
+                Title
+              </div>
+              <input
+                type="text"
+                name="title"
+                required
+                placeholder="e.g., Slightly used Study Table"
+                className={styles.input}
+                value={formData.title}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            {/* ── Category ── */}
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>
+                <span className={styles.sectionNum}>03</span>
+                Category
+              </div>
+              <div className={styles.categoryGrid}>
+                {CATEGORIES.map(({ label, icon }) => (
+                  <button
+                    key={label}
+                    type="button"
+                    className={`${styles.catChip} ${formData.category === label ? styles.catActive : ''}`}
+                    onClick={() => setFormData({ ...formData, category: label })}
+                  >
+                    <span className={styles.catIcon}>{icon}</span>
+                    <span className={styles.catLabel}>{label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* ── Price ── */}
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>
+                <span className={styles.sectionNum}>04</span>
+                Price
+              </div>
+              <div className={styles.priceWrap}>
+                <span className={styles.priceSymbol}>₹</span>
+                <input
+                  type="number"
+                  name="price"
+                  required
+                  min="0"
+                  placeholder="0"
+                  className={`${styles.input} ${styles.priceInput}`}
+                  value={formData.price}
+                  onChange={handleInputChange}
+                />
+              </div>
+            </div>
+
+            {/* ── Description ── */}
+            <div className={styles.section}>
+              <div className={styles.sectionLabel}>
+                <span className={styles.sectionNum}>05</span>
+                Description
+              </div>
+              <textarea
+                name="description"
+                required
+                placeholder="Describe the condition, age, and reason for selling…"
+                className={`${styles.input} ${styles.textarea}`}
+                value={formData.description}
+                onChange={handleInputChange}
+              />
+            </div>
+
+            {/* ── Submit ── */}
+            <button
+              type="submit"
+              className={styles.submitBtn}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className={styles.submitSpinner} />
+                  Posting your item…
+                </>
+              ) : (
+                <>
+                  <span className={styles.submitArrow}>✦</span>
+                  Post Item to Campus
+                </>
+              )}
+            </button>
+
+          </form>
+        </main>
+      </div>
     </div>
   );
 }
