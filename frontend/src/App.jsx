@@ -6,6 +6,7 @@ import Auth from './pages/auth/Auth';
 import Home from './pages/Home/Home';
 import Onboarding from './pages/onboarding/onboarding'; 
 import Dashboard from './pages/dashboard/Dashboard';
+import Sell from './pages/sell/Sell';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
           <Route path="/messages" element={<div className="container mt-4"><h3>Direct Messaging</h3></div>} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/sell" element={<Sell />} />
         </Routes>
       </main>
 
