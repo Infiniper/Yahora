@@ -122,7 +122,7 @@
   align-items: center;
   justify-content: center;
   gap: 28px;
-  padding: 40px 0px 60px 0px;
+  padding: 40px 40px 60px 0px;
 }
 
 /* ── Hero exit animation ──
@@ -200,7 +200,7 @@
 .heroSub {
   font-size: 1.05rem;
   color: #666;
-  max-width: 400px;
+  max-width: 500px;
   line-height: 1.5;
 }
 
@@ -376,7 +376,8 @@
 .sidebarUni {
   display: flex; align-items: center; justify-content: center; gap: 8px;
   color: var(--purple);
-  font-size: 0.9rem; font-weight: 600;
+  font-size: 1rem; font-weight: 600;
+  margin-bottom: 5px;
 }
 .sidebarUniDot { width: 8px; height: 8px; border-radius: 50%; background: var(--purple); }
 .sidebarBio {
@@ -396,12 +397,23 @@
 
 /* Sidebar "list new" internals */
 .listNewIcon {
-  width: 50px; height: 50px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
-  background: white;
-  display: flex; align-items: center; justify-content: center;
+
+  background: rgb(242, 239, 239);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
   color: var(--purple);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  /* 🔥 Reset button defaults */
+  border: none;
+  outline: none;
+  padding: 0;
+  cursor: pointer;
 }
 .listNewTitle { font-weight: 700; font-size: 1rem; color: var(--black-soft); }
 .listNewSub   { font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; }
@@ -542,8 +554,6 @@
    FAB
 ══════════════════════════════════════════════ */
 .fab {
-  position: fixed;
-  bottom: 32px; right: 32px;
   width: 64px; height: 64px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--purple), var(--pink-dark));
@@ -552,7 +562,6 @@
   color: white;
   box-shadow: 0 8px 30px rgba(128, 0, 128, 0.35);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
-  z-index: 100;
 }
 .fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 12px 40px rgba(128, 0, 128, 0.45); }
 
