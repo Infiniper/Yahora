@@ -74,7 +74,7 @@ const MOCK_LISTINGS = [
     location: "HALL 1",
     tagColor: "var(--blue)",
     image:
-      "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&q=80&w=800",
+      "coke.jpeg",
     seller: "Anmol Singh",
   },
   {
@@ -244,6 +244,7 @@ const Home = () => {
                 </div>
                 <div className="listing-info">
                   <div className="listing-tags">
+                    <div className = "tag-location">
                     <span
                       className="tag"
                       style={{ backgroundColor: item.tagColor }}
@@ -251,9 +252,10 @@ const Home = () => {
                       {item.tag}
                     </span>
                     <span className="location-tag">{item.location}</span>
+                    </div>
+                  <div className="listing-price">{item.price}</div>
                   </div>
                   <h3 className="listing-title">{item.title}</h3>
-                  <div className="listing-price">{item.price}</div>
                   <div className="listing-seller">
                     <div className="seller-avatar-mini"></div>
                     <span>by {item.seller}</span>

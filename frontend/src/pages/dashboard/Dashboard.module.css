@@ -469,7 +469,7 @@
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 24px;
+  gap: 1.25rem;
   animation: gridIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
@@ -495,61 +495,201 @@
 /* ══════════════════════════════════════════════
    PRODUCT / PURCHASE CARDS
 ══════════════════════════════════════════════ */
-.card {
-  background: white;
+.listingCard {
+  background-color: var(--white);
   border-radius: 24px;
   overflow: hidden;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
-  /* Only transition transform + box-shadow here — this is what the
-     hover uses. If animations locked transform we'd handle it above. */
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+  border: 1px solid #EAEAEA;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
-.card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12); }
 
-.cardImgWrap { position: relative; aspect-ratio: 4/3; overflow: hidden; }
-.cardImg {
-  width: 100%; height: 100%;
+.listingCard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+
+.listingImageWrapper {
+  position: relative;
+  height: 300px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.listingImage {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   transition: transform 0.5s ease;
 }
-.card:hover .cardImg { transform: scale(1.05); }
+
+.listingCard:hover .listingImage {
+  transform: scale(1.05);
+}
 
 .cardBadge {
-  position: absolute; top: 16px; left: 16px;
-  font-size: 0.7rem; font-weight: 800; letter-spacing: 0.1em;
-  padding: 6px 12px; border-radius: 8px;
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  padding: 6px 12px;
+  border-radius: 8px;
+  z-index: 2;
 }
-.cardBody { padding: 20px; }
-.cardHead {
-  display: flex; align-items: flex-start;
-  justify-content: space-between; gap: 12px; margin-bottom: 8px;
+
+.heartBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(6px);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  z-index: 2;
 }
-.cardTitle { font-family: 'Bree Serif', serif; font-size: 1.1rem; color: var(--black-soft); flex: 1; }
-.cardPrice { font-size: 1.1rem; font-weight: 700; flex-shrink: 0; }
+
+.heartBtn:hover {
+  background: rgba(235, 72, 127, 0.9); /* var(--pink-dark) */
+}
+
+.heartBtn svg {
+  transition: all 0.2s ease;
+}
+
+.heartBtn:hover svg {
+  transform: scale(1.15);
+}
+
+.listingInfo {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1; /* Pushes the footer to the bottom */
+}
+
+.listingTags {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.tagLocation {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.tag {
+  font-size: 11px;
+  color: var(--purple);
+  background: rgba(128, 0, 128, 0.1);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.locationTag {
+  font-size: 0.7rem;
+  color: #666;
+  font-weight: 600;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.listingTitle {
+  font-family: 'Bree Serif', serif;
+  font-size: 1.15rem;
+  margin: 0 0 8px 0;
+  color: var(--black-soft);
+  line-height: 1.3;
+}
+
+.listingPrice {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--purple);
+  white-space: nowrap;
+}
+
 .cardDesc {
-  font-size: 0.9rem; color: #888; line-height: 1.5; margin-bottom: 16px;
-  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  font-size: 0.85rem;
+  color: #777;
+  line-height: 1.5;
+  margin-bottom: 10px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  flex: 1;
 }
+
 .cardFoot {
-  display: flex; align-items: center; justify-content: space-between;
-  border-top: 1px solid #f0f0f0; padding-top: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 1px solid #f0f0f0;
+  padding-top: 8px;
+  margin-top: auto;
 }
+
 .cardViews,
 .cardSoldTo {
-  display: flex; align-items: center; gap: 6px;
-  font-size: 0.75rem; font-weight: 700; color: #aaa;
-  letter-spacing: 0.08em; text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #aaa;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
-.cardActions { display: flex; gap: 10px; }
+
+.cardActions {
+  display: flex;
+  gap: 10px;
+}
+
 .cardBtn {
-  width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   transition: filter 0.2s ease, transform 0.2s ease;
 }
-.cardBtnChat { background: var(--pink-light); color: var(--pink-dark); }
-.cardBtnEdit { background: #f0eaf5; color: var(--purple); }
-.cardBtn:hover { filter: brightness(0.95); transform: scale(1.05); }
 
+.cardBtnChat {
+  background: var(--pink-light);
+  color: var(--pink-dark);
+}
+
+.cardBtnEdit {
+  background: #f0eaf5;
+  color: var(--purple);
+}
+
+.cardBtn:hover {
+  filter: brightness(0.95);
+  transform: scale(1.05);
+}
 /* ══════════════════════════════════════════════
    FAB
 ══════════════════════════════════════════════ */

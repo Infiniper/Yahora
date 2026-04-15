@@ -17,6 +17,21 @@ const fmt = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
 /* ─────────────────────────────────────────────
    ICONS
 ───────────────────────────────────────────── */
+const HeartIcon = ({ size = 18, fill = "none", stroke = "currentColor" }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill={fill}
+    stroke={stroke}
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+  </svg>
+);
+
 const PenIcon = ({ size = 16 }) => (
   <svg
     width={size}
@@ -252,57 +267,72 @@ function EditableField({ label, value, onSave, textarea, placeholder }) {
 
 function ProductCard({ item, owned }) {
   const st = STATUS_CONFIG[item.status] || STATUS_CONFIG.available;
-  // If no images exist, fallback to placeholder
-  const imageUrl =
-    item.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
+  const imageUrl = item.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
+  
+  // Local state for the like button (wishlist feature)
+  const [isLiked, setIsLiked] = useState(false);
+
+  // Fallback for location until you add it to your database schema
+  const locationName = item.location || "Campus Hostel";
 
   return (
-    <div className={styles.card}>
-      <div className={styles.cardImgWrap}>
-        <img src={imageUrl} alt={item.title} className={styles.cardImg} />
-        <span
-          className={styles.cardBadge}
-          style={{ background: st.bg, color: st.color }}
-        >
+    <div className={styles.listingCard}>
+      
+      {/* --- Image Wrapper --- */}
+      <div className={styles.listingImageWrapper}>
+        <img src={imageUrl} alt={item.title} className={styles.listingImage} />
+        
+        {/* Status Badge (Active/Sold) */}
+        <span className={styles.cardBadge} style={{ background: st.bg, color: st.color }}>
           {st.label}
         </span>
+        
+        {/* Heart Like Button */}
+        <button
+          className={styles.heartBtn}
+          onClick={(e) => {
+            e.stopPropagation(); // Prevents clicking the card if you add links later
+            setIsLiked(!isLiked);
+          }}
+        >
+          <HeartIcon
+            size={18}
+            fill={isLiked ? "var(--pink-dark)" : "none"}
+            stroke={isLiked ? "var(--pink-dark)" : "#fff"}
+          />
+        </button>
       </div>
-      <div className={styles.cardBody}>
-        <div className={styles.cardHead}>
-          <h3 className={styles.cardTitle}>{item.title}</h3>
-          <span
-            className={styles.cardPrice}
+
+      {/* --- Info Section --- */}
+      <div className={styles.listingInfo}>
+        
+        {/* Tags & Price Row */}
+        <div className={styles.listingTags}>
+          <div className={styles.tagLocation}>
+            {item.category && (
+              <span className={styles.tag}>{item.category}</span>
+            )}
+            <span className={styles.locationTag}>{locationName}</span>
+          </div>
+          
+          <div 
+            className={styles.listingPrice}
             style={{
-              color: item.status === "sold" ? "#999" : "var(--pink-dark)",
+              color: item.status === "sold" ? "#999" : "var(--purple)",
               textDecoration: item.status === "sold" ? "line-through" : "none",
             }}
           >
             {fmt(item.price)}
-          </span>
+          </div>
         </div>
 
-        {/* 👇 NEW: Category Badge */}
-        {item.category && (
-          <div
-            style={{
-              fontSize: "11px",
-              color: "var(--purple)",
-              background: "rgba(128, 0, 128, 0.1)",
-              padding: "4px 10px",
-              borderRadius: "12px",
-              display: "inline-block",
-              marginBottom: "8px",
-              fontWeight: "600",
-            }}
-          >
-            {item.category}
-          </div>
-        )}
-
+        {/* Title & Description */}
+        <h3 className={styles.listingTitle}>{item.title}</h3>
         <p className={styles.cardDesc}>
           {item.description || item.product?.description}
         </p>
 
+        {/* Footer (Dashboard specific data: Views/Sold + Actions) */}
         <div className={styles.cardFoot}>
           {item.status === "sold" && item.sold_to ? (
             <span className={styles.cardSoldTo}>
@@ -315,23 +345,19 @@ function ProductCard({ item, owned }) {
           ) : (
             <span />
           )}
+          
           {owned && item.status !== "sold" && (
             <div className={styles.cardActions}>
-              <button
-                className={`${styles.cardBtn} ${styles.cardBtnChat}`}
-                title="Messages"
-              >
+              <button className={`${styles.cardBtn} ${styles.cardBtnChat}`} title="Messages">
                 <ChatIcon size={14} />
               </button>
-              <button
-                className={`${styles.cardBtn} ${styles.cardBtnEdit}`}
-                title="Edit listing"
-              >
+              <button className={`${styles.cardBtn} ${styles.cardBtnEdit}`} title="Edit listing">
                 <PenIcon size={13} />
               </button>
             </div>
           )}
         </div>
+
       </div>
     </div>
   );
