@@ -265,6 +265,7 @@ function EditableField({ label, value, onSave, textarea, placeholder }) {
   );
 }
 
+
 function ProductCard({ item, owned }) {
   const st = STATUS_CONFIG[item.status] || STATUS_CONFIG.available;
   const imageUrl = item.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
@@ -336,14 +337,17 @@ function ProductCard({ item, owned }) {
         <div className={styles.cardFoot}>
           {item.status === "sold" && item.sold_to ? (
             <span className={styles.cardSoldTo}>
-              <ClockIcon /> SOLD TO @{item.sold_to}
+              <ClockIcon /> Sold to @{item.sold_to}
             </span>
           ) : item.views !== undefined ? (
             <span className={styles.cardViews}>
-              <EyeIcon /> {item.views} VIEWS
+              <EyeIcon /> {item.views} Views
             </span>
           ) : (
-            <span />
+            // <span />
+            <span className={styles.cardViews}>
+              <EyeIcon /> {item.views} Views
+            </span>
           )}
           
           {owned && item.status !== "sold" && (
