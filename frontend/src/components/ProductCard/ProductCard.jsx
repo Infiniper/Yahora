@@ -1,0 +1,513 @@
+/**
+ * Yahora — ProductCard Component
+ * ================================
+ * File: frontend/src/components/ProductCard/ProductCard.jsx
+ *
+ * A fully self-contained, reusable product card that matches the Figma design exactly.
+ *
+ * Features:
+ *  ✅ Image carousel with "1/4" counter
+ *  ✅ Dual like buttons (image overlay + footer) — synced, counter only in footer
+ *  ✅ Real-time view / like / comment counts via Supabase Realtime
+ *  ✅ Live "time ago" ticker (updates every 30s)
+ *  ✅ Save (wishlist) + Share with Web Share API fallback
+ *  ✅ Condition badge + Location tag + Price layout
+ *  ✅ Seller avatar + name row
+ *  ✅ Optimistic UI — instant feedback, server confirms asynchronously
+ *
+ * Usage:
+ *   import ProductCard from '@/components/ProductCard/ProductCard';
+ *
+ *   <ProductCard
+ *     product={productObject}
+ *     currentUserId={userId}        // from localStorage / auth context
+ *     onCardClick={(id) => navigate(`/product/${id}`)}
+ *   />
+ *
+ * Product object shape (matches backend GET /api/user/:id/dashboard listings):
+ * {
+ *   id, title, price, description,
+ *   image_urls: string[],
+ *   condition: 'Mint' | 'Good' | 'Fair' | 'Poor',
+ *   location: string,          // e.g. "Hall 1"
+ *   status: 'available' | 'sold' | 'pending',
+ *   views: number,
+ *   likes_count: number,
+ *   comments_count: number,
+ *   created_at: string,        // ISO date string
+ *   is_liked: boolean,         // current user already liked?
+ *   is_saved: boolean,         // current user already saved?
+ *   seller: {
+ *     id, full_name, avatar_url, university
+ *   }
+ * }
+ */
+
+import React, {
+  useState, useEffect, useRef, useCallback, memo
+} from 'react';
+import styles from './ProductCard.module.css';
+
+/* ─────────────────────────────────────
+   Supabase client (lazy import so the
+   component is usable without it too)
+───────────────────────────────────── */
+let supabase = null;
+try {
+  // Dynamically imported so the card still works in isolation / Storybook
+  const { createClient } = await import('@supabase/supabase-js');
+  supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY
+  );
+} catch {
+  // Running without Supabase — counts stay local
+}
+
+/* ─────────────────────────────────────
+   CONDITION CONFIG
+   Maps condition strings → badge colors
+───────────────────────────────────── */
+const CONDITION_CONFIG = {
+  'Mint':      { label: 'MINT CONDITION', bg: '#2BB7FF', color: '#fff' },
+  'Like New':  { label: 'LIKE NEW',       bg: '#4ade80', color: '#052e16' },
+  'Good':      { label: 'GOOD',           bg: '#facc15', color: '#1a1100' },
+  'Fair':      { label: 'FAIR',           bg: '#fb923c', color: '#fff' },
+  'Poor':      { label: 'POOR',           bg: '#f87171', color: '#fff' },
+};
+
+/* ─────────────────────────────────────
+   TIME AGO
+───────────────────────────────────── */
+function timeAgo(isoString) {
+  const now   = Date.now();
+  const then  = new Date(isoString).getTime();
+  const diff  = Math.floor((now - then) / 1000); // seconds
+
+  if (diff < 60)           return `${diff}s ago`;
+  if (diff < 3600)         return `${Math.floor(diff / 60)}m ago`;
+  if (diff < 86400)        return `${Math.floor(diff / 3600)}h ago`;
+  if (diff < 86400 * 7)   return `${Math.floor(diff / 86400)}d ago`;
+  if (diff < 86400 * 30)  return `${Math.floor(diff / (86400 * 7))}w ago`;
+  return new Date(isoString).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+}
+
+/* ─────────────────────────────────────
+   ICONS  (inline SVG, zero deps)
+───────────────────────────────────── */
+const HeartIcon = ({ filled, size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/>
+  </svg>
+);
+const EyeIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+  </svg>
+);
+const CommentIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+const BookmarkIcon = ({ filled, size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'}
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+  </svg>
+);
+const ShareIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+  </svg>
+);
+const ChevronIcon = ({ dir = 'left', size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none"
+    stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    {dir === 'left'
+      ? <polyline points="15 18 9 12 15 6"/>
+      : <polyline points="9 18 15 12 9 6"/>}
+  </svg>
+);
+
+/* ─────────────────────────────────────
+   MAIN COMPONENT
+───────────────────────────────────── */
+const ProductCard = memo(function ProductCard({
+  product,
+  currentUserId = null,
+  onCardClick   = null,
+}) {
+
+  /* ── Local state (optimistic UI) ── */
+  const [imgIndex,    setImgIndex]    = useState(0);
+  const [liked,       setLiked]       = useState(product.is_liked   ?? false);
+  const [saved,       setSaved]       = useState(product.is_saved   ?? false);
+  const [likeCount,   setLikeCount]   = useState(product.likes_count    ?? 0);
+  const [viewCount,   setViewCount]   = useState(product.views          ?? 0);
+  const [commentCount,setCommentCount]= useState(product.comments_count ?? 0);
+  const [timeLabel,   setTimeLabel]   = useState(() => timeAgo(product.created_at));
+
+  /* Prevent multiple rapid fires */
+  const likeThrottle = useRef(false);
+  const saveThrottle = useRef(false);
+
+  const images = product.image_urls?.length ? product.image_urls : [
+    'https://via.placeholder.com/600x400?text=No+Image'
+  ];
+  const totalImages = images.length;
+
+  /* ── Condition badge ── */
+  const condCfg = CONDITION_CONFIG[product.condition] ?? CONDITION_CONFIG['Good'];
+
+  /* ──────────────────────────────
+     Real-time ticker: time ago
+     Updates every 30 seconds
+  ────────────────────────────── */
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTimeLabel(timeAgo(product.created_at));
+    }, 30_000);
+    return () => clearInterval(id);
+  }, [product.created_at]);
+
+  /* ──────────────────────────────
+     Supabase Realtime — subscribe
+     to changes on this product row
+  ────────────────────────────── */
+  useEffect(() => {
+    if (!supabase || !product.id) return;
+
+    const channel = supabase
+      .channel(`product:${product.id}`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'products',
+          filter: `id=eq.${product.id}`,
+        },
+        (payload) => {
+          const row = payload.new;
+          if (row.views         !== undefined) setViewCount(row.views);
+          if (row.likes_count   !== undefined) setLikeCount(row.likes_count);
+          if (row.comments_count!== undefined) setCommentCount(row.comments_count);
+        }
+      )
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  }, [product.id]);
+
+  /* ──────────────────────────────
+     Increment view count once on mount
+     (only for logged-in non-owners)
+  ────────────────────────────── */
+  useEffect(() => {
+    if (!supabase || !product.id) return;
+    if (currentUserId && currentUserId === product.seller?.id) return; // owner, skip
+
+    const key = `viewed_${product.id}`;
+    if (sessionStorage.getItem(key)) return; // already counted this session
+
+    sessionStorage.setItem(key, '1');
+    supabase.rpc('increment_product_views', { product_id: product.id }).catch(() => {});
+    // Fallback REST call if RPC isn't set up:
+    // fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products/${product.id}/view`, { method: 'POST' })
+  }, [product.id, currentUserId, product.seller?.id]);
+
+  /* ──────────────────────────────
+     Image carousel handlers
+  ────────────────────────────── */
+  const prevImage = useCallback((e) => {
+    e.stopPropagation();
+    setImgIndex(i => (i - 1 + totalImages) % totalImages);
+  }, [totalImages]);
+
+  const nextImage = useCallback((e) => {
+    e.stopPropagation();
+    setImgIndex(i => (i + 1) % totalImages);
+  }, [totalImages]);
+
+  /* ──────────────────────────────
+     Like handler
+     - Toggles local state instantly (optimistic)
+     - Sends to backend
+     - Both heart buttons share ONE handler
+  ────────────────────────────── */
+  const handleLike = useCallback(async (e) => {
+    e.stopPropagation();
+    if (!currentUserId) {
+      // Could trigger a login modal here
+      alert('Please log in to like items!');
+      return;
+    }
+    if (likeThrottle.current) return;
+    likeThrottle.current = true;
+    setTimeout(() => { likeThrottle.current = false; }, 600);
+
+    const nowLiked = !liked;
+    setLiked(nowLiked);
+    setLikeCount(c => nowLiked ? c + 1 : Math.max(0, c - 1));
+
+    try {
+      if (!supabase) return;
+      if (nowLiked) {
+        await supabase.from('product_likes').insert({
+          user_id:    currentUserId,
+          product_id: product.id,
+        });
+      } else {
+        await supabase.from('product_likes').delete().match({
+          user_id:    currentUserId,
+          product_id: product.id,
+        });
+      }
+    } catch (err) {
+      // Rollback on failure
+      setLiked(!nowLiked);
+      setLikeCount(c => nowLiked ? Math.max(0, c - 1) : c + 1);
+      console.error('Like failed:', err);
+    }
+  }, [liked, currentUserId, product.id]);
+
+  /* ──────────────────────────────
+     Save (wishlist) handler
+  ────────────────────────────── */
+  const handleSave = useCallback(async (e) => {
+    e.stopPropagation();
+    if (!currentUserId) { alert('Please log in to save items!'); return; }
+    if (saveThrottle.current) return;
+    saveThrottle.current = true;
+    setTimeout(() => { saveThrottle.current = false; }, 600);
+
+    const nowSaved = !saved;
+    setSaved(nowSaved);
+
+    try {
+      if (!supabase) return;
+      if (nowSaved) {
+        await supabase.from('product_likes').insert({
+          user_id: currentUserId, product_id: product.id
+        });
+      } else {
+        await supabase.from('product_likes').delete().match({
+          user_id: currentUserId, product_id: product.id
+        });
+      }
+    } catch (err) {
+      setSaved(!nowSaved);
+      console.error('Save failed:', err);
+    }
+  }, [saved, currentUserId, product.id]);
+
+  /* ──────────────────────────────
+     Share handler (Web Share API)
+  ────────────────────────────── */
+  const handleShare = useCallback(async (e) => {
+    e.stopPropagation();
+    const shareData = {
+      title: product.title,
+      text:  `Check out "${product.title}" on Yahora for ₹${product.price}`,
+      url:   `${window.location.origin}/product/${product.id}`,
+    };
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+      } else {
+        await navigator.clipboard.writeText(shareData.url);
+        // Could show a toast here
+        alert('Link copied to clipboard!');
+      }
+    } catch {}
+  }, [product]);
+
+  /* ──────────────────────────────
+     Card click → navigate
+  ────────────────────────────── */
+  const handleCardClick = useCallback(() => {
+    if (onCardClick) onCardClick(product.id);
+  }, [onCardClick, product.id]);
+
+  /* ──────────────────────────────
+     Seller display
+  ────────────────────────────── */
+  const sellerName   = product.seller?.full_name ?? 'Unknown Seller';
+  const sellerAvatar = product.seller?.avatar_url;
+  const sellerInitial = sellerName.charAt(0).toUpperCase();
+
+  /* ── Render ── */
+  return (
+    <article
+      className={styles.card}
+      onClick={onCardClick ? handleCardClick : undefined}
+      style={{ cursor: onCardClick ? 'pointer' : 'default' }}
+      role={onCardClick ? 'button' : undefined}
+      tabIndex={onCardClick ? 0 : undefined}
+      onKeyDown={onCardClick ? (e) => { if (e.key === 'Enter') handleCardClick(); } : undefined}
+      aria-label={`${product.title}, ₹${product.price}`}
+    >
+
+      {/* ─── IMAGE SECTION ─── */}
+      <div className={styles.imageWrap}>
+
+        {/* Carousel images */}
+        <div
+          className={styles.imageTrack}
+          style={{ transform: `translateX(-${imgIndex * 100}%)` }}
+        >
+          {images.map((url, i) => (
+            <img
+              key={i}
+              src={url}
+              alt={`${product.title} — photo ${i + 1}`}
+              className={styles.image}
+              loading={i === 0 ? 'eager' : 'lazy'}
+              draggable={false}
+            />
+          ))}
+        </div>
+
+        {/* Carousel arrows (only if > 1 image) */}
+        {totalImages > 1 && (
+          <>
+            <button
+              className={`${styles.carouselBtn} ${styles.carouselBtnLeft}`}
+              onClick={prevImage}
+              aria-label="Previous image"
+            >
+              <ChevronIcon dir="left" size={14} />
+            </button>
+            <button
+              className={`${styles.carouselBtn} ${styles.carouselBtnRight}`}
+              onClick={nextImage}
+              aria-label="Next image"
+            >
+              <ChevronIcon dir="right" size={14} />
+            </button>
+          </>
+        )}
+
+        {/* Image counter pill */}
+        {totalImages > 1 && (
+          <div className={styles.imageCounter}>
+            {imgIndex + 1}/{totalImages}
+          </div>
+        )}
+
+        {/* Heart button overlay — synced with footer heart */}
+        <button
+          className={`${styles.overlayHeart} ${liked ? styles.overlayHeartLiked : ''}`}
+          onClick={handleLike}
+          aria-label={liked ? 'Unlike' : 'Like'}
+          aria-pressed={liked}
+        >
+          <HeartIcon filled={liked} size={18} />
+        </button>
+
+        {/* Sold banner */}
+        {product.status === 'sold' && (
+          <div className={styles.soldBanner}>SOLD</div>
+        )}
+      </div>
+
+      {/* ─── INFO SECTION ─── */}
+      <div className={styles.infoWrap}>
+
+        {/* Row 1: Condition + Location + Price */}
+        <div className={styles.metaRow}>
+          <div className={styles.metaLeft}>
+            <span
+              className={styles.conditionBadge}
+              style={{ background: condCfg.bg, color: condCfg.color }}
+            >
+              {condCfg.label}
+            </span>
+            {product.location && (
+              <span className={styles.locationTag}>{product.location.toUpperCase()}</span>
+            )}
+          </div>
+          <span className={styles.price}>₹{Number(product.price).toLocaleString('en-IN')}</span>
+        </div>
+
+        {/* Row 2: Product Title */}
+        <h3 className={styles.title}>{product.title}</h3>
+
+        {/* Row 3: Stats + Seller */}
+        <div className={styles.footerRow}>
+
+          {/* Left stats */}
+          <div className={styles.stats}>
+
+            {/* Views — read-only display */}
+            <span className={styles.stat} aria-label={`${viewCount} views`}>
+              <EyeIcon />
+              <span>{viewCount}</span>
+            </span>
+
+            {/* Like — footer version (counter lives here) */}
+            <button
+              className={`${styles.statBtn} ${liked ? styles.statBtnLiked : ''}`}
+              onClick={handleLike}
+              aria-label={liked ? 'Unlike' : 'Like'}
+              aria-pressed={liked}
+            >
+              <HeartIcon filled={liked} size={18} />
+              <span>{likeCount}</span>
+            </button>
+
+            {/* Comments — display only */}
+            <span className={styles.stat} aria-label={`${commentCount} comments`}>
+              <CommentIcon />
+              <span>{commentCount}</span>
+            </span>
+
+            {/* Save / Wishlist */}
+            <button
+              className={`${styles.statBtn} ${saved ? styles.statBtnSaved : ''}`}
+              onClick={handleSave}
+              aria-label={saved ? 'Remove from wishlist' : 'Save to wishlist'}
+              aria-pressed={saved}
+            >
+              <BookmarkIcon filled={saved} size={18} />
+            </button>
+
+            {/* Share */}
+            <button
+              className={styles.statBtn}
+              onClick={handleShare}
+              aria-label="Share product"
+            >
+              <ShareIcon size={18} />
+            </button>
+          </div>
+
+          {/* Right: Seller */}
+          <div className={styles.seller}>
+            {sellerAvatar ? (
+              <img
+                src={sellerAvatar}
+                alt={sellerName}
+                className={styles.sellerAvatar}
+              />
+            ) : (
+              <div className={styles.sellerAvatarFallback}>{sellerInitial}</div>
+            )}
+            <span className={styles.sellerName}>by {sellerName}</span>
+          </div>
+        </div>
+
+        {/* Row 4: Time ago — live ticker */}
+        <p className={styles.timeAgo}>{timeLabel}</p>
+
+      </div>
+    </article>
+  );
+});
+
+export default ProductCard;

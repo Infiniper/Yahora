@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import UniversityModal from "../../components/modal/UniversityModal";
 import { useAuth } from "../../contexts/AuthContext";
+import ProductCard from "../../components/ProductCard/ProductCard";
+
 // Import the elegant line icons from lucide-react
 import {
   ShieldCheck,
@@ -67,56 +69,110 @@ const MOCK_BUZZ = [
 
 const MOCK_LISTINGS = [
   {
-    id: 1,
+    id: "mock-1",
     title: "Sony WH-1000XM4 Headphones",
-    price: "₹500",
-    tag: "MINT CONDITION",
-    location: "HALL 1",
-    tagColor: "var(--blue)",
-    image:
-      "coke.jpeg",
-    seller: "Anmol Singh",
+    price: 5000,
+    description: "Used for a few months, excellent noise cancellation.",
+    image_urls: [
+      "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&q=80&w=800",
+      "https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&q=80&w=800",
+    ], // Two images to test the carousel!
+    condition: "Mint",
+    location: "Hall 1",
+    status: "available",
+    views: 124,
+    likes_count: 12,
+    comments_count: 3,
+    created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 mins ago
+    is_liked: false,
+    is_saved: false,
+    seller: {
+      id: "user-1",
+      full_name: "Anmol Singh",
+      avatar_url: "https://i.pravatar.cc/150?img=11",
+      university: "IIITDM Kurnool",
+    },
   },
   {
-    id: 2,
+    id: "mock-2",
     title: "Keychron K2 Mechanical Keyboard",
-    price: "₹300",
-    tag: "HOT DEAL",
-    location: "HALL 3",
-    tagColor: "var(--pink)",
-    image:
+    price: 3000,
+    description: "Brown switches, wireless. Works perfectly.",
+    image_urls: [
       "https://images.unsplash.com/photo-1595225476474-87563907a212?auto=format&fit=crop&q=80&w=800",
-    seller: "Gyanendra Srivastava",
+    ],
+    condition: "Like New",
+    location: "Hall 3",
+    status: "available",
+    views: 89,
+    likes_count: 8,
+    comments_count: 1,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
+    is_liked: true, // Tests the pre-liked pink heart state
+    is_saved: false,
+    seller: {
+      id: "user-2",
+      full_name: "Gyanendra Srivastava",
+      avatar_url: "https://i.pravatar.cc/150?img=12",
+      university: "IIITDM Kurnool",
+    },
   },
   {
-    id: 3,
+    id: "mock-3",
     title: "IKEA Study Table + Chair Set",
-    price: "₹1,100",
-    tag: "URGENT SALE",
-    location: "HALL 2",
-    tagColor: "var(--pink)",
-    image:
+    price: 1100,
+    description: "Moving out sale. Must pick up by Sunday.",
+    image_urls: [
       "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&q=80&w=800",
-    seller: "Dikhsha Prajapati",
+    ],
+    condition: "Good",
+    location: "Hall 2",
+    status: "sold", // Tests the SOLD banner!
+    views: 250,
+    likes_count: 34,
+    comments_count: 8,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
+    is_liked: false,
+    is_saved: true, // Tests the pre-saved bookmark state
+    seller: {
+      id: "user-3",
+      full_name: "Dikhsha Prajapati",
+      avatar_url: "https://i.pravatar.cc/150?img=5",
+      university: "NIET Greater Noida",
+    },
   },
   {
-    id: 4,
+    id: "mock-4",
     title: "Hero Sprint Pro Bicycle",
-    price: "₹1,800",
-    tag: "WELL MAINTAINED",
-    location: "HALL 4",
-    tagColor: "var(--blue)",
-    image: "https://m.media-amazon.com/images/I/714GKeO03iL._SL1500_.jpg",
-    seller: "Sanya",
+    price: 1800,
+    description: "Great for getting around campus quickly. Recently serviced.",
+    image_urls: [
+      "https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=800",
+    ],
+    condition: "Fair",
+    location: "Hall 4",
+    status: "available",
+    views: 56,
+    likes_count: 5,
+    comments_count: 0,
+    created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 mins ago
+    is_liked: false,
+    is_saved: false,
+    seller: {
+      id: "user-4",
+      full_name: "Sanya",
+      avatar_url: "https://i.pravatar.cc/150?img=9",
+      university: "NIET Greater Noida",
+    },
   },
 ];
-
 const Home = () => {
   const [likedPosts, setLikedPosts] = useState({});
   const [likedItems, setLikedItems] = useState({});
   const videoRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isAuthenticated } = useAuth();
+  const currentUserId = localStorage.getItem("yahora_user_id");
 
   useEffect(() => {
     if (videoRef.current) {
@@ -219,49 +275,12 @@ const Home = () => {
           </div>
           <div className="listings-grid">
             {MOCK_LISTINGS.map((item) => (
-              <div key={item.id} className="listing-card">
-                <div className="listing-image-wrapper">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="listing-image"
-                  />
-                  <button
-                    className="heart-btn"
-                    onClick={() =>
-                      setLikedItems((prev) => ({
-                        ...prev,
-                        [item.id]: !prev[item.id],
-                      }))
-                    }
-                  >
-                    <Heart
-                      size={18}
-                      fill={likedItems[item.id] ? "#EB487F" : "none"}
-                      stroke={likedItems[item.id] ? "#EB487F" : "#fff"}
-                    />
-                  </button>
-                </div>
-                <div className="listing-info">
-                  <div className="listing-tags">
-                    <div className = "tag-location">
-                    <span
-                      className="tag"
-                      style={{ backgroundColor: item.tagColor }}
-                    >
-                      {item.tag}
-                    </span>
-                    <span className="location-tag">{item.location}</span>
-                    </div>
-                  <div className="listing-price">{item.price}</div>
-                  </div>
-                  <h3 className="listing-title">{item.title}</h3>
-                  <div className="listing-seller">
-                    <div className="seller-avatar-mini"></div>
-                    <span>by {item.seller}</span>
-                  </div>
-                </div>
-              </div>
+              <ProductCard
+                key={item.id}
+                product={item}
+                currentUserId={currentUserId}
+                onCardClick={(id) => navigate(`/product/${id}`)}
+              />
             ))}
           </div>
         </div>
