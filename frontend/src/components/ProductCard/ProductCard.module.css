@@ -366,6 +366,48 @@
   font-weight: 100;
 }
 
+/* ── Dashboard Specific / Owner Actions ── */
+.ownerActions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.cardSoldTo {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #aaa;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.cardBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.2s ease, transform 0.2s ease;
+}
+
+.cardBtnChat {
+  background: var(--pink-light);
+  color: var(--pink-dark);
+}
+
+.cardBtnEdit {
+  background: #f0eaf5;
+  color: var(--purple);
+}
+
+.cardBtn:hover {
+  filter: brightness(0.95);
+  transform: scale(1.05);
+}
+
 /* ──────────────────────────────────────
    RESPONSIVE
 ────────────────────────────────────── */
