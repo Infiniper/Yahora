@@ -247,6 +247,7 @@
 
 /* ── Row 3: Footer stats + seller ── */
 .footerRow {
+  
   display: flex;
   align-items: center;
   justify-content: space-between;
