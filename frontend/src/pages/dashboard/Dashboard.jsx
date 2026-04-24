@@ -2,6 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from "./Dashboard.module.css";
+import ProductCard from "../../components/ProductCard/ProductCard";
 
 /* ─────────────────────────────────────────────
    CONSTANTS
@@ -265,107 +266,106 @@ function EditableField({ label, value, onSave, textarea, placeholder }) {
   );
 }
 
+// function ProductCard({ item, owned }) {
+//   const st = STATUS_CONFIG[item.status] || STATUS_CONFIG.available;
+//   const imageUrl = item.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
 
-function ProductCard({ item, owned }) {
-  const st = STATUS_CONFIG[item.status] || STATUS_CONFIG.available;
-  const imageUrl = item.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
-  
-  // Local state for the like button (wishlist feature)
-  const [isLiked, setIsLiked] = useState(false);
+//   // Local state for the like button (wishlist feature)
+//   const [isLiked, setIsLiked] = useState(false);
 
-  // Fallback for location until you add it to your database schema
-  const locationName = item.location || "Campus Hostel";
+//   // Fallback for location until you add it to your database schema
+//   const locationName = item.location || "Campus Hostel";
 
-  return (
-    <div className={styles.listingCard}>
-      
-      {/* --- Image Wrapper --- */}
-      <div className={styles.listingImageWrapper}>
-        <img src={imageUrl} alt={item.title} className={styles.listingImage} />
-        
-        {/* Status Badge (Active/Sold) */}
-        <span className={styles.cardBadge} style={{ background: st.bg, color: st.color }}>
-          {st.label}
-        </span>
-        
-        {/* Heart Like Button */}
-        <button
-          className={styles.heartBtn}
-          onClick={(e) => {
-            e.stopPropagation(); // Prevents clicking the card if you add links later
-            setIsLiked(!isLiked);
-          }}
-        >
-          <HeartIcon
-            size={18}
-            fill={isLiked ? "var(--pink-dark)" : "none"}
-            stroke={isLiked ? "var(--pink-dark)" : "#fff"}
-          />
-        </button>
-      </div>
+//   return (
+//     <div className={styles.listingCard}>
 
-      {/* --- Info Section --- */}
-      <div className={styles.listingInfo}>
-        
-        {/* Tags & Price Row */}
-        <div className={styles.listingTags}>
-          <div className={styles.tagLocation}>
-            {item.category && (
-              <span className={styles.tag}>{item.category}</span>
-            )}
-            <span className={styles.locationTag}>{locationName}</span>
-          </div>
-          
-          <div 
-            className={styles.listingPrice}
-            style={{
-              color: item.status === "sold" ? "#999" : "var(--purple)",
-              textDecoration: item.status === "sold" ? "line-through" : "none",
-            }}
-          >
-            {fmt(item.price)}
-          </div>
-        </div>
+//       {/* --- Image Wrapper --- */}
+//       <div className={styles.listingImageWrapper}>
+//         <img src={imageUrl} alt={item.title} className={styles.listingImage} />
 
-        {/* Title & Description */}
-        <h3 className={styles.listingTitle}>{item.title}</h3>
-        <p className={styles.cardDesc}>
-          {item.description || item.product?.description}
-        </p>
+//         {/* Status Badge (Active/Sold) */}
+//         <span className={styles.cardBadge} style={{ background: st.bg, color: st.color }}>
+//           {st.label}
+//         </span>
 
-        {/* Footer (Dashboard specific data: Views/Sold + Actions) */}
-        <div className={styles.cardFoot}>
-          {item.status === "sold" && item.sold_to ? (
-            <span className={styles.cardSoldTo}>
-              <ClockIcon /> Sold to @{item.sold_to}
-            </span>
-          ) : item.views !== undefined ? (
-            <span className={styles.cardViews}>
-              <EyeIcon /> {item.views} Views
-            </span>
-          ) : (
-            // <span />
-            <span className={styles.cardViews}>
-              <EyeIcon /> {item.views} Views
-            </span>
-          )}
-          
-          {owned && item.status !== "sold" && (
-            <div className={styles.cardActions}>
-              <button className={`${styles.cardBtn} ${styles.cardBtnChat}`} title="Messages">
-                <ChatIcon size={14} />
-              </button>
-              <button className={`${styles.cardBtn} ${styles.cardBtnEdit}`} title="Edit listing">
-                <PenIcon size={13} />
-              </button>
-            </div>
-          )}
-        </div>
+//         {/* Heart Like Button */}
+//         <button
+//           className={styles.heartBtn}
+//           onClick={(e) => {
+//             e.stopPropagation(); // Prevents clicking the card if you add links later
+//             setIsLiked(!isLiked);
+//           }}
+//         >
+//           <HeartIcon
+//             size={18}
+//             fill={isLiked ? "var(--pink-dark)" : "none"}
+//             stroke={isLiked ? "var(--pink-dark)" : "#fff"}
+//           />
+//         </button>
+//       </div>
 
-      </div>
-    </div>
-  );
-}
+//       {/* --- Info Section --- */}
+//       <div className={styles.listingInfo}>
+
+//         {/* Tags & Price Row */}
+//         <div className={styles.listingTags}>
+//           <div className={styles.tagLocation}>
+//             {item.category && (
+//               <span className={styles.tag}>{item.category}</span>
+//             )}
+//             <span className={styles.locationTag}>{locationName}</span>
+//           </div>
+
+//           <div
+//             className={styles.listingPrice}
+//             style={{
+//               color: item.status === "sold" ? "#999" : "var(--purple)",
+//               textDecoration: item.status === "sold" ? "line-through" : "none",
+//             }}
+//           >
+//             {fmt(item.price)}
+//           </div>
+//         </div>
+
+//         {/* Title & Description */}
+//         <h3 className={styles.listingTitle}>{item.title}</h3>
+//         <p className={styles.cardDesc}>
+//           {item.description || item.product?.description}
+//         </p>
+
+//         {/* Footer (Dashboard specific data: Views/Sold + Actions) */}
+//         <div className={styles.cardFoot}>
+//           {item.status === "sold" && item.sold_to ? (
+//             <span className={styles.cardSoldTo}>
+//               <ClockIcon /> Sold to @{item.sold_to}
+//             </span>
+//           ) : item.views !== undefined ? (
+//             <span className={styles.cardViews}>
+//               <EyeIcon /> {item.views} Views
+//             </span>
+//           ) : (
+//             // <span />
+//             <span className={styles.cardViews}>
+//               <EyeIcon /> {item.views} Views
+//             </span>
+//           )}
+
+//           {owned && item.status !== "sold" && (
+//             <div className={styles.cardActions}>
+//               <button className={`${styles.cardBtn} ${styles.cardBtnChat}`} title="Messages">
+//                 <ChatIcon size={14} />
+//               </button>
+//               <button className={`${styles.cardBtn} ${styles.cardBtnEdit}`} title="Edit listing">
+//                 <PenIcon size={13} />
+//               </button>
+//             </div>
+//           )}
+//         </div>
+
+//       </div>
+//     </div>
+//   );
+// }
 
 function PurchaseCard({ item }) {
   const p = item.product;
@@ -855,7 +855,14 @@ export default function Dashboard() {
             {tab === "listings" &&
               (listings.length ? (
                 listings.map((item) => (
-                  <ProductCard key={item.id} item={item} owned />
+                  <ProductCard
+                    key={item.id}
+                    product={item}
+                    isOwner={true}
+                    currentUserId={localStorage.getItem("yahora_user_id")}
+                    onEdit={() => console.log("Edit clicked for", item.id)}
+                    onChat={() => console.log("Chat clicked for", item.id)}
+                  />
                 ))
               ) : (
                 <div className={styles.emptyState}>
