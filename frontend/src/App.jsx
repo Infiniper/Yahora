@@ -7,6 +7,7 @@ import Home from './pages/Home/Home';
 import Onboarding from './pages/onboarding/onboarding'; 
 import Dashboard from './pages/dashboard/Dashboard';
 import Sell from './pages/sell/Sell';
+import Marketplace from './pages/marketplace/Marketplace';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/sell" element={<Sell />} />
+          <Route path="/marketplace" element={<Marketplace />} />
         </Routes>
       </main>
 

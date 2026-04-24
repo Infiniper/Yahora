@@ -99,7 +99,7 @@ function Navbar() {
         <Link to="/">
           <button><p>Home</p></button>
         </Link>
-        <Link to="/feed">
+        <Link to="/marketplace">
           <button><p>Marketplace</p></button>
         </Link>
         <Link to="/hot">
