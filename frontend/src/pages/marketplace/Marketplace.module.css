@@ -25,12 +25,12 @@
   flex-shrink: 0;
   /* Sticky: sidebar stays in view while main scrolls */
   position: sticky;
-  top: 70px;
+  top: 30px;
   height: calc(100vh - 70px);
   overflow-y: auto;
   scrollbar-width: none;
   padding: 20px 0 20px 16px;
-  /* Hide on mobile */
+  margin-bottom: 20px;
 }
 .sidebarWrap::-webkit-scrollbar { display: none; }
 
@@ -140,7 +140,6 @@
   display: flex;
   transition: transform 0.2s ease;
 }
-.filterChevronOpen { transform: rotate(0deg); }
 
 .filterSectionBody {
   padding: 4px 4px 12px;
@@ -175,7 +174,8 @@
   background: linear-gradient(135deg, rgba(128,0,128,0.1), rgba(235,72,127,0.08));
   color: var(--purple, #800080);
 }
-.categoryIcon { font-size: 0.9rem; flex-shrink: 0; }
+.categoryIcon { display: flex; flex-shrink: 0; color: #888; }
+.categoryChipActive .categoryIcon { color: var(--purple, #800080); }
 .categoryLabel { font-size: 0.76rem; font-weight: 600; color: inherit; line-height: 1.2; }
 .categoryChipActive .categoryLabel { color: var(--purple, #800080); }
 
@@ -261,6 +261,7 @@
 .listNewBtn {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   width: 100%;
   margin-top: 8px;
@@ -326,7 +327,7 @@
 .topBar {
   background: #fff;
   border-radius: 18px;
-  padding: 12px 16px;
+  padding: 8px 12px;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -350,8 +351,8 @@
   pointer-events: none;
 }
 .searchInput {
-  width: 100%;
-  padding: 9px 36px 9px 38px;
+  width: 60%;
+  padding: 8px 32px 8px 38px;
   border-radius: 12px;
   border: 1.5px solid #eee;
   background: #fafafa;
@@ -360,7 +361,6 @@
   font-family: 'Inter', sans-serif;
   outline: none;
   transition: border-color 0.18s, box-shadow 0.18s;
-  /* Remove default search cancel button */
   -webkit-appearance: none;
 }
 .searchInput::placeholder { color: #bbb; }
@@ -446,7 +446,7 @@
   box-shadow: 0 2px 8px rgba(0,0,0,0.08);
 }
 
-/* Mobile filter button — hidden on desktop */
+/* Mobile filter button */
 .mobileFilterBtn {
   display: none;
   position: relative;
@@ -480,43 +480,12 @@
 }
 
 /* ──────────────────────────────────────
-   RESULTS BAR
-────────────────────────────────────── */
-.resultsBar {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  padding: 0 4px;
-}
-.resultsCount {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--black-soft, #1A1A1A);
-}
-.resultsQuery {
-  font-size: 0.82rem;
-  color: #888;
-}
-.resultsClearLink {
-  margin-left: auto;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-size: 0.78rem;
-  font-weight: 600;
-  color: var(--pink-dark, #EB487F);
-  text-decoration: underline;
-  padding: 0;
-}
-.resultsClearLink:hover { color: var(--purple, #800080); }
-
-/* ──────────────────────────────────────
    PRODUCT GRID
 ────────────────────────────────────── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 10px;
   align-items: start;
 }
 
@@ -590,14 +559,14 @@
   box-shadow: 0 2px 16px rgba(0,0,0,0.04);
 }
 .emptyIcon {
-  font-size: 3.5rem;
-  line-height: 1;
+  display: flex;
+  justify-content: center;
   margin-bottom: 4px;
-  animation: floatEmoji 3s ease-in-out infinite;
+  animation: floatIcon 3s ease-in-out infinite;
 }
-@keyframes floatEmoji {
+@keyframes floatIcon {
   0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-8px); }
+  50%      { transform: translateY(-8px); }
 }
 .emptyTitle {
   font-family: 'Bree Serif', serif;
@@ -678,7 +647,7 @@
   box-shadow: 0 8px 40px rgba(0,0,0,0.12);
   display: flex;
   flex-direction: column;
-  touch-action: none; /* prevents scroll while swiping */
+  touch-action: none;
 }
 .swipeCard:nth-child(1) {
   transform: scale(0.92) translateY(30px) !important;
@@ -688,7 +657,6 @@
   transform: scale(0.96) translateY(15px) !important;
   filter: brightness(0.98);
 }
-/* Top card (last child) — no scale override, handled by JS */
 
 .swipeLeaving {
   transition: transform 0.35s cubic-bezier(.4,0,.2,1), opacity 0.35s ease !important;
@@ -960,13 +928,11 @@
   background: #ddd;
   margin: 0 auto 8px;
 }
-/* Sidebar inside drawer fills naturally */
 .mobileDrawer .sidebar {
   border-radius: 0;
   box-shadow: none;
   min-height: auto;
 }
-/* Hide uni switch row inside mobile drawer — shown in topbar instead */
 .mobileDrawer .sidebarUni { display: none; }
 
 /* ──────────────────────────────────────
@@ -989,7 +955,7 @@
     padding: 10px 12px;
   }
   .sortGroup {
-    display: none; /* sort moves to filter sheet on mobile */
+    display: none;
   }
   .main {
     padding: 12px 12px 60px;
@@ -1010,7 +976,7 @@
     border-radius: 14px;
     padding: 8px 10px;
   }
-  .viewBtn span { display: none; } /* icon only on mobile */
+  .viewBtn span { display: none; }
   .viewBtn { padding: 6px 9px; }
   .grid {
     grid-template-columns: 1fr 1fr;
@@ -1022,7 +988,7 @@
   .emptyState { padding: 48px 16px; }
 }
 
-/* Very small screens — single column grid */
+/* Very small screens */
 @media (max-width: 360px) {
   .grid { grid-template-columns: 1fr; }
 }
