@@ -578,6 +578,36 @@ export default function Dashboard() {
     }
   }, []);
 
+  /* ── Product Management Logic ── */
+  const handleDeleteProduct = async (productId) => {
+    if (!window.confirm("Are you sure you want to delete this listing? This cannot be undone.")) return;
+
+    try {
+      const token = localStorage.getItem("yahora_session");
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products/${productId}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!res.ok) throw new Error("Failed to delete product");
+
+      // Instantly remove the item from the UI state
+      setData((prev) => ({
+        ...prev,
+        listings: prev.listings.filter((item) => item.id !== productId),
+      }));
+    } catch (e) {
+      console.error("Failed to delete listing:", e);
+      alert("Failed to delete the listing. Please try again.");
+    }
+  };
+
+  const handleEditProduct = (product) => {
+    // Navigate to the Sell page and pass the product data via state
+    // Your Sell page will need to check for this state to populate its fields
+    navigate("/sell", { state: { editProduct: product } });
+  };  
+
   /* ── Guards ── */
   if (loading)
     return (
@@ -857,11 +887,10 @@ export default function Dashboard() {
                 listings.map((item) => (
                   <ProductCard
                     key={item.id}
-                    product={item}
-                    isOwner={true}
-                    currentUserId={localStorage.getItem("yahora_user_id")}
-                    onEdit={() => console.log("Edit clicked for", item.id)}
-                    onChat={() => console.log("Chat clicked for", item.id)}
+                    item={item} 
+                    owned={true}
+                    onEdit={() => handleEditProduct(item)}
+                    onDelete={() => handleDeleteProduct(item.id)}
                   />
                 ))
               ) : (
@@ -871,6 +900,7 @@ export default function Dashboard() {
                   Hit the + button to start selling!
                 </div>
               ))}
+
             {tab === "purchases" &&
               (purchases.length ? (
                 purchases.map((item) => (
