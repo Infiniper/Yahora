@@ -193,6 +193,13 @@ const ChatIcon = ({ size = 16 }) => (
   </svg>
 );
 
+const XIcon = ({ size = 16 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
 const ProductCard = memo(function ProductCard({
   product,
   currentUserId = null,
@@ -200,6 +207,7 @@ const ProductCard = memo(function ProductCard({
   onCardClick = null,
   onEdit = null,
   onChat = null,
+  onDelete = null,
 }) {
   const [imgIndex, setImgIndex] = useState(0);
   const [liked, setLiked] = useState(product.is_liked ?? false);
@@ -496,34 +504,37 @@ const ProductCard = memo(function ProductCard({
           <p className={styles.timeAgo}>{timeLabel}</p>
           {isOwner ? (
             <div className={styles.ownerActions}>
-              {product.status === "sold" && product.sold_to ? (
-                <span className={styles.cardSoldTo}>
-                  SOLD TO @{product.sold_to}
-                </span>
-              ) : (
-                <>
-                  <button
-                    className={`${styles.cardBtn} ${styles.cardBtnChat}`}
-                    title="Messages"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onChat?.();
-                    }}
-                  >
-                    <ChatIcon size={14} />
-                  </button>
-                  <button
-                    className={`${styles.cardBtn} ${styles.cardBtnEdit}`}
-                    title="Edit listing"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onEdit?.();
-                    }}
-                  >
-                    <PenIcon size={13} />
-                  </button>
-                </>
-              )}
+               {product.status === "sold" && product.sold_to ? (
+                  <span className={styles.cardSoldTo}>
+                    SOLD TO @{product.sold_to}
+                  </span>
+               ) : (
+                  <>
+                    <button 
+                      className={`${styles.cardBtn} ${styles.cardBtnChat}`} 
+                      title="Messages" 
+                      onClick={(e) => { e.stopPropagation(); onChat?.(); }}
+                    >
+                      <ChatIcon size={14} />
+                    </button>
+                    <button 
+                      className={`${styles.cardBtn} ${styles.cardBtnEdit}`} 
+                      title="Edit listing" 
+                      onClick={(e) => { e.stopPropagation(); onEdit?.(); }}
+                    >
+                      <PenIcon size={13} />
+                    </button>
+                    {/* NEW DELETE BUTTON HERE */}
+                    <button 
+                      className={`${styles.cardBtn} ${styles.cardBtnDelete}`} 
+                      title="Delete listing" 
+                      onClick={(e) => { e.stopPropagation(); onDelete?.(); }}
+                      style={{ color: '#f87171' }}
+                    >
+                      <XIcon size={14} />
+                    </button>
+                  </>
+               )}
             </div>
           ) : (
             <div className={styles.seller}>
