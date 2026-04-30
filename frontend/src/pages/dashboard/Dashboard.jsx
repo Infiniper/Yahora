@@ -887,8 +887,9 @@ export default function Dashboard() {
                 listings.map((item) => (
                   <ProductCard
                     key={item.id}
-                    item={item} 
-                    owned={true}
+                    product={item}       
+                    isOwner={true}       
+                    currentUserId={localStorage.getItem("yahora_user_id")} 
                     onEdit={() => handleEditProduct(item)}
                     onDelete={() => handleDeleteProduct(item.id)}
                   />
