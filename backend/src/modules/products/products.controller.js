@@ -75,3 +75,55 @@ export const createProduct = async (req, res) => {
         res.status(500).json({ error: 'Failed to create product listing.' });
     }
 };
+
+export const updateProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { title, description, price, category, condition, status } = req.body;
+
+        // Update the product in the database
+        const { data, error } = await supabase
+            .from('products')
+            .update({ 
+                title, 
+                description, 
+                price: parseFloat(price), 
+                category, 
+                condition, 
+                status 
+            })
+            .eq('id', id)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        res.status(200).json({
+            message: 'Product updated successfully',
+            product: data
+        });
+    } catch (error) {
+        console.error('Update Product Error:', error);
+        res.status(500).json({ error: 'Failed to update product.' });
+    }
+};
+
+export const deleteProduct = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Delete the product from the database
+        // Note: For a production app, you might also want to delete the images from the Supabase storage bucket here to save space.
+        const { error } = await supabase
+            .from('products')
+            .delete()
+            .eq('id', id);
+
+        if (error) throw error;
+
+        res.status(200).json({ message: 'Product deleted successfully' });
+    } catch (error) {
+        console.error('Delete Product Error:', error);
+        res.status(500).json({ error: 'Failed to delete product.' });
+    }
+};

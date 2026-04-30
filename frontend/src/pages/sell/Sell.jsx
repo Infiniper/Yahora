@@ -1,6 +1,6 @@
 // frontend/src/pages/sell/Sell.jsx
 import React, { useState, useRef, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   Laptop, Armchair, BookOpen, Shirt, Bike, Coffee, Dumbbell, Package 
 } from 'lucide-react';
@@ -19,25 +19,30 @@ const CATEGORIES = [
   { label: "Miscellaneous",            icon: Package },
 ];
 
-// Premium SVG Placeholder (No network request required)
 const PLACEHOLDER_IMAGE = `data:image/svg+xml;utf8,%3Csvg width='600' height='600' viewBox='0 0 600 600' xmlns='http://www.w3.org/2000/svg'%3E%3Crect width='600' height='600' fill='%23f8fafc'/%3E%3Cg transform='translate(268,250)' stroke='%23cbd5e1' stroke-width='3' fill='none' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='-24' y='-24' width='112' height='112' rx='12'/%3E%3Ccircle cx='8' cy='8' r='8'/%3E%3Cpath d='M-24 56l32-32 24 24 16-16 40 40'/%3E%3C/g%3E%3Ctext x='300' y='420' font-family='sans-serif' font-size='16' font-weight='600' fill='%2394a3b8' text-anchor='middle'%3EUpload photos to preview%3C/text%3E%3C/svg%3E`;
 
 export default function Sell() {
   const navigate     = useNavigate();
+  const location     = useLocation();
   const fileInputRef = useRef(null);
 
+  // Check if we are in "Edit Mode" based on data passed from Dashboard
+  const editProduct = location.state?.editProduct || null;
+
+  // Pre-fill state if editing
   const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    price: '',
-    category: '',
-    location: '', 
+    title: editProduct?.title || '',
+    description: editProduct?.description || '',
+    price: editProduct?.price || '',
+    category: editProduct?.category || '',
+    location: editProduct?.location || '', 
   });
-  const [images,  setImages]  = useState([]);
+  
+  // If editing, load existing image URLs to display in preview
+  const [images,  setImages]  = useState(editProduct?.image_urls || []);
   const [loading, setLoading] = useState(false);
   const [error,   setError]   = useState('');
 
-  // Dynamic Seller Info State
   const [sellerProfile, setSellerProfile] = useState({
     full_name: 'Loading...',
     avatar_url: null
@@ -65,18 +70,16 @@ export default function Sell() {
           }
         }
       } catch (err) {
-        console.error("Failed to load seller profile for preview", err);
+        console.error("Failed to load seller profile", err);
       }
     };
     fetchProfile();
   }, []);
 
-
   /* ── Handlers ── */
   const handleInputChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  // Toggle category logic
   const handleCategoryToggle = (label) => {
     setFormData(prev => ({
       ...prev,
@@ -110,24 +113,45 @@ export default function Sell() {
       const token  = localStorage.getItem('yahora_session');
       if (!userId || !token) { navigate('/auth'); return; }
 
-      const submitData = new FormData();
-      submitData.append('seller_id',   userId);
-      submitData.append('title',       formData.title);
-      submitData.append('description', formData.description);
-      submitData.append('price',       formData.price);
-      submitData.append('category',    formData.category);
-      submitData.append('location',    formData.location); 
-      images.forEach(img => submitData.append('images', img));
+      let res;
 
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products`, {
-        method:  'POST',
-        headers: { Authorization: `Bearer ${token}` },
-        body:    submitData,
-      });
+      if (editProduct) {
+        // --- EDIT MODE (PUT REQUEST) ---
+        res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products/${editProduct.id}`, {
+          method: 'PUT',
+          headers: { 
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}` 
+          },
+          body: JSON.stringify({
+            title: formData.title,
+            description: formData.description,
+            price: formData.price,
+            category: formData.category,
+            location: formData.location
+          }),
+        });
+      } else {
+        // --- CREATE MODE (POST REQUEST) ---
+        const submitData = new FormData();
+        submitData.append('seller_id',   userId);
+        submitData.append('title',       formData.title);
+        submitData.append('description', formData.description);
+        submitData.append('price',       formData.price);
+        submitData.append('category',    formData.category);
+        submitData.append('location',    formData.location); 
+        images.forEach(img => submitData.append('images', img));
+
+        res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products`, {
+          method: 'POST',
+          headers: { Authorization: `Bearer ${token}` },
+          body:    submitData,
+        });
+      }
 
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || 'Failed to create listing');
+        throw new Error(data.error || 'Failed to save listing');
       }
       navigate('/dashboard');
     } catch (err) {
@@ -146,9 +170,10 @@ export default function Sell() {
     category: formData.category || 'Category',
     location: formData.location || 'Campus Location',
     condition: 'Good', 
+    // Handle mix of existing URL strings and new File objects for preview
     image_urls: images.length > 0 
-      ? images.map(img => URL.createObjectURL(img)) 
-      : [PLACEHOLDER_IMAGE], // Uses the new SVG placeholder
+      ? images.map(img => typeof img === 'string' ? img : URL.createObjectURL(img)) 
+      : [PLACEHOLDER_IMAGE], 
     status: 'available',
     views: 0,
     likes_count: 0,
@@ -165,14 +190,10 @@ export default function Sell() {
   /* ── Render ── */
   return (
     <div className={styles.page}>
-
-      {/* ── decorative background orbs ── */}
       <div className={styles.orb1} />
       <div className={styles.orb2} />
 
       <div className={styles.wrapper}>
-
-        {/* ════ LEFT: branding & live preview panel ════ */}
         <aside className={styles.aside}>
           <div className={styles.asideStickyContent}>
             <div className={styles.asideBadge}>Campus Marketplace</div>
@@ -182,7 +203,6 @@ export default function Sell() {
               into cash.
             </h2>
 
-            {/* LIVE PREVIEW CARD */}
             <div className={styles.livePreviewHeader}>
               <span className={styles.pulseDot}></span>
               Live Preview
@@ -190,16 +210,15 @@ export default function Sell() {
             <div className={styles.previewWrapper}>
               <ProductCard product={previewProduct} />
             </div>
-
           </div>
         </aside>
 
-        {/* ════ RIGHT: form ════ */}
         <main className={styles.formPanel}>
-
           <div className={styles.formHeader}>
-            <h1 className={styles.formTitle}>List a New Item</h1>
-            <p className={styles.formSub}>Fill in the details below — it only takes 60 seconds.</p>
+            <h1 className={styles.formTitle}>{editProduct ? "Edit Item" : "List a New Item"}</h1>
+            <p className={styles.formSub}>
+              {editProduct ? "Update your item details below." : "Fill in the details below — it only takes 60 seconds."}
+            </p>
           </div>
 
           {error && (
@@ -226,7 +245,8 @@ export default function Sell() {
                     className={`${styles.previewWrap} ${idx === 0 ? styles.coverWrap : ''}`}
                   >
                     <img
-                      src={URL.createObjectURL(img)}
+                      // Handle both existing URLs and new file objects
+                      src={typeof img === 'string' ? img : URL.createObjectURL(img)}
                       alt={`preview ${idx + 1}`}
                       className={styles.previewImg}
                     />
@@ -240,7 +260,7 @@ export default function Sell() {
                   </div>
                 ))}
 
-                {images.length < 5 && (
+                {images.length < 5 && !editProduct && (
                   <button
                     type="button"
                     className={styles.uploadBox}
@@ -254,14 +274,17 @@ export default function Sell() {
                 )}
               </div>
 
-              <input
-                type="file"
-                accept="image/*"
-                multiple
-                ref={fileInputRef}
-                onChange={handleImageChange}
-                style={{ display: 'none' }}
-              />
+              {/* Hide file input in edit mode for now to keep image updating simple */}
+              {!editProduct && (
+                 <input
+                   type="file"
+                   accept="image/*"
+                   multiple
+                   ref={fileInputRef}
+                   onChange={handleImageChange}
+                   style={{ display: 'none' }}
+                 />
+              )}
             </div>
 
             {/* ── Title ── */}
@@ -366,12 +389,12 @@ export default function Sell() {
                 {loading ? (
                   <>
                     <span className={styles.submitSpinner} />
-                    Posting your item…
+                    {editProduct ? "Saving changes..." : "Posting your item…"}
                   </>
                 ) : (
                   <>
                     <span className={styles.submitArrow}>✦</span>
-                    Post Item to Campus
+                    {editProduct ? "Save Changes" : "Post Item to Campus"}
                   </>
                 )}
               </button>
