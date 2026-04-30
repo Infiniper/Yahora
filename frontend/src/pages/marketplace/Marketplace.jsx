@@ -281,6 +281,7 @@ const SwipeCard = memo(function SwipeCard({
   onPass,
   zIndex,
   isTop,
+  currentUserId,
 }) {
   const cardRef = useRef(null);
   const startX = useRef(0);
@@ -343,13 +344,10 @@ const SwipeCard = memo(function SwipeCard({
     setTimeout(() => onPass(product.id), 350);
   }, [product.id, onPass]);
 
-  const imageUrl =
-    product.image_urls?.[0] || "https://via.placeholder.com/600x800";
-
   return (
     <div
       ref={cardRef}
-      className={`${styles.swipeCard} ${leaving ? styles.swipeLeaving : ""}`}
+      className={`${styles.swipeCardWrapper} ${leaving ? styles.swipeLeaving : ""}`}
       style={{
         zIndex,
         transform: `translateX(${offsetX}px) rotate(${rotate}deg)`,
@@ -362,46 +360,33 @@ const SwipeCard = memo(function SwipeCard({
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
     >
-      {/* Image */}
-      <div className={styles.swipeImgWrap}>
-        <img
-          src={imageUrl}
-          alt={product.title}
-          className={styles.swipeImg}
-          draggable={false}
-        />
-
-        {/* Decision overlays */}
-        <div className={styles.swipeLikeStamp} style={{ opacity: likeOp }}>
-          LIKE 💚
-        </div>
-        <div className={styles.swipePassStamp} style={{ opacity: passOp }}>
-          PASS ✕
-        </div>
-
-        {/* Info overlay at bottom of image */}
-        <div className={styles.swipeImgOverlay}>
-          <span className={styles.swipePrice}>
-            ₹{Number(product.price).toLocaleString("en-IN")}
-          </span>
-          <span className={styles.swipeConditionBadge}>
-            {product.condition}
-          </span>
-        </div>
+      {/* Decision overlays */}
+      <div
+        className={styles.swipeLikeStamp}
+        style={{ opacity: likeOp, zIndex: 10 }}
+      >
+        LIKE 💚
+      </div>
+      <div
+        className={styles.swipePassStamp}
+        style={{ opacity: passOp, zIndex: 10 }}
+      >
+        PASS ✕
       </div>
 
-      {/* Info */}
-      <div className={styles.swipeInfo}>
-        <h3 className={styles.swipeTitle}>{product.title}</h3>
-        <p className={styles.swipeDesc}>{product.description}</p>
-        <div className={styles.swipeMeta}>
-          <span>{product.location}</span>
-          <span>by {product.seller?.full_name}</span>
-        </div>
+      {/* ── We render the exact Grid Card here! ── */}
+      <div
+        style={{
+          pointerEvents: dragging ? "none" : "all",
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <ProductCard product={product} currentUserId={currentUserId} />
       </div>
 
-      {/* Action buttons (only on top card) */}
-      {isTop && (
+      {/* Action buttons (only on top card) now sit below the card */}
+      {/* {isTop && (
         <div className={styles.swipeActions}>
           <button
             className={`${styles.swipeBtn} ${styles.swipeBtnPass}`}
@@ -418,10 +403,11 @@ const SwipeCard = memo(function SwipeCard({
             <Heart size={26} fill="currentColor" strokeWidth={0} />
           </button>
         </div>
-      )}
+      )} */}
     </div>
   );
 });
+
 
 /* ─────────────────────────────────────
    UNIVERSITY SWITCHER MODAL
@@ -1033,6 +1019,7 @@ export default function Marketplace() {
                       zIndex={i + 1}
                       onLike={handleSwipeLike}
                       onPass={handleSwipePass}
+                      currentUserId={currentUserId}
                     />
                   ))}
                 </div>
