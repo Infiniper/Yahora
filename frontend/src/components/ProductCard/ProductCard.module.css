@@ -155,7 +155,7 @@
 
 .overlayHeart:hover svg,
 .overlayHeartLiked svg {
-  transform: scale(1.18);
+  transform: scale(1);
 }
 
 /* Active liked state — overlay */
