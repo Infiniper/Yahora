@@ -2,71 +2,45 @@
 
 /* ══════════════════════════════════════════════
    ANIMATION KEYFRAMES
-   Defined first so they can be referenced anywhere below.
 ══════════════════════════════════════════════ */
-
-/* Hero: staggered children entrance */
 @keyframes heroItemIn {
   from { opacity: 0; transform: translateY(32px); }
   to   { opacity: 1; transform: translateY(0);    }
 }
-
-/* Hero: exit — the whole view collapses upward, blurs, and vanishes */
 @keyframes heroExit {
   0%   { opacity: 1; transform: scale(1)    translateY(0);    filter: blur(0);    }
   100% { opacity: 0; transform: scale(0.91) translateY(-52px); filter: blur(12px); }
 }
-
-/* Colour-wash overlay: soft gradient flash bridging the two UIs */
 @keyframes overlayFlash {
   0%   { opacity: 0; }
   38%  { opacity: 1; }
   100% { opacity: 0; }
 }
-
-/* Dashboard sidebar: slides in from the left */
 @keyframes sidebarIn {
   from { opacity: 0; transform: translateX(-52px); }
   to   { opacity: 1; transform: translateX(0);     }
 }
-
-/* Dashboard main content: slides in from the right */
 @keyframes contentIn {
   from { opacity: 0; transform: translateX(52px); }
   to   { opacity: 1; transform: translateX(0);    }
 }
-
-/* Sidebar children: stagger fade-up
-   (opacity only — transform on sidebar parent is enough;
-   keeping children opacity-only means their hover effects stay intact) */
 @keyframes sidebarChildIn {
   from { opacity: 0; transform: translateY(18px); }
   to   { opacity: 1; transform: translateY(0);    }
 }
-
-/* Grid items: opacity only — cards have hover transform:translateY(-4px)
-   Animating transform here would lock that CSS property after fill-mode
-   and silently break the hover. Opacity is safe because cards have no
-   opacity hover effect. */
 @keyframes cardFadeIn {
   from { opacity: 0; }
   to   { opacity: 1; }
 }
-
-/* Tab content grid: fade in on every tab switch */
 @keyframes gridIn {
   from { opacity: 0; transform: translateY(12px); }
   to   { opacity: 1; transform: translateY(0);    }
 }
-
-/* FAB: spring pop with rotation */
 @keyframes fabPop {
   0%   { opacity: 0; transform: scale(0)    rotate(-180deg); }
   60%  { opacity: 1; transform: scale(1.15) rotate(8deg);    }
   100% { opacity: 1; transform: scale(1)    rotate(0deg);    }
 }
-
-/* Loading spinner */
 @keyframes spin { to { transform: rotate(360deg); } }
 
 /* ══════════════════════════════════════════════
@@ -86,21 +60,14 @@
 }
 
 /* ══════════════════════════════════════════════
-   DASHBOARD ROOT
+   DASHBOARD ROOT & OVERLAY
 ══════════════════════════════════════════════ */
 .dashboardRoot {
   position: relative;
   width: 100%;
   background: var(--bg);
-  /* No min-height here — heroView controls its own height,
-     dashView grows naturally with content.               */
 }
 
-/* ══════════════════════════════════════════════
-   TRANSITION OVERLAY
-   Covers the full viewport with a warm gradient
-   flash that acts as a cinematic cut point.
-══════════════════════════════════════════════ */
 .transitionOverlay {
   position: fixed;
   inset: 0;
@@ -112,11 +79,9 @@
 
 /* ══════════════════════════════════════════════
    UI 1 — HERO VIEW
-   Normal document flow (NOT position:fixed).
-   Takes up the full visible viewport below the navbar.
 ══════════════════════════════════════════════ */
 .heroView {
-  min-height: calc(100vh - 4.5rem); /* 4.5 rem = navbar height */
+  min-height: calc(100vh - 4.5rem);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -124,39 +89,25 @@
   gap: 28px;
   padding: 40px 40px 60px 0px;
 }
-
-/* ── Hero exit animation ──
-   Applied by adding the heroExiting class.
-   !important overrides any fill-mode still running on children. */
 .heroExiting {
   animation: heroExit 0.44s cubic-bezier(0.55, 0, 1, 0.45) forwards !important;
   pointer-events: none;
 }
-
-/* ── Hero children — staggered entrance ──
-   Only animate opacity + translateY on containers that have no
-   direct hover-transform effects of their own.              */
 .heroHeader {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: 55px;
   width: 75%;
-  /* Stagger slot 1 */
   animation: heroItemIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.05s both;
 }
-
 .heroCards {
   display: grid;
   grid-template-columns: 1.5fr 1fr;
   gap: 24px;
   width: 80%;
-  /* Stagger slot 2 */
   animation: heroItemIn 0.65s cubic-bezier(0.22, 1, 0.36, 1) 0.18s both;
 }
-
-/* sellBtn has a hover transform (translateY(-5px)), so we animate
-   only opacity here to avoid locking the transform property.   */
 .sellBtn {
   display: block;
   width: 175px;
@@ -171,7 +122,6 @@
   letter-spacing: 0.03em;
   box-shadow: 0 8px 30px rgba(128, 0, 128, 0.30);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
-  /* Stagger slot 3 — opacity only */
   animation: cardFadeIn 0.55s ease 0.32s both;
 }
 .sellBtn:hover {
@@ -179,9 +129,7 @@
   box-shadow: 0 12px 40px rgba(128, 0, 128, 0.40);
 }
 
-/* ── Hero typography ── */
 .heroText { display: flex; flex-direction: column; align-items: center; text-align: center; }
-
 .heroEyebrow {
   font-size: 0.8rem;
   letter-spacing: 0.15em;
@@ -204,7 +152,6 @@
   line-height: 1.5;
 }
 
-/* ── Hero icon buttons ── */
 .heroIcons {
   display: flex;
   flex-direction: column;
@@ -227,7 +174,6 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.10);
 }
 
-/* ── Hero info cards ── */
 .academicCard,
 .bioCard {
   background: white;
@@ -281,17 +227,14 @@
 
 /* ══════════════════════════════════════════════
    UI 2 — DASHBOARD / SPLIT VIEW
-   Both sidebar and mainContent slide in from
-   opposite sides using independent animations.
 ══════════════════════════════════════════════ */
 .dashView {
   display: flex;
   gap: 48px;
-  max-width: 1240px;
-  margin: 0 3%;
-  padding: 40px 18px 80px 18px;
-  /* The dashView container itself fades in instantly;
-     the cinematic entrance is handled by its children. */
+  width: 100%;
+  max-width: 1280px; 
+  margin: 0 auto; 
+  padding: 40px 24px 80px 24px;
 }
 
 /* ── Sidebar ── */
@@ -305,11 +248,9 @@
   flex-direction: column;
   gap: 20px;
   padding-bottom: 24px;
-  /* Entrance: slides in from the left */
   animation: sidebarIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Sidebar children stagger (opacity + small translateY) */
 .sidebarProfileCard {
   background: white;
   border-radius: 24px;
@@ -365,7 +306,6 @@
 }
 .completeBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(128, 0, 128, 0.35); }
 
-/* Sidebar profile text */
 .sidebarName {
   font-family: 'Bree Serif', serif;
   font-size: 1.5rem;
@@ -385,7 +325,6 @@
   border-top: 1px solid #f0f0f0; text-align: left;
 }
 
-/* Sidebar detail pills */
 .detailRow { display: flex; flex-direction: column; gap: 12px; }
 .detailPill { background: #f8f5f7; border-radius: 16px; padding: 14px 18px; }
 .detailPillLabel {
@@ -395,21 +334,16 @@
 .detailPillValue { font-size: 0.95rem; font-weight: 600; color: var(--black-soft); }
 .yearSpecRow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
-/* Sidebar "list new" internals */
 .listNewIcon {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-
   background: rgb(242, 239, 239);
   display: flex;
   align-items: center;
   justify-content: center;
-
   color: var(--purple);
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-
-  /* 🔥 Reset button defaults */
   border: none;
   outline: none;
   padding: 0;
@@ -418,7 +352,6 @@
 .listNewTitle { font-weight: 700; font-size: 1rem; color: var(--black-soft); }
 .listNewSub   { font-size: 0.8rem; color: #aaa; text-transform: uppercase; letter-spacing: 0.08em; }
 
-/* Sidebar icon buttons */
 .sidebarIconBtn {
   flex: 1; height: 54px;
   border-radius: 20px;
@@ -438,7 +371,7 @@
 /* ── Main Content ── */
 .mainContent {
   flex: 1;
-  /* Entrance: slides in from the right, with a small delay after sidebar */
+  min-width: 0; /* ✨ THIS FIXES THE FLEXBOX OVERFLOW / CROPPING ISSUES ✨ */
   animation: contentIn 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 
@@ -464,20 +397,17 @@
   background: linear-gradient(90deg, var(--purple), var(--pink-dark));
 }
 
-/* ── Product grid ──
-   key={tab} in JSX triggers remount + re-animation on every tab switch. */
+/* ── Product grid ── */
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1.25rem;
+  /* ✨ Lowered from 250px to 210px to guarantee 3 columns form earlier on zoomed screens, 
+     preventing cards from expanding massive widths ✨ */
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 16px;
+  align-items: start;
   animation: gridIn 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* Stagger the cards via nth-child.
-   IMPORTANT: only opacity is animated here (see cardFadeIn keyframe).
-   The card hover uses transform:translateY(-4px) — if we also animated
-   transform here with fill-mode:both, the browser would lock the
-   transform property and hover would silently stop working.         */
 .grid > *:nth-child(1)  { animation: cardFadeIn 0.45s ease 0.08s  both; }
 .grid > *:nth-child(2)  { animation: cardFadeIn 0.45s ease 0.14s  both; }
 .grid > *:nth-child(3)  { animation: cardFadeIn 0.45s ease 0.20s  both; }
@@ -490,6 +420,95 @@
   grid-column: 1 / -1;
   text-align: center; padding: 80px 0;
   color: #bbb; font-size: 1.1rem; line-height: 1.6;
+}
+
+/* ══════════════════════════════════════════════
+   DELETE CONFIRMATION MODAL POPUP
+══════════════════════════════════════════════ */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+.modalContent {
+  background: white;
+  border-radius: 20px;
+  padding: 24px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  animation: modalIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modalIconWrap {
+  width: 56px;
+  height: 56px;
+  background: #fee2e2;
+  color: #ef4444;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px auto;
+}
+.modalTitle {
+  font-family: 'Bree Serif', serif;
+  font-size: 1.25rem;
+  color: var(--black-soft);
+  margin-bottom: 8px;
+}
+.modalText {
+  font-size: 0.95rem;
+  color: #666;
+  margin-bottom: 24px;
+  line-height: 1.5;
+}
+.modalActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.btnCancel, .btnDelete {
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.btnCancel {
+  background: #f0f0f0;
+  color: #555;
+}
+.btnCancel:hover {
+  background: #e4e4e4;
+}
+.btnDelete {
+  background: #ef4444;
+  color: white;
+  gap: 8px;
+}
+.btnDelete:hover {
+  background: #dc2626;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
 }
 
 /* ══════════════════════════════════════════════
@@ -507,7 +526,6 @@
 }
 .fab:hover { transform: scale(1.1) rotate(90deg); box-shadow: 0 12px 40px rgba(128, 0, 128, 0.45); }
 
-/* Spring pop — delayed so it appears after the layout has settled */
 .fabEnter {
   animation: fabPop 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) 0.45s both;
 }
@@ -574,10 +592,23 @@
 /* ══════════════════════════════════════════════
    RESPONSIVE
 ══════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  }
+}
+
 @media (max-width: 960px) {
   .heroCards { grid-template-columns: 1fr; }
   .dashView  { flex-direction: column; margin: 0 0;}
   .sidebar   { width: 100%; position: static; }
+}
+
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
 }
 
 @media (max-width: 600px) {
@@ -585,5 +616,17 @@
   .heroIcons   { margin-left: 0; flex-direction: row; }
   .dashView  { flex-direction: column; margin: 0 0;}
   .heroGreeting { font-size: 2rem; }
-  .grid        { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
 }

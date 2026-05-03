@@ -19,149 +19,64 @@ const fmt = (n) => `₹${Number(n).toLocaleString("en-IN")}`;
    ICONS
 ───────────────────────────────────────────── */
 const HeartIcon = ({ size = 18, fill = "none", stroke = "currentColor" }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill={fill}
-    stroke={stroke}
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
   </svg>
 );
 
 const PenIcon = ({ size = 16 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
     <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
   </svg>
 );
+
 const BellIcon = ({ size = 18 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
     <path d="M13.73 21a2 2 0 0 1-3.46 0" />
   </svg>
 );
+
 const GearIcon = ({ size = 18 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="3" />
     <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
   </svg>
 );
-const EyeIcon = ({ size = 14 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-    <circle cx="12" cy="12" r="3" />
-  </svg>
-);
-const ChatIcon = ({ size = 16 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
-  </svg>
-);
+
 const ClockIcon = ({ size = 14 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="10" />
     <polyline points="12 6 12 12 16 14" />
   </svg>
 );
+
 const PlusIcon = ({ size = 20 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <line x1="12" y1="5" x2="12" y2="19" />
     <line x1="5" y1="12" x2="19" y2="12" />
   </svg>
 );
+
 const CheckIcon = ({ size = 14 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12" />
   </svg>
 );
+
 const XIcon = ({ size = 14 }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-  >
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+// New Dustbin/Trash Icon
+const TrashIcon = ({ size = 18 }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="3 6 5 6 21 6"></polyline>
+    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
   </svg>
 );
 
@@ -266,107 +181,6 @@ function EditableField({ label, value, onSave, textarea, placeholder }) {
   );
 }
 
-// function ProductCard({ item, owned }) {
-//   const st = STATUS_CONFIG[item.status] || STATUS_CONFIG.available;
-//   const imageUrl = item.image_urls?.[0] || "https://via.placeholder.com/300?text=No+Image";
-
-//   // Local state for the like button (wishlist feature)
-//   const [isLiked, setIsLiked] = useState(false);
-
-//   // Fallback for location until you add it to your database schema
-//   const locationName = item.location || "Campus Hostel";
-
-//   return (
-//     <div className={styles.listingCard}>
-
-//       {/* --- Image Wrapper --- */}
-//       <div className={styles.listingImageWrapper}>
-//         <img src={imageUrl} alt={item.title} className={styles.listingImage} />
-
-//         {/* Status Badge (Active/Sold) */}
-//         <span className={styles.cardBadge} style={{ background: st.bg, color: st.color }}>
-//           {st.label}
-//         </span>
-
-//         {/* Heart Like Button */}
-//         <button
-//           className={styles.heartBtn}
-//           onClick={(e) => {
-//             e.stopPropagation(); // Prevents clicking the card if you add links later
-//             setIsLiked(!isLiked);
-//           }}
-//         >
-//           <HeartIcon
-//             size={18}
-//             fill={isLiked ? "var(--pink-dark)" : "none"}
-//             stroke={isLiked ? "var(--pink-dark)" : "#fff"}
-//           />
-//         </button>
-//       </div>
-
-//       {/* --- Info Section --- */}
-//       <div className={styles.listingInfo}>
-
-//         {/* Tags & Price Row */}
-//         <div className={styles.listingTags}>
-//           <div className={styles.tagLocation}>
-//             {item.category && (
-//               <span className={styles.tag}>{item.category}</span>
-//             )}
-//             <span className={styles.locationTag}>{locationName}</span>
-//           </div>
-
-//           <div
-//             className={styles.listingPrice}
-//             style={{
-//               color: item.status === "sold" ? "#999" : "var(--purple)",
-//               textDecoration: item.status === "sold" ? "line-through" : "none",
-//             }}
-//           >
-//             {fmt(item.price)}
-//           </div>
-//         </div>
-
-//         {/* Title & Description */}
-//         <h3 className={styles.listingTitle}>{item.title}</h3>
-//         <p className={styles.cardDesc}>
-//           {item.description || item.product?.description}
-//         </p>
-
-//         {/* Footer (Dashboard specific data: Views/Sold + Actions) */}
-//         <div className={styles.cardFoot}>
-//           {item.status === "sold" && item.sold_to ? (
-//             <span className={styles.cardSoldTo}>
-//               <ClockIcon /> Sold to @{item.sold_to}
-//             </span>
-//           ) : item.views !== undefined ? (
-//             <span className={styles.cardViews}>
-//               <EyeIcon /> {item.views} Views
-//             </span>
-//           ) : (
-//             // <span />
-//             <span className={styles.cardViews}>
-//               <EyeIcon /> {item.views} Views
-//             </span>
-//           )}
-
-//           {owned && item.status !== "sold" && (
-//             <div className={styles.cardActions}>
-//               <button className={`${styles.cardBtn} ${styles.cardBtnChat}`} title="Messages">
-//                 <ChatIcon size={14} />
-//               </button>
-//               <button className={`${styles.cardBtn} ${styles.cardBtnEdit}`} title="Edit listing">
-//                 <PenIcon size={13} />
-//               </button>
-//             </div>
-//           )}
-//         </div>
-
-//       </div>
-//     </div>
-//   );
-// }
-
 function PurchaseCard({ item }) {
   const p = item.product;
   const imageUrl =
@@ -418,6 +232,10 @@ export default function Dashboard() {
 
   const fileInputRef = React.useRef(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+
+  // States for deleting items via popup modal
+  const [itemToDelete, setItemToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Simple boolean state replacing the glitchy 3-phase timer
   const [isDashboard, setIsDashboard] = useState(false);
@@ -579,12 +397,20 @@ export default function Dashboard() {
   }, []);
 
   /* ── Product Management Logic ── */
-  const handleDeleteProduct = async (productId) => {
-    if (!window.confirm("Are you sure you want to delete this listing? This cannot be undone.")) return;
+  
+  // Triggers the popup modal
+  const confirmDelete = (productId) => {
+    setItemToDelete(productId);
+  };
+
+  // Executes the deletion once confirmed in the modal
+  const executeDelete = async () => {
+    if (!itemToDelete) return;
+    setIsDeleting(true);
 
     try {
       const token = localStorage.getItem("yahora_session");
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products/${productId}`, {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/products/${itemToDelete}`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -594,17 +420,18 @@ export default function Dashboard() {
       // Instantly remove the item from the UI state
       setData((prev) => ({
         ...prev,
-        listings: prev.listings.filter((item) => item.id !== productId),
+        listings: prev.listings.filter((item) => item.id !== itemToDelete),
       }));
     } catch (e) {
       console.error("Failed to delete listing:", e);
       alert("Failed to delete the listing. Please try again.");
+    } finally {
+      setIsDeleting(false);
+      setItemToDelete(null);
     }
   };
 
   const handleEditProduct = (product) => {
-    // Navigate to the Sell page and pass the product data via state
-    // Your Sell page will need to check for this state to populate its fields
     navigate("/sell", { state: { editProduct: product } });
   };  
 
@@ -641,10 +468,40 @@ export default function Dashboard() {
         onChange={handleFileChange}
       />
 
+      {/* ── Delete Confirmation Popup Modal ── */}
+      {itemToDelete && (
+        <div className={styles.modalOverlay} onClick={() => !isDeleting && setItemToDelete(null)}>
+          <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.modalIconWrap}>
+              <TrashIcon size={24} />
+            </div>
+            <h3 className={styles.modalTitle}>Delete Listing</h3>
+            <p className={styles.modalText}>
+              Are you sure you want to delete this item? This action cannot be undone.
+            </p>
+            <div className={styles.modalActions}>
+              <button 
+                className={styles.btnCancel} 
+                onClick={() => setItemToDelete(null)}
+                disabled={isDeleting}
+              >
+                Cancel
+              </button>
+              <button 
+                className={styles.btnDelete} 
+                onClick={executeDelete}
+                disabled={isDeleting}
+              >
+                <TrashIcon size={16} />
+                {isDeleting ? "Deleting..." : "Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* ══════════════════════════════════════
           UI 1 — HERO VIEW
-          Uses CSS inline styles to smoothly fade and scale out.
-          When active, position is relative so it dictates document height.
       ══════════════════════════════════════ */}
       <div
         className={styles.heroView}
@@ -662,11 +519,10 @@ export default function Dashboard() {
           zIndex: isDashboard ? 0 : 10,
         }}
       >
-        {/* Row 1: avatar + greeting + icon buttons */}
         <div className={styles.heroHeader}>
           <Avatar
             src={profile.avatar_url}
-            size={160} // or 140 for the sidebar
+            size={160}
             editable
             onEdit={handleAvatarEditClick}
             isUploading={isUploadingAvatar}
@@ -692,7 +548,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Row 2: info cards */}
         <div className={styles.heroCards}>
           <div className={styles.academicCard}>
             <div className={styles.cardTitleRow}>
@@ -743,7 +598,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Row 3: CTA */}
         <button
           className={styles.sellBtn}
           onClick={() => {
@@ -757,8 +611,6 @@ export default function Dashboard() {
 
       {/* ══════════════════════════════════════
           UI 2 — SPLIT / DASHBOARD VIEW
-          Smoothly fades and slides UP when triggered.
-          When active, it becomes relative to push the layout properly.
       ══════════════════════════════════════ */}
       <div
         className={styles.dashView}
@@ -774,7 +626,6 @@ export default function Dashboard() {
           zIndex: isDashboard ? 10 : 0,
         }}
       >
-        {/* ─ Left Sidebar (sticky) ─ */}
         <div className={styles.sidebar}>
           <div className={styles.sidebarProfileCard}>
             <Avatar
@@ -863,7 +714,6 @@ export default function Dashboard() {
           )}
         </div>
 
-        {/* ─ Right main content ─ */}
         <div className={styles.mainContent}>
           <div className={styles.tabs}>
             {[
@@ -891,7 +741,7 @@ export default function Dashboard() {
                     isOwner={true}       
                     currentUserId={localStorage.getItem("yahora_user_id")} 
                     onEdit={() => handleEditProduct(item)}
-                    onDelete={() => handleDeleteProduct(item.id)}
+                    onDelete={() => confirmDelete(item.id)}
                   />
                 ))
               ) : (
@@ -925,7 +775,6 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {/* ── FAB — gracefully fades in/out with the Dashboard state ── */}
       <div
         style={{
           position: "fixed",
