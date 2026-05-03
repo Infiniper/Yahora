@@ -48,8 +48,8 @@ import {
    STATIC DATA
 ───────────────────────────────────── */
 const UNIVERSITIES = [
-  { id: "uni-1", name: "IIITDM Kurnool", domain: "iiitk.ac.in" },
   { id: "uni-2", name: "NIET Greater Noida", domain: "niet.co.in" },
+  { id: "uni-1", name: "IIITDM Kurnool", domain: "iiitk.ac.in" },
 ];
 
 const CATEGORIES = [
@@ -92,12 +92,12 @@ const POSTING_DATE_OPTIONS = [
 
 /* ── Mock products (replace with API call) ── */
 const MOCK_PRODUCTS = [
+  /* ================= IIITDM Kurnool (uni-1) ================= */
   {
     id: "p1",
     title: "Sony WH-1000XM4 Headphones",
     price: 8500,
-    description:
-      "Industry-leading noise cancellation. Used for 6 months, in perfect condition.",
+    description: "Industry-leading noise cancellation. Used for 6 months, in perfect condition.",
     category: "electronics",
     condition: "Mint",
     location: "Hall 1",
@@ -112,19 +112,14 @@ const MOCK_PRODUCTS = [
       "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=600",
     ],
     created_at: new Date(Date.now() - 5 * 3600000).toISOString(),
-    seller: {
-      id: "s1",
-      full_name: "Anmol Singh",
-      avatar_url: "https://i.pravatar.cc/60?img=12",
-    },
+    seller: { id: "s1", full_name: "Anmol Singh", avatar_url: "https://i.pravatar.cc/60?img=12" },
     university_id: "uni-1",
   },
   {
     id: "p2",
     title: "Keychron K2 V2 Mechanical Keyboard",
     price: 4500,
-    description:
-      "Gateron Brown switches, aluminum frame. Used 2 months, like new.",
+    description: "Gateron Brown switches, aluminum frame. Used 2 months, like new.",
     category: "electronics",
     condition: "Like New",
     location: "C Block",
@@ -134,23 +129,16 @@ const MOCK_PRODUCTS = [
     comments_count: 5,
     is_liked: false,
     is_saved: false,
-    image_urls: [
-      "https://images.unsplash.com/photo-1561112078-7d24e04c3407?w=600",
-    ],
+    image_urls: ["https://images.unsplash.com/photo-1561112078-7d24e04c3407?w=600"],
     created_at: new Date(Date.now() - 2 * 86400000).toISOString(),
-    seller: {
-      id: "s2",
-      full_name: "Rahul Verma",
-      avatar_url: "https://i.pravatar.cc/60?img=33",
-    },
+    seller: { id: "s2", full_name: "Rahul Verma", avatar_url: "https://i.pravatar.cc/60?img=33" },
     university_id: "uni-1",
   },
   {
     id: "p3",
     title: "Study Table with Drawer",
     price: 1800,
-    description:
-      "Solid wood, fits perfectly in hostel room. Height adjustable.",
+    description: "Solid wood, fits perfectly in hostel room. Height adjustable.",
     category: "furniture",
     condition: "Good",
     location: "Hall 3",
@@ -160,23 +148,16 @@ const MOCK_PRODUCTS = [
     comments_count: 3,
     is_liked: true,
     is_saved: true,
-    image_urls: [
-      "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=600",
-    ],
+    image_urls: ["https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?w=600"],
     created_at: new Date(Date.now() - 4 * 86400000).toISOString(),
-    seller: {
-      id: "s3",
-      full_name: "Priya Nair",
-      avatar_url: "https://i.pravatar.cc/60?img=47",
-    },
+    seller: { id: "s3", full_name: "Priya Nair", avatar_url: "https://i.pravatar.cc/60?img=47" },
     university_id: "uni-1",
   },
   {
     id: "p4",
     title: "Data Structures & Algorithms (CLRS)",
     price: 450,
-    description:
-      "3rd edition, minor highlights in chapters 1-4 only. Great condition.",
+    description: "3rd edition, minor highlights in chapters 1-4 only. Great condition.",
     category: "books",
     condition: "Good",
     location: "Library Block",
@@ -186,15 +167,9 @@ const MOCK_PRODUCTS = [
     comments_count: 2,
     is_liked: false,
     is_saved: false,
-    image_urls: [
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600",
-    ],
+    image_urls: ["https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600"],
     created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
-    seller: {
-      id: "s4",
-      full_name: "Karthik R",
-      avatar_url: "https://i.pravatar.cc/60?img=22",
-    },
+    seller: { id: "s4", full_name: "Karthik R", avatar_url: "https://i.pravatar.cc/60?img=22" },
     university_id: "uni-1",
   },
   {
@@ -211,23 +186,16 @@ const MOCK_PRODUCTS = [
     comments_count: 6,
     is_liked: false,
     is_saved: false,
-    image_urls: [
-      "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=600",
-    ],
+    image_urls: ["https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=600"],
     created_at: new Date(Date.now() - 3 * 86400000).toISOString(),
-    seller: {
-      id: "s5",
-      full_name: "Sneha Iyer",
-      avatar_url: "https://i.pravatar.cc/60?img=5",
-    },
+    seller: { id: "s5", full_name: "Sneha Iyer", avatar_url: "https://i.pravatar.cc/60?img=5" },
     university_id: "uni-1",
   },
   {
     id: "p6",
     title: "Hero Cycle — Mountain Gear",
     price: 2200,
-    description:
-      "21-speed mountain bike. Minor rust on one pedal, otherwise perfect.",
+    description: "21-speed mountain bike. Minor rust on one pedal, otherwise perfect.",
     category: "vehicles",
     condition: "Fair",
     location: "Main Gate",
@@ -237,16 +205,280 @@ const MOCK_PRODUCTS = [
     comments_count: 4,
     is_liked: false,
     is_saved: false,
-    image_urls: [
-      "https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=600",
-    ],
+    image_urls: ["https://images.unsplash.com/photo-1571068316344-75bc76f77890?w=600"],
     created_at: new Date(Date.now() - 6 * 86400000).toISOString(),
-    seller: {
-      id: "s6",
-      full_name: "Dev Sharma",
-      avatar_url: "https://i.pravatar.cc/60?img=60",
-    },
+    seller: { id: "s6", full_name: "Dev Sharma", avatar_url: "https://i.pravatar.cc/60?img=60" },
     university_id: "uni-1",
+  },
+
+  /* ================= NIET Greater Noida (uni-2) ================= */
+  {
+    id: "p7",
+    title: "iPad Air 4th Gen (64GB)",
+    price: 28000,
+    description: "Perfect condition for note-taking. Original charger included. No scratches.",
+    category: "electronics",
+    condition: "Like New",
+    location: "Hostel 2",
+    status: "available",
+    views: 320,
+    likes_count: 45,
+    comments_count: 12,
+    is_liked: true,
+    is_saved: true,
+    image_urls: ["https://images.unsplash.com/photo-1544244015-0df4b3ffc6b0?w=600"],
+    created_at: new Date(Date.now() - 2 * 3600000).toISOString(), // Today
+    seller: { id: "s7", full_name: "Neha Gupta", avatar_url: "https://i.pravatar.cc/60?img=3" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p8",
+    title: "Logitech Wireless Mouse (M235)",
+    price: 600,
+    description: "Works perfectly. Battery lasts for months. Just upgraded to a gaming mouse.",
+    category: "electronics",
+    condition: "Good",
+    location: "Library",
+    status: "available",
+    views: 45,
+    likes_count: 5,
+    comments_count: 0,
+    is_liked: false,
+    is_saved: false,
+    image_urls: ["https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=600"],
+    created_at: new Date(Date.now() - 5 * 86400000).toISOString(), // This Week
+    seller: { id: "s8", full_name: "Amit Kumar", avatar_url: "https://i.pravatar.cc/60?img=11" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p9",
+    title: "Ergonomic Office Chair",
+    price: 2500,
+    description: "Very comfortable for long coding sessions. Small tear on left armrest.",
+    category: "furniture",
+    condition: "Fair",
+    location: "Hostel 3",
+    status: "available",
+    views: 210,
+    likes_count: 18,
+    comments_count: 4,
+    is_liked: false,
+    is_saved: true,
+    image_urls: ["https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?w=600"],
+    created_at: new Date(Date.now() - 15 * 86400000).toISOString(), // This Month
+    seller: { id: "s9", full_name: "Rohan Singh", avatar_url: "https://i.pravatar.cc/60?img=13" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p10",
+    title: "Wooden 3-Tier Bookshelf",
+    price: 800,
+    description: "Sturdy wooden bookshelf. Need to sell before moving out next week.",
+    category: "furniture",
+    condition: "Good",
+    location: "Hostel 1",
+    status: "available",
+    views: 89,
+    likes_count: 12,
+    comments_count: 1,
+    is_liked: false,
+    is_saved: false,
+    image_urls: ["https://images.unsplash.com/photo-1594620302200-9a762244a156?w=600"],
+    created_at: new Date(Date.now() - 40 * 86400000).toISOString(), // Older
+    seller: { id: "s10", full_name: "Pooja Sharma", avatar_url: "https://i.pravatar.cc/60?img=20" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p11",
+    title: "University Physics - 14th Ed",
+    price: 400,
+    description: "Standard B.Tech 1st year textbook. Highlighted pages but completely readable.",
+    category: "books",
+    condition: "Poor",
+    location: "Academic Block",
+    status: "available",
+    views: 34,
+    likes_count: 2,
+    comments_count: 0,
+    is_liked: false,
+    is_saved: false,
+    image_urls: ["https://images.unsplash.com/photo-1495640388908-05fa85288e61?w=600"],
+    created_at: new Date(Date.now() - 2 * 86400000).toISOString(), // This Week
+    seller: { id: "s11", full_name: "Vikram Das", avatar_url: "https://i.pravatar.cc/60?img=53" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p12",
+    title: "Cracking the Coding Interview",
+    price: 500,
+    description: "Brand new condition. Never got around to reading it before placements.",
+    category: "books",
+    condition: "Mint",
+    location: "Hostel 4",
+    status: "available",
+    views: 405,
+    likes_count: 65,
+    comments_count: 5,
+    is_liked: true,
+    is_saved: false,
+    image_urls: ["https://images.unsplash.com/photo-1532012197267-da84d127e765?w=600"],
+    created_at: new Date(Date.now() - 1 * 3600000).toISOString(), // Today
+    seller: { id: "s12", full_name: "Simran Kaur", avatar_url: "https://i.pravatar.cc/60?img=35" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p13",
+    title: "Official College Hoodie (Size M)",
+    price: 600,
+    description: "Washed and clean. Only worn a few times, too small for me now.",
+    category: "clothing",
+    condition: "Good",
+    location: "Hostel 2",
+    status: "available",
+    views: 76,
+    likes_count: 14,
+    comments_count: 2,
+    is_liked: false,
+    is_saved: true,
+    image_urls: ["https://images.unsplash.com/photo-1556821840-3a63f95609a7?w=600"],
+    created_at: new Date(Date.now() - 20 * 86400000).toISOString(), // This Month
+    seller: { id: "s13", full_name: "Aditya Patel", avatar_url: "https://i.pravatar.cc/60?img=61" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p14",
+    title: "Nike Running Sneakers (UK 9)",
+    price: 1500,
+    description: "Used lightly for jogging. Soles are still in great shape.",
+    category: "clothing",
+    condition: "Like New",
+    location: "Sports Ground",
+    status: "available",
+    views: 150,
+    likes_count: 22,
+    comments_count: 3,
+    is_liked: false,
+    is_saved: false,
+    image_urls: ["https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600"],
+    created_at: new Date(Date.now() - 45 * 86400000).toISOString(), // Older
+    seller: { id: "s14", full_name: "Karan Verma", avatar_url: "https://i.pravatar.cc/60?img=15" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p15",
+    title: "Firefox Mountain Bike",
+    price: 3500,
+    description: "Serviced last week. New brake pads installed. Runs super smooth.",
+    category: "vehicles",
+    condition: "Good",
+    location: "Main Gate",
+    status: "available",
+    views: 230,
+    likes_count: 40,
+    comments_count: 7,
+    is_liked: true,
+    is_saved: true,
+    image_urls: ["https://images.unsplash.com/photo-1485965120184-e220f721d03e?w=600"],
+    created_at: new Date(Date.now() - 3 * 86400000).toISOString(), // This Week
+    seller: { id: "s15", full_name: "Manish Tiwari", avatar_url: "https://i.pravatar.cc/60?img=50" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p16",
+    title: "Electric Scooter / E-Bike",
+    price: 12000,
+    description: "Battery holds charge very well. Comes with charger and a free helmet.",
+    category: "vehicles",
+    condition: "Fair",
+    location: "Parking Area",
+    status: "available",
+    views: 510,
+    likes_count: 85,
+    comments_count: 14,
+    is_liked: false,
+    is_saved: false,
+    image_urls: ["https://images.unsplash.com/photo-1593941707882-a5bba14938c7?w=600"],
+    created_at: new Date(Date.now() - 10 * 86400000).toISOString(), // This Month
+    seller: { id: "s16", full_name: "Tanya Reddy", avatar_url: "https://i.pravatar.cc/60?img=41" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p17",
+    title: "Induction Cooktop (Prestige)",
+    price: 1100,
+    description: "Works flawlessly. Perfect for late night Maggi sessions.",
+    category: "appliances",
+    condition: "Like New",
+    location: "Hostel 3",
+    status: "available",
+    views: 180,
+    likes_count: 27,
+    comments_count: 4,
+    is_liked: false,
+    is_saved: true,
+    image_urls: ["https://images.unsplash.com/photo-1574269909862-7e1d70bb8078?w=600"],
+    created_at: new Date(Date.now() - 50 * 86400000).toISOString(), // Older
+    seller: { id: "s17", full_name: "Aryan Khan", avatar_url: "https://i.pravatar.cc/60?img=18" },
+    university_id: "uni-2",
+  },
+  
+  {
+    id: "p19",
+    title: "5kg Dumbbell Pair",
+    price: 800,
+    description: "PVC coated dumbbells. Heavy and intact. Great for room workouts.",
+    category: "sports",
+    condition: "Good",
+    location: "Hostel 4",
+    status: "available",
+    views: 110,
+    likes_count: 16,
+    comments_count: 2,
+    is_liked: true,
+    is_saved: false,
+    image_urls: ["https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?w=600"],
+    created_at: new Date(Date.now() - 4 * 86400000).toISOString(), // This Week
+    seller: { id: "s19", full_name: "Rishi Kapoor", avatar_url: "https://i.pravatar.cc/60?img=55" },
+    university_id: "uni-2",
+  },
+  
+  {
+    id: "p21",
+    title: "LED Desk Lamp (Rechargeable)",
+    price: 350,
+    description: "3 brightness modes. Gives 4 hours backup on full charge.",
+    category: "misc",
+    condition: "Like New",
+    location: "Hostel 2",
+    status: "available",
+    views: 130,
+    likes_count: 21,
+    comments_count: 0,
+    is_liked: false,
+    is_saved: false,
+    image_urls: ["https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?w=600"],
+    created_at: new Date(Date.now() - 60 * 86400000).toISOString(), // Older
+    seller: { id: "s21", full_name: "Harsh Vardhan", avatar_url: "https://i.pravatar.cc/60?img=68" },
+    university_id: "uni-2",
+  },
+  {
+    id: "p22",
+    title: "Casio Scientific Calculator",
+    price: 600,
+    description: "Required for B.Tech first year. Buttons work perfectly. FX-82MS.",
+    category: "misc",
+    condition: "Good",
+    location: "Academic Block",
+    status: "available",
+    views: 410,
+    likes_count: 88,
+    comments_count: 15,
+    is_liked: true,
+    is_saved: true,
+    image_urls: ["https://images.unsplash.com/photo-1594980596870-8aa52a78d8cd?w=600"],
+    created_at: new Date(Date.now() - 2 * 3600000).toISOString(), // Today
+    seller: { id: "s22", full_name: "Divya Shah", avatar_url: "https://i.pravatar.cc/60?img=31" },
+    university_id: "uni-2",
   },
 ];
 
@@ -281,6 +513,7 @@ const SwipeCard = memo(function SwipeCard({
   onPass,
   zIndex,
   isTop,
+  currentUserId,
 }) {
   const cardRef = useRef(null);
   const startX = useRef(0);
@@ -343,13 +576,10 @@ const SwipeCard = memo(function SwipeCard({
     setTimeout(() => onPass(product.id), 350);
   }, [product.id, onPass]);
 
-  const imageUrl =
-    product.image_urls?.[0] || "https://via.placeholder.com/600x800";
-
   return (
     <div
       ref={cardRef}
-      className={`${styles.swipeCard} ${leaving ? styles.swipeLeaving : ""}`}
+      className={`${styles.swipeCardWrapper} ${leaving ? styles.swipeLeaving : ""}`}
       style={{
         zIndex,
         transform: `translateX(${offsetX}px) rotate(${rotate}deg)`,
@@ -362,63 +592,30 @@ const SwipeCard = memo(function SwipeCard({
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
     >
-      {/* Image */}
-      <div className={styles.swipeImgWrap}>
-        <img
-          src={imageUrl}
-          alt={product.title}
-          className={styles.swipeImg}
-          draggable={false}
-        />
-
-        {/* Decision overlays */}
-        <div className={styles.swipeLikeStamp} style={{ opacity: likeOp }}>
-          LIKE 💚
-        </div>
-        <div className={styles.swipePassStamp} style={{ opacity: passOp }}>
-          PASS ✕
-        </div>
-
-        {/* Info overlay at bottom of image */}
-        <div className={styles.swipeImgOverlay}>
-          <span className={styles.swipePrice}>
-            ₹{Number(product.price).toLocaleString("en-IN")}
-          </span>
-          <span className={styles.swipeConditionBadge}>
-            {product.condition}
-          </span>
-        </div>
+      {/* Decision overlays */}
+      <div
+        className={styles.swipeLikeStamp}
+        style={{ opacity: likeOp, zIndex: 10 }}
+      >
+        LIKE 💚
+      </div>
+      <div
+        className={styles.swipePassStamp}
+        style={{ opacity: passOp, zIndex: 10 }}
+      >
+        PASS ✕
       </div>
 
-      {/* Info */}
-      <div className={styles.swipeInfo}>
-        <h3 className={styles.swipeTitle}>{product.title}</h3>
-        <p className={styles.swipeDesc}>{product.description}</p>
-        <div className={styles.swipeMeta}>
-          <span>{product.location}</span>
-          <span>by {product.seller?.full_name}</span>
-        </div>
+      {/* ── We render the exact Grid Card here! ── */}
+      <div
+        style={{
+          pointerEvents: dragging ? "none" : "all",
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <ProductCard product={product} currentUserId={currentUserId} />
       </div>
-
-      {/* Action buttons (only on top card) */}
-      {isTop && (
-        <div className={styles.swipeActions}>
-          <button
-            className={`${styles.swipeBtn} ${styles.swipeBtnPass}`}
-            onClick={triggerPass}
-            aria-label="Pass"
-          >
-            <X size={28} strokeWidth={2.5} />
-          </button>
-          <button
-            className={`${styles.swipeBtn} ${styles.swipeBtnLike}`}
-            onClick={triggerLike}
-            aria-label="Like"
-          >
-            <Heart size={26} fill="currentColor" strokeWidth={0} />
-          </button>
-        </div>
-      )}
     </div>
   );
 });
@@ -1033,6 +1230,7 @@ export default function Marketplace() {
                       zIndex={i + 1}
                       onLike={handleSwipeLike}
                       onPass={handleSwipePass}
+                      currentUserId={currentUserId}
                     />
                   ))}
                 </div>
