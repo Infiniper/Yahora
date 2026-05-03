@@ -7,9 +7,6 @@ export default defineConfig({
     host: true,
     port: 3000,
     strictPort: true,
-    hmr: {
-      clientPort: 443
-    },
-    allowedHosts: true   // ✅ important (boolean, not string)
+    allowedHosts: true 
   }
 })
