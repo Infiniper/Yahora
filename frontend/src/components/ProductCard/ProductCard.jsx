@@ -468,13 +468,9 @@ const ProductCard = memo(function ProductCard({
           </div>
           <span className={styles.price}>{displayPrice}</span>
         </div>
-        {(product.location || product.category || product.tag) && (
+        {product.location && (
           <span className={styles.locationTag}>
-            {(
-              product.location ||
-              product.category ||
-              product.tag
-            ).toUpperCase()}
+            {product.location.toUpperCase()}
           </span>
         )}
         <h3 className={styles.title}>{product.title}</h3>
