@@ -136,6 +136,24 @@ li {
   color: rgba(255, 255, 255, 0.3);
 }
 
+/* Visitor Counter */
+.visitorCounter {
+  margin-top: 1rem;
+  display: inline-block;
+  padding: 0.4rem 1rem;
+  background-color: rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.visitorCounter p {
+  margin: 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--blue-light);
+  letter-spacing: 0.5px;
+}
+
 /* Media Queries */
 @media (max-width: 1024px) { 
   .footer {

@@ -3,7 +3,7 @@ import { supabase } from '../../config/supabaseClient.js';
 
 export const createProduct = async (req, res) => {
     try {
-        const { seller_id, title, description, price, category } = req.body;
+        const { seller_id, title, description, price, category, location, condition } = req.body;
         const files = req.files;
 
         if (!files || files.length === 0) {
@@ -55,8 +55,10 @@ export const createProduct = async (req, res) => {
                 university_id,
                 title,
                 description,
-                price: parseFloat(price),
+                price: Number(price),
                 category,
+                location,  
+                condition, 
                 image_urls: imageUrls,
                 status: 'available'
             }])
@@ -79,7 +81,7 @@ export const createProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const { title, description, price, category, condition, status } = req.body;
+        const { title, description, price, category, condition, status, location } = req.body;
 
         // Update the product in the database
         const { data, error } = await supabase
@@ -87,8 +89,9 @@ export const updateProduct = async (req, res) => {
             .update({ 
                 title, 
                 description, 
-                price: parseFloat(price), 
+                price: Number(price),
                 category, 
+                location,
                 condition, 
                 status 
             })
