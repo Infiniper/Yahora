@@ -436,6 +436,7 @@ export default function Sell() {
                   className={`${styles.input} ${styles.priceInput}`}
                   value={formData.price}
                   onChange={handleInputChange}
+                  onWheel={(e) => e.target.blur()}
                 />
               </div>
             </div>
