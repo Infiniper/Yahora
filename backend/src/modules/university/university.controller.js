@@ -1,3 +1,4 @@
+// backend\src\modules\university\university.controller.js
 import { supabase } from '../../config/supabaseClient.js';
 
 export const getUniversities = async (req, res) => {
