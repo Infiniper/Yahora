@@ -918,7 +918,7 @@
   font-size: 0.78rem;
   color: #bbb;
   font-weight: 600;
-  margin-bottom:-3rem;
+  /* margin-bottom:-3rem; */
 }
 .swipeLoading {
   display: flex;
