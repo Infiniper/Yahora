@@ -817,7 +817,7 @@
   gap: 0.4-px;
 }
 .swipeHint {
-  font-size: 0.82rem;
+  font-size: 0.85rem;
   color: #aaa;
   font-weight: 600;
 }
@@ -827,7 +827,7 @@
   position: relative;
   width: 100%;
   max-width: 280px; /* EXACTLY matches Grid Card width */
-  height: 480px;    /* Leaves room for the action buttons below */
+  height: 440px;    /* Leaves room for the action buttons below */
 }
 
 /* Individual swipe card wrapper */
@@ -918,7 +918,7 @@
   font-size: 0.78rem;
   color: #bbb;
   font-weight: 600;
-  /* margin-bottom:-3rem; */
+  margin-bottom: 0.25rem;
 }
 .swipeLoading {
   display: flex;
@@ -1100,6 +1100,35 @@
 .mobileDrawer .sidebarUni {
   display: none;
 }
+
+/* Visitor Disclaimer Card */
+.visitorDisclaimer {
+  background-color: var(--pink-light);
+  border: 1px dashed var(--pink-dark);
+  border-radius: 12px;
+  padding: 1rem;
+  text-align: center;
+  margin-top: 1rem;
+}
+
+.disclaimerIcon {
+  font-size: 24px;
+  margin-bottom: 0.5rem;
+}
+
+.disclaimerTitle {
+  font-weight: 700;
+  color: var(--pink-emphasis);
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.disclaimerText {
+  font-size: 0.8rem;
+  color: var(--pink-dark);
+  line-height: 1.4;
+}
+
 
 /* ──────────────────────────────────────
    RESPONSIVE
