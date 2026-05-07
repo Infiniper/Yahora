@@ -159,3 +159,64 @@ export const updateAvatar = async (req, res) => {
         res.status(500).json({ error: 'Failed to update avatar.' });
     }
 };
+
+// 4. Fetch Public Profile (Read-Only for other users)
+export const getPublicProfile = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        const { user_id: visitorId } = req.query; // Who is viewing the profile?
+
+        const { data: profile, error: profileError } = await supabase
+            .from('users')
+            .select(`
+                id, full_name, avatar_url, bio, qualification, year_of_study, created_at,
+                course:courses(name),
+                specialization:specializations(name),
+                university:universities(name)
+            `)
+            .eq('id', userId)
+            .single();
+
+        if (profileError) throw profileError;
+
+        const { data: listings, error: listingsError } = await supabase
+            .from('products')
+            .select('id, title, price, image_urls, created_at, views, likes_count, condition, status')
+            .eq('seller_id', userId)
+            .eq('status', 'available')
+            .order('created_at', { ascending: false });
+
+        if (listingsError) throw listingsError;
+
+        // Attach Like/Save status if the visitor is logged in
+        if (visitorId && listings.length > 0) {
+            const productIds = listings.map(p => p.id);
+            const [likesRes, savesRes] = await Promise.all([
+                supabase.from('product_likes').select('product_id').eq('user_id', visitorId).in('product_id', productIds),
+                supabase.from('product_saves').select('product_id').eq('user_id', visitorId).in('product_id', productIds)
+            ]);
+
+            const likedSet = new Set(likesRes.data?.map(l => l.product_id) || []);
+            const savedSet = new Set(savesRes.data?.map(s => s.product_id) || []);
+
+            listings.forEach(p => {
+                p.is_liked = likedSet.has(p.id);
+                p.is_saved = savedSet.has(p.id);
+            });
+        }
+
+        res.status(200).json({
+            profile: {
+                ...profile,
+                courseName: profile.course?.name,
+                specializationName: profile.specialization?.name,
+                university: profile.university?.name
+            },
+            listings: listings || []
+        });
+
+    } catch (error) {
+        console.error('Public Profile Fetch Error:', error);
+        res.status(500).json({ error: 'Failed to fetch public profile.' });
+    }
+};
