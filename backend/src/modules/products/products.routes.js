@@ -1,7 +1,7 @@
 // backend/src/modules/product/product.routes.js
 import express from 'express';
 import multer from 'multer';
-import { createProduct, updateProduct, deleteProduct, getProducts, getProductById, toggleLikeProduct, toggleSaveProduct} from './products.controller.js';
+import { createProduct, updateProduct, deleteProduct, getProducts, getProductById, toggleLikeProduct, toggleSaveProduct, addComment, toggleCommentVote} from './products.controller.js';
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -19,5 +19,9 @@ router.delete('/:id', deleteProduct);
 // INTERACTION routes
 router.post('/:id/like', toggleLikeProduct);
 router.post('/:id/save', toggleSaveProduct);
+
+// <-- Q&A / COMMENT ROUTES -->
+router.post('/:id/comments', addComment);
+router.post('/comments/:commentId/vote', toggleCommentVote);
 
 export default router;

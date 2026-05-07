@@ -182,19 +182,54 @@ export const getProducts = async (req, res) => {
 export const getProductById = async (req, res) => {
     try {
         const { id } = req.params;
+        const { user_id } = req.query; 
 
+        // 1. Fetch Product + Seller + ALL Comments (Notice the explicit !comments_user_id_fkey)
         const { data: product, error } = await supabase
             .from('products')
             .select(`
                 *,
-                seller:users!seller_id(id, full_name, avatar_url, department, year_of_study)
+                seller:users!seller_id(id, full_name, avatar_url, qualification, year_of_study),
+                comments(
+                    id, 
+                    content, 
+                    created_at, 
+                    upvotes, 
+                    downvotes, 
+                    parent_comment_id,
+                    user:users!comments_user_id_fkey(id, full_name, avatar_url)
+                )
             `)
             .eq('id', id)
+            .order('created_at', { foreignTable: 'comments', ascending: true }) 
             .single();
 
         if (error) throw error;
-        
-        // Optional: Increment view count every time a product is opened
+
+        // 2. Fetch user's specific interaction states
+        if (user_id) {
+            const [likesRes, savesRes, votesRes] = await Promise.all([
+                supabase.from('product_likes').select('product_id').eq('user_id', user_id).eq('product_id', id).single(),
+                supabase.from('product_saves').select('product_id').eq('user_id', user_id).eq('product_id', id).single(),
+                supabase.from('comment_votes').select('comment_id, vote_value').eq('user_id', user_id).in('comment_id', product.comments.map(c => c.id))
+            ]);
+
+            product.is_liked = !!likesRes.data;
+            product.is_saved = !!savesRes.data;
+
+            const userVotes = {};
+            if (votesRes.data) {
+                votesRes.data.forEach(v => {
+                    userVotes[v.comment_id] = v.vote_value;
+                });
+            }
+            
+            product.comments.forEach(c => {
+                c.user_vote = userVotes[c.id] || 0;
+            });
+        }
+
+        // 3. Increment the view metric via the RPC
         await supabase.rpc('increment_product_views', { p_id: id });
 
         res.status(200).json({ product });
@@ -203,6 +238,7 @@ export const getProductById = async (req, res) => {
         res.status(500).json({ error: 'Failed to fetch product details.' });
     }
 };
+
 
 export const toggleLikeProduct = async (req, res) => {
     try {
@@ -255,3 +291,69 @@ export const toggleSaveProduct = async (req, res) => {
         res.status(500).json({ error: 'Failed to toggle save status.' });
     }
 };
+
+
+export const addComment = async (req, res) => {
+    try {
+        const { id: product_id } = req.params;
+        const { user_id, content, parent_comment_id } = req.body;
+
+        const { data: user, error: userError } = await supabase
+            .from('users')
+            .select('university_id')
+            .eq('id', user_id)
+            .single();
+        
+        if (userError || !user) throw new Error('User not found.');
+
+        // Insert and fetch back using the explicit join
+        const { data: comment, error } = await supabase
+            .from('comments')
+            .insert([{
+                product_id,
+                user_id,
+                university_id: user.university_id,
+                content,
+                parent_comment_id: parent_comment_id || null
+            }])
+            .select(`
+                id, content, created_at, upvotes, downvotes, parent_comment_id,
+                user:users!comments_user_id_fkey(id, full_name, avatar_url)
+            `)
+            .single();
+
+        if (error) throw error;
+        
+        res.status(201).json({ message: 'Comment added successfully', comment });
+    } catch (error) {
+        console.error('Add Comment Error:', error);
+        res.status(500).json({ error: 'Failed to post comment.' });
+    }
+};
+
+export const toggleCommentVote = async (req, res) => {
+    try {
+        const { commentId } = req.params;
+        const { user_id, vote_value } = req.body; // Expects 1 (upvote) or -1 (downvote)
+
+        if (![1, -1].includes(vote_value)) {
+            return res.status(400).json({ error: 'Invalid vote value. Must be 1 or -1.' });
+        }
+
+        // Trigger the Smart RPC we built in Phase 1
+        const { error } = await supabase.rpc('toggle_comment_vote', {
+            p_comment_id: commentId,
+            p_user_id: user_id,
+            p_vote_value: vote_value
+        });
+
+        if (error) throw error;
+
+        res.status(200).json({ message: 'Vote registered successfully' });
+    } catch (error) {
+        console.error('Toggle Comment Vote Error:', error);
+        res.status(500).json({ error: 'Failed to register vote.' });
+    }
+};
+
+
