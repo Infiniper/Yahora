@@ -10,6 +10,7 @@ import Sell from './pages/sell/Sell';
 import Marketplace from './pages/marketplace/Marketplace';
 import ProductDetail from "./pages/product/ProductDetail";
 import PublicProfile from "./pages/publicProfile/PublicProfile";
+import Messages from "./pages/messages/Messages";
 
 function App() {
   return (
@@ -29,6 +30,7 @@ function App() {
           <Route path="/marketplace" element={<Marketplace />} />
           <Route path="/product/:id" element={<ProductDetail />} />
           <Route path="/user/:id" element={<PublicProfile />} />
+          <Route path="/messages" element={<Messages />} />
         </Routes>
       </main>
 
