@@ -1,6 +1,6 @@
 // frontend/src/pages/product/ProductDetail.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import styles from "./ProductDetail.module.css";
 import { supabase } from "../../config/supabaseClient";
 import {
@@ -83,6 +83,7 @@ function AvatarImg({ src, name, size = 36, className }) {
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { hash } = useLocation();
   const currentUserId = localStorage.getItem("yahora_user_id");
   const [actualHomeUniId, setActualHomeUniId] = useState(
     localStorage.getItem("yahora_university_id"),
@@ -137,6 +138,37 @@ export default function ProductDetail() {
     };
     fetchData();
   }, [id, currentUserId]);
+
+  /* NEW: Scroll to top on page load, unless navigating directly to comments */
+  useEffect(() => {
+    if (hash !== "#comments") {
+      window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    }
+  }, [hash, id]);
+
+  /* Scroll to comments if the URL has #comments (Your existing code) */
+  useEffect(() => {
+    if (!loading && product && hash === "#comments") {
+      setTimeout(() => {
+        const element = document.getElementById("comments");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    }
+  }, [loading, product, hash]);
+
+  /* Scroll to comments if the URL has #comments */
+  useEffect(() => {
+    if (!loading && product && hash === "#comments") {
+      setTimeout(() => {
+        const element = document.getElementById("comments");
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+        }
+      }, 100);
+    }
+  }, [loading, product, hash]);
 
   /* Focus inline reply input when replyingTo changes */
   useEffect(() => {
@@ -208,8 +240,8 @@ export default function ProductDetail() {
         setProduct((prev) => ({
           ...prev,
           comments: [
-            ...(prev.comments || []),
             { ...data.comment, user_vote: 0 },
+            ...(prev.comments || []),
           ],
         }));
         setCommentText("");
@@ -272,6 +304,29 @@ export default function ProductDetail() {
     );
   };
 
+  const handleShare = async () => {
+    // The exact template you requested
+    const shareText = `Take a look at this ${product.title} on Yahora`;
+    const shareUrl = window.location.href;
+
+    try {
+      if (navigator.share) {
+        // Native share sheet on mobile devices
+        await navigator.share({
+          title: `Yahora - ${product.title}`,
+          text: shareText,
+          url: shareUrl,
+        });
+      } else {
+        // Fallback for desktop browsers
+        await navigator.clipboard.writeText(`${shareText}\n${shareUrl}`);
+        alert("Link copied to clipboard!");
+      }
+    } catch (err) {
+      console.log("User canceled share or error occurred", err);
+    }
+  };
+
   const timeAgo = (dateString) => {
     const mins = Math.floor((new Date() - new Date(dateString)) / 60000);
     if (mins < 60) return mins <= 1 ? "just now" : `${mins}m ago`;
@@ -311,12 +366,6 @@ export default function ProductDetail() {
 
   return (
     <div className={styles.root}>
-      {/* ── Back Button ── */}
-      <button className={styles.backBtn} onClick={() => navigate(-1)}>
-        <ArrowLeft size={16} />
-        <span>Back to Marketplace</span>
-      </button>
-
       {/* ── Main Grid ── */}
       <div className={styles.container}>
         {/* ════ LEFT COLUMN ════ */}
@@ -421,7 +470,7 @@ export default function ProductDetail() {
           </div>
 
           {/* ════ Q&A / COMMENTS SECTION ════ */}
-          <div className={styles.qaCard}>
+          <div className={styles.qaCard} id="comments">
             <div className={styles.qaHeader}>
               <MessageSquare size={17} strokeWidth={2} />
               <h3>Questions & Answers</h3>
@@ -708,7 +757,11 @@ export default function ProductDetail() {
                   {product.price.toLocaleString("en-IN")}
                 </span>
               </div>
-              <button className={styles.shareBtn} title="Share">
+              <button
+                className={styles.shareBtn}
+                title="Share"
+                onClick={handleShare}
+              >
                 <Share2 size={17} />
               </button>
             </div>
