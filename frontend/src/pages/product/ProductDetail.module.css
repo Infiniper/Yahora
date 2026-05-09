@@ -59,21 +59,6 @@
 }
 
 /* ── Back Button ── */
-.backBtn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  background: none;
-  border: none;
-  color: #888;
-  font-size: 0.82rem;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 6px 0;
-  margin-bottom: 14px;
-  transition: color 0.2s;
-  letter-spacing: 0.01em;
-}
 .backBtn:hover { color: var(--purple, #800080); }
 .backBtn:hover svg { transform: translateX(-3px); }
 .backBtn svg { transition: transform 0.2s; }
@@ -85,13 +70,13 @@
   display: grid;
   grid-template-columns: minmax(0, 1fr) 320px;
   gap: 22px;
-  align-items: start;
+  /* align-items: start; */
 }
 
 .leftCol {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 8px;
 }
 
 /* ════════════════════════════════════════════
@@ -100,7 +85,7 @@
 .galleryCard {
   background: #fff;
   border-radius: 18px;
-  padding: 14px;
+  padding: 8px;
   box-shadow:
     0 1px 3px rgba(0,0,0,0.05),
     0 6px 24px rgba(0,0,0,0.05);
@@ -111,7 +96,7 @@
 .mainImageWrap {
   position: relative;
   width: 100%;
-  height: clamp(280px, calc(100vh - 295px), 440px);
+  height: clamp(400px, calc(100vh - 295px), 440px);
   background: #f4f2f6;
   border-radius: 12px;
   overflow: hidden;

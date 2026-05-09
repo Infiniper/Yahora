@@ -201,7 +201,7 @@ export const getProductById = async (req, res) => {
                 )
             `)
             .eq('id', id)
-            .order('created_at', { foreignTable: 'comments', ascending: true }) 
+            .order('created_at', { foreignTable: 'comments', ascending: false }) 
             .single();
 
         if (error) throw error;

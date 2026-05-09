@@ -182,9 +182,9 @@
 
 .profileDropdown {
   position: absolute;
-  top: 50px;
+  top: 45px;
   right: 0;
-  width: 180px; /* Increased from 150px to prevent text wrapping */
+  width: 160px; /* Increased from 150px to prevent text wrapping */
   background: white;
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
@@ -193,7 +193,7 @@
   overflow: hidden;
   z-index: 1000;
   border: 1px solid #f0f0f0;
-  padding: 10px 0;
+  padding: 8px 0;
 }
 
 /* Updated Dropdown items with icons */
@@ -201,7 +201,7 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 10px 16px;
+  padding: 9px 16px;
   margin: 2px 10px;
   border-radius: 8px; /* Square shape looks cleaner in dropdowns */
   text-decoration: none; /* Re-enabled this to remove the ugly underline */
@@ -209,11 +209,13 @@
   background: transparent;
   border: none;
   text-align: left;
-  font-size: 0.95rem; /* Slightly larger text */
+  font-size: 0.85rem; /* Slightly larger text */
   font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
 }
+
+
 
 .dropdownItem:hover {
   background: rgba(128, 0, 128, 0.06); 
