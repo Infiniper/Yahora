@@ -23,7 +23,8 @@
 }
 
 .navLinks button {
-    background-color: transparent;
+    /* background-color: transparent; */
+    background-color: rgb(234, 232, 232);
     border: 0px transparent;
     border-radius: 1.5rem;
     margin: 0 0.25rem;

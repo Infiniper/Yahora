@@ -109,8 +109,19 @@
 }
 
 .inboxItemMiddle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   margin-bottom: 4px;
 }
+
+.inboxItemMiddle img {
+  width: 21px;
+  height: 21px;
+  border-radius: 4px;
+  object-fit: cover;
+}
+
 .inboxProduct {
   font-size: 0.75rem;
   font-weight: 600;
@@ -240,6 +251,7 @@
   flex: 1;
   padding: 20px;
   overflow-y: auto;
+  scroll-behavior: smooth;
   display: flex;
   flex-direction: column;
   gap: 16px;
@@ -337,7 +349,9 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform 0.2s, opacity 0.2s;
+  transition:
+    transform 0.2s,
+    opacity 0.2s;
 }
 .sendBtn:disabled {
   opacity: 0.5;

@@ -23,7 +23,6 @@ function App() {
           <Route path="/auth" element={<Auth />} />
           <Route path="/feed" element={<div className="container mt-4"><h3>Community Feed</h3></div>} />
           <Route path="/hot" element={<div className="container mt-4"><h3>Hot Items on Campus</h3></div>} />
-          <Route path="/messages" element={<div className="container mt-4"><h3>Direct Messaging</h3></div>} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/sell" element={<Sell />} />

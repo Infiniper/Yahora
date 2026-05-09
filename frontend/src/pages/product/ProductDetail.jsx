@@ -4,36 +4,65 @@ import { useParams, useNavigate } from "react-router-dom";
 import styles from "./ProductDetail.module.css";
 import { supabase } from "../../config/supabaseClient";
 import {
-  Heart, Share2, MessageSquare, MapPin, Tag, Clock,
-  ChevronRight, ChevronLeft, ArrowLeft, Send, ThumbsUp,
-  ThumbsDown, Eye, AlertTriangle, ShieldCheck, User
+  Heart,
+  Share2,
+  MessageSquare,
+  MapPin,
+  Tag,
+  Clock,
+  ChevronRight,
+  ChevronLeft,
+  ArrowLeft,
+  Send,
+  ThumbsUp,
+  ThumbsDown,
+  Eye,
+  AlertTriangle,
+  ShieldCheck,
+  User,
 } from "lucide-react";
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
 const CONDITION_CONFIG = {
-  Mint:       { label: "MINT",     bg: "#2BB7FF", color: "#fff" },
+  Mint: { label: "MINT", bg: "#2BB7FF", color: "#fff" },
   "Like New": { label: "LIKE NEW", bg: "#4ade80", color: "#052e16" },
-  Good:       { label: "GOOD",     bg: "#facc15", color: "#1a1100" },
-  Fair:       { label: "FAIR",     bg: "#fb923c", color: "#fff" },
-  Poor:       { label: "POOR",     bg: "#f87171", color: "#fff" },
+  Good: { label: "GOOD", bg: "#facc15", color: "#1a1100" },
+  Fair: { label: "FAIR", bg: "#fb923c", color: "#fff" },
+  Poor: { label: "POOR", bg: "#f87171", color: "#fff" },
 };
 
 /* ── Avatar helper: Initials circle when no photo ── */
 function AvatarImg({ src, name, size = 36, className }) {
   const [err, setErr] = useState(false);
-  const initials = name ? name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase() : "?";
-  const hue = name ? [...name].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360 : 200;
+  const initials = name
+    ? name
+        .split(" ")
+        .map((w) => w[0])
+        .join("")
+        .slice(0, 2)
+        .toUpperCase()
+    : "?";
+  const hue = name
+    ? [...name].reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360
+    : 200;
 
   if (!src || err) {
     return (
       <div
         className={className}
         style={{
-          width: size, height: size, borderRadius: "50%", flexShrink: 0,
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          flexShrink: 0,
           background: `hsl(${hue},60%,55%)`,
-          color: "#fff", fontWeight: 700, fontSize: size * 0.38,
-          display: "flex", alignItems: "center", justifyContent: "center",
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: size * 0.38,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
           userSelect: "none",
         }}
       >
@@ -41,29 +70,38 @@ function AvatarImg({ src, name, size = 36, className }) {
       </div>
     );
   }
-  return <img src={src} alt={name} className={className} onError={() => setErr(true)} />;
+  return (
+    <img
+      src={src}
+      alt={name}
+      className={className}
+      onError={() => setErr(true)}
+    />
+  );
 }
 
 export default function ProductDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
   const currentUserId = localStorage.getItem("yahora_user_id");
-  const [actualHomeUniId, setActualHomeUniId] = useState(localStorage.getItem("yahora_university_id"));
+  const [actualHomeUniId, setActualHomeUniId] = useState(
+    localStorage.getItem("yahora_university_id"),
+  );
 
-  const [product, setProduct]             = useState(null);
-  const [loading, setLoading]             = useState(true);
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [imgLoaded, setImgLoaded]         = useState(false);
+  const [imgLoaded, setImgLoaded] = useState(false);
 
   /* comment states */
-  const [commentText, setCommentText]           = useState("");   // for new top-level questions
-  const [replyText, setReplyText]               = useState("");   // for inline replies
-  const [replyingTo, setReplyingTo]             = useState(null); // commentId | null
+  const [commentText, setCommentText] = useState(""); // for new top-level questions
+  const [replyText, setReplyText] = useState(""); // for inline replies
+  const [replyingTo, setReplyingTo] = useState(null); // commentId | null
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
   const [commentInputFocused, setCommentInputFocused] = useState(false);
 
   /* ui feedback */
-  const [likeAnim, setLikeAnim]   = useState(false);
+  const [likeAnim, setLikeAnim] = useState(false);
   const [savedAnim, setSavedAnim] = useState(false);
 
   const replyInputRef = useRef(null);
@@ -79,10 +117,16 @@ export default function ProductDetail() {
 
         if (currentUserId && !actualHomeUniId) {
           const { data: userData } = await supabase
-            .from("users").select("university_id").eq("id", currentUserId).single();
+            .from("users")
+            .select("university_id")
+            .eq("id", currentUserId)
+            .single();
           if (userData) {
             setActualHomeUniId(userData.university_id);
-            localStorage.setItem("yahora_university_id", userData.university_id);
+            localStorage.setItem(
+              "yahora_university_id",
+              userData.university_id,
+            );
           }
         }
       } catch (err) {
@@ -102,37 +146,47 @@ export default function ProductDetail() {
   }, [replyingTo]);
 
   /* Reset image loaded state on index change */
-  useEffect(() => { setImgLoaded(false); }, [activeImageIndex]);
+  useEffect(() => {
+    setImgLoaded(false);
+  }, [activeImageIndex]);
 
   /* ── Handlers ── */
   const handleToggleLike = async () => {
     if (!currentUserId) return alert("Please log in to like items.");
     setLikeAnim(true);
     setTimeout(() => setLikeAnim(false), 500);
-    setProduct(prev => ({
+    setProduct((prev) => ({
       ...prev,
       is_liked: !prev.is_liked,
-      likes_count: prev.is_liked ? Math.max(0, prev.likes_count - 1) : prev.likes_count + 1,
+      likes_count: prev.is_liked
+        ? Math.max(0, prev.likes_count - 1)
+        : prev.likes_count + 1,
     }));
     try {
       await fetch(`${API_BASE_URL}/products/${id}/like`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: currentUserId }),
       });
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   };
 
   const handleToggleSave = async () => {
     if (!currentUserId) return alert("Please log in to save items.");
     setSavedAnim(true);
     setTimeout(() => setSavedAnim(false), 400);
-    setProduct(prev => ({ ...prev, is_saved: !prev.is_saved }));
+    setProduct((prev) => ({ ...prev, is_saved: !prev.is_saved }));
     try {
       await fetch(`${API_BASE_URL}/products/${id}/save`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: currentUserId }),
       });
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   };
 
   /* Unified post-comment handler – takes content string + optional parentId */
@@ -141,35 +195,55 @@ export default function ProductDetail() {
     setIsSubmittingComment(true);
     try {
       const response = await fetch(`${API_BASE_URL}/products/${id}/comments`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ user_id: currentUserId, content, parent_comment_id: parentId }),
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          user_id: currentUserId,
+          content,
+          parent_comment_id: parentId,
+        }),
       });
       const data = await response.json();
       if (response.ok) {
-        setProduct(prev => ({
+        setProduct((prev) => ({
           ...prev,
-          comments: [...(prev.comments || []), { ...data.comment, user_vote: 0 }],
+          comments: [
+            ...(prev.comments || []),
+            { ...data.comment, user_vote: 0 },
+          ],
         }));
         setCommentText("");
         setReplyText("");
         setReplyingTo(null);
         setCommentInputFocused(false);
       }
-    } catch { /* silent */ } finally { setIsSubmittingComment(false); }
+    } catch {
+      /* silent */
+    } finally {
+      setIsSubmittingComment(false);
+    }
   };
 
   const handleVote = async (commentId, voteValue) => {
     if (!currentUserId) return alert("Please log in to vote.");
-    setProduct(prev => {
-      const newComments = prev.comments.map(c => {
+    setProduct((prev) => {
+      const newComments = prev.comments.map((c) => {
         if (c.id !== commentId) return c;
-        let up = c.upvotes, down = c.downvotes, uv = voteValue;
+        let up = c.upvotes,
+          down = c.downvotes,
+          uv = voteValue;
         if (c.user_vote === voteValue) {
           uv = 0;
-          if (voteValue === 1) up--; else down--;
+          if (voteValue === 1) up--;
+          else down--;
         } else {
-          if (voteValue === 1) { up++; if (c.user_vote === -1) down--; }
-          else { down++; if (c.user_vote === 1) up--; }
+          if (voteValue === 1) {
+            up++;
+            if (c.user_vote === -1) down--;
+          } else {
+            down++;
+            if (c.user_vote === 1) up--;
+          }
         }
         return { ...c, upvotes: up, downvotes: down, user_vote: uv };
       });
@@ -177,49 +251,62 @@ export default function ProductDetail() {
     });
     try {
       await fetch(`${API_BASE_URL}/products/comments/${commentId}/vote`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ user_id: currentUserId, vote_value: voteValue }),
       });
-    } catch { /* silent */ }
+    } catch {
+      /* silent */
+    }
   };
 
   const handleImageNav = (dir) => {
-    setActiveImageIndex(prev =>
+    setActiveImageIndex((prev) =>
       dir === "next"
-        ? (prev === product.image_urls.length - 1 ? 0 : prev + 1)
-        : (prev === 0 ? product.image_urls.length - 1 : prev - 1)
+        ? prev === product.image_urls.length - 1
+          ? 0
+          : prev + 1
+        : prev === 0
+          ? product.image_urls.length - 1
+          : prev - 1,
     );
   };
 
   const timeAgo = (dateString) => {
-    const mins  = Math.floor((new Date() - new Date(dateString)) / 60000);
-    if (mins < 60)   return mins <= 1 ? "just now" : `${mins}m ago`;
-    const hrs  = Math.floor(mins / 60);
-    if (hrs < 24)    return `${hrs}h ago`;
+    const mins = Math.floor((new Date() - new Date(dateString)) / 60000);
+    if (mins < 60) return mins <= 1 ? "just now" : `${mins}m ago`;
+    const hrs = Math.floor(mins / 60);
+    if (hrs < 24) return `${hrs}h ago`;
     const days = Math.floor(hrs / 24);
     return days === 1 ? "yesterday" : `${days}d ago`;
   };
 
   /* ── Comment tree helpers ── */
-  const topLevelComments = product?.comments?.filter(c => !c.parent_comment_id) || [];
-  const getReplies = (parentId) => product?.comments?.filter(c => c.parent_comment_id === parentId) || [];
+  const topLevelComments =
+    product?.comments?.filter((c) => !c.parent_comment_id) || [];
+  const getReplies = (parentId) =>
+    product?.comments?.filter((c) => c.parent_comment_id === parentId) || [];
 
   /* ── Loading / Error states ── */
-  if (loading) return (
-    <div className={styles.stateScreen}>
-      <div className={styles.loadingSpinner} />
-      <p>Loading product…</p>
-    </div>
-  );
-  if (!product) return (
-    <div className={styles.stateScreen}>
-      <AlertTriangle size={40} />
-      <p>Product not found.</p>
-    </div>
-  );
+  if (loading)
+    return (
+      <div className={styles.stateScreen}>
+        <div className={styles.loadingSpinner} />
+        <p>Loading product…</p>
+      </div>
+    );
+  if (!product)
+    return (
+      <div className={styles.stateScreen}>
+        <AlertTriangle size={40} />
+        <p>Product not found.</p>
+      </div>
+    );
 
-  const isForeignCampus = actualHomeUniId && product.university_id !== actualHomeUniId;
-  const condCfg = CONDITION_CONFIG[product.condition] ?? CONDITION_CONFIG["Good"];
+  const isForeignCampus =
+    actualHomeUniId && product.university_id !== actualHomeUniId;
+  const condCfg =
+    CONDITION_CONFIG[product.condition] ?? CONDITION_CONFIG["Good"];
   const totalComments = product.comments?.length || 0;
 
   return (
@@ -232,15 +319,16 @@ export default function ProductDetail() {
 
       {/* ── Main Grid ── */}
       <div className={styles.container}>
-
         {/* ════ LEFT COLUMN ════ */}
         <div className={styles.leftCol}>
-
           {/* Gallery Card */}
           <div className={styles.galleryCard}>
             <div className={styles.mainImageWrap}>
               {/* Condition badge overlay */}
-              <span className={styles.conditionOverlay} style={{ background: condCfg.bg, color: condCfg.color }}>
+              <span
+                className={styles.conditionOverlay}
+                style={{ background: condCfg.bg, color: condCfg.color }}
+              >
                 {condCfg.label}
               </span>
 
@@ -254,10 +342,16 @@ export default function ProductDetail() {
 
               {product.image_urls.length > 1 && (
                 <>
-                  <button className={`${styles.navBtn} ${styles.navLeft}`} onClick={() => handleImageNav("prev")}>
+                  <button
+                    className={`${styles.navBtn} ${styles.navLeft}`}
+                    onClick={() => handleImageNav("prev")}
+                  >
                     <ChevronLeft size={20} />
                   </button>
-                  <button className={`${styles.navBtn} ${styles.navRight}`} onClick={() => handleImageNav("next")}>
+                  <button
+                    className={`${styles.navBtn} ${styles.navRight}`}
+                    onClick={() => handleImageNav("next")}
+                  >
                     <ChevronRight size={20} />
                   </button>
                   <div className={styles.imageDots}>
@@ -281,7 +375,11 @@ export default function ProductDetail() {
                     className={`${styles.thumbWrap} ${i === activeImageIndex ? styles.activeThumb : ""}`}
                     onClick={() => setActiveImageIndex(i)}
                   >
-                    <img src={img} alt={`View ${i + 1}`} className={styles.thumbnail} />
+                    <img
+                      src={img}
+                      alt={`View ${i + 1}`}
+                      className={styles.thumbnail}
+                    />
                   </div>
                 ))}
               </div>
@@ -292,7 +390,10 @@ export default function ProductDetail() {
           {isForeignCampus && (
             <div className={styles.foreignBanner}>
               <AlertTriangle size={16} />
-              <span><strong>Visitor Mode:</strong> Viewing from another campus. Purchasing & commenting are disabled.</span>
+              <span>
+                <strong>Visitor Mode:</strong> Viewing from another campus.
+                Purchasing & commenting are disabled.
+              </span>
             </div>
           )}
 
@@ -300,9 +401,18 @@ export default function ProductDetail() {
           <div className={styles.detailsCard}>
             <h1 className={styles.title}>{product.title}</h1>
             <div className={styles.metaRow}>
-              <span className={styles.metaChip}><Tag size={12} />{product.category}</span>
-              <span className={styles.metaChip}><Clock size={12} />{timeAgo(product.created_at)}</span>
-              <span className={styles.metaChip}><MapPin size={12} />{product.location || "Campus"}</span>
+              <span className={styles.metaChip}>
+                <Tag size={12} />
+                {product.category}
+              </span>
+              <span className={styles.metaChip}>
+                <Clock size={12} />
+                {timeAgo(product.created_at)}
+              </span>
+              <span className={styles.metaChip}>
+                <MapPin size={12} />
+                {product.location || "Campus"}
+              </span>
             </div>
             <div className={styles.descriptionSection}>
               <h3 className={styles.descHeading}>Description</h3>
@@ -315,37 +425,61 @@ export default function ProductDetail() {
             <div className={styles.qaHeader}>
               <MessageSquare size={17} strokeWidth={2} />
               <h3>Questions & Answers</h3>
-              {totalComments > 0 && <span className={styles.commentCountBadge}>{totalComments}</span>}
+              {totalComments > 0 && (
+                <span className={styles.commentCountBadge}>
+                  {totalComments}
+                </span>
+              )}
             </div>
 
             {/* ── Main Question Input ── */}
             {isForeignCampus ? (
               <div className={styles.lockedBox}>
                 <ShieldCheck size={18} />
-                <span>Comments are locked for visitors from other campuses.</span>
+                <span>
+                  Comments are locked for visitors from other campuses.
+                </span>
               </div>
             ) : (
               <div className={styles.addCommentRow}>
                 <div className={styles.currentUserAvatar}>
                   <User size={16} />
                 </div>
-                <div className={`${styles.commentInputWrap} ${commentInputFocused ? styles.commentInputActive : ""}`}>
+                <div
+                  className={`${styles.commentInputWrap} ${commentInputFocused ? styles.commentInputActive : ""}`}
+                >
                   <input
                     type="text"
                     placeholder="Ask the seller a question…"
                     value={commentText}
-                    onChange={e => setCommentText(e.target.value)}
+                    onChange={(e) => setCommentText(e.target.value)}
                     className={styles.mainCommentInput}
-                    onFocus={() => { setCommentInputFocused(true); setReplyingTo(null); setReplyText(""); }}
-                    onBlur={() => { if (!commentText) setCommentInputFocused(false); }}
-                    onKeyDown={e => e.key === "Enter" && !e.shiftKey && commentText.trim() && handlePostComment(commentText)}
+                    onFocus={() => {
+                      setCommentInputFocused(true);
+                      setReplyingTo(null);
+                      setReplyText("");
+                    }}
+                    onBlur={() => {
+                      if (!commentText) setCommentInputFocused(false);
+                    }}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" &&
+                      !e.shiftKey &&
+                      commentText.trim() &&
+                      handlePostComment(commentText)
+                    }
                   />
                   {commentInputFocused && (
                     <div className={styles.commentFormButtons}>
                       <button
                         className={styles.cancelCommentBtn}
-                        onMouseDown={() => { setCommentInputFocused(false); setCommentText(""); }}
-                      >Cancel</button>
+                        onMouseDown={() => {
+                          setCommentInputFocused(false);
+                          setCommentText("");
+                        }}
+                      >
+                        Cancel
+                      </button>
                       <button
                         className={styles.postCommentBtn}
                         disabled={!commentText.trim() || isSubmittingComment}
@@ -368,7 +502,7 @@ export default function ProductDetail() {
                 </div>
               ) : (
                 topLevelComments.map((comment, idx) => {
-                  const replies  = getReplies(comment.id);
+                  const replies = getReplies(comment.id);
                   const isReplying = replyingTo === comment.id;
 
                   return (
@@ -387,10 +521,16 @@ export default function ProductDetail() {
                         />
                         <div className={styles.commentBubble}>
                           <div className={styles.commentMeta}>
-                            <span className={styles.commenterName}>{comment.user.full_name}</span>
-                            <span className={styles.commentTime}>{timeAgo(comment.created_at)}</span>
+                            <span className={styles.commenterName}>
+                              {comment.user.full_name}
+                            </span>
+                            <span className={styles.commentTime}>
+                              {timeAgo(comment.created_at)}
+                            </span>
                           </div>
-                          <p className={styles.commentText}>{comment.content}</p>
+                          <p className={styles.commentText}>
+                            {comment.content}
+                          </p>
 
                           {!isForeignCampus && (
                             <div className={styles.commentActions}>
@@ -400,7 +540,9 @@ export default function ProductDetail() {
                                 title="Helpful"
                               >
                                 <ThumbsUp size={13} />
-                                {comment.upvotes > 0 && <span>{comment.upvotes}</span>}
+                                {comment.upvotes > 0 && (
+                                  <span>{comment.upvotes}</span>
+                                )}
                               </button>
                               <button
                                 className={`${styles.voteBtn} ${comment.user_vote === -1 ? styles.votedDown : ""}`}
@@ -413,14 +555,23 @@ export default function ProductDetail() {
                               <button
                                 className={`${styles.replyBtn} ${isReplying ? styles.replyBtnActive : ""}`}
                                 onClick={() => {
-                                  if (isReplying) { setReplyingTo(null); setReplyText(""); }
-                                  else { setReplyingTo(comment.id); setReplyText(""); setCommentInputFocused(false); }
+                                  if (isReplying) {
+                                    setReplyingTo(null);
+                                    setReplyText("");
+                                  } else {
+                                    setReplyingTo(comment.id);
+                                    setReplyText("");
+                                    setCommentInputFocused(false);
+                                  }
                                 }}
                               >
                                 {isReplying ? "Cancel" : "Reply"}
                               </button>
                               {replies.length > 0 && (
-                                <span className={styles.replyCount}>{replies.length} {replies.length === 1 ? "reply" : "replies"}</span>
+                                <span className={styles.replyCount}>
+                                  {replies.length}{" "}
+                                  {replies.length === 1 ? "reply" : "replies"}
+                                </span>
                               )}
                             </div>
                           )}
@@ -437,31 +588,48 @@ export default function ProductDetail() {
                             </div>
                             <div className={styles.inlineReplyInputWrap}>
                               <span className={styles.replyingToLabel}>
-                                Replying to <strong>{comment.user.full_name}</strong>
+                                Replying to{" "}
+                                <strong>{comment.user.full_name}</strong>
                               </span>
                               <input
                                 ref={replyInputRef}
                                 type="text"
                                 placeholder={`Reply to ${comment.user.full_name}…`}
                                 value={replyText}
-                                onChange={e => setReplyText(e.target.value)}
+                                onChange={(e) => setReplyText(e.target.value)}
                                 className={styles.inlineReplyInput}
-                                onKeyDown={e => {
-                                  if (e.key === "Enter" && !e.shiftKey && replyText.trim()) {
+                                onKeyDown={(e) => {
+                                  if (
+                                    e.key === "Enter" &&
+                                    !e.shiftKey &&
+                                    replyText.trim()
+                                  ) {
                                     handlePostComment(replyText, comment.id);
                                   }
-                                  if (e.key === "Escape") { setReplyingTo(null); setReplyText(""); }
+                                  if (e.key === "Escape") {
+                                    setReplyingTo(null);
+                                    setReplyText("");
+                                  }
                                 }}
                               />
                               <div className={styles.inlineReplyActions}>
                                 <button
                                   className={styles.cancelReplyBtn}
-                                  onClick={() => { setReplyingTo(null); setReplyText(""); }}
-                                >Cancel</button>
+                                  onClick={() => {
+                                    setReplyingTo(null);
+                                    setReplyText("");
+                                  }}
+                                >
+                                  Cancel
+                                </button>
                                 <button
                                   className={styles.submitReplyBtn}
-                                  disabled={!replyText.trim() || isSubmittingComment}
-                                  onClick={() => handlePostComment(replyText, comment.id)}
+                                  disabled={
+                                    !replyText.trim() || isSubmittingComment
+                                  }
+                                  onClick={() =>
+                                    handlePostComment(replyText, comment.id)
+                                  }
                                 >
                                   <Send size={12} /> Reply
                                 </button>
@@ -476,7 +644,7 @@ export default function ProductDetail() {
                         <div className={styles.repliesGroup}>
                           <div className={styles.replyThreadLine} />
                           <div className={styles.repliesList}>
-                            {replies.map(reply => (
+                            {replies.map((reply) => (
                               <div key={reply.id} className={styles.replyRow}>
                                 <AvatarImg
                                   src={reply.user.avatar_url}
@@ -486,20 +654,33 @@ export default function ProductDetail() {
                                 />
                                 <div className={styles.replyBubble}>
                                   <div className={styles.commentMeta}>
-                                    <span className={styles.commenterName}>{reply.user.full_name}</span>
-                                    <span className={styles.commentTime}>{timeAgo(reply.created_at)}</span>
+                                    <span className={styles.commenterName}>
+                                      {reply.user.full_name}
+                                    </span>
+                                    <span className={styles.commentTime}>
+                                      {timeAgo(reply.created_at)}
+                                    </span>
                                   </div>
-                                  <p className={styles.commentText}>{reply.content}</p>
+                                  <p className={styles.commentText}>
+                                    {reply.content}
+                                  </p>
                                   {!isForeignCampus && (
                                     <div className={styles.commentActions}>
                                       <button
                                         className={`${styles.voteBtn} ${reply.user_vote === 1 ? styles.votedUp : ""}`}
                                         onClick={() => handleVote(reply.id, 1)}
-                                      ><ThumbsUp size={12} />{reply.upvotes > 0 && <span>{reply.upvotes}</span>}</button>
+                                      >
+                                        <ThumbsUp size={12} />
+                                        {reply.upvotes > 0 && (
+                                          <span>{reply.upvotes}</span>
+                                        )}
+                                      </button>
                                       <button
                                         className={`${styles.voteBtn} ${reply.user_vote === -1 ? styles.votedDown : ""}`}
                                         onClick={() => handleVote(reply.id, -1)}
-                                      ><ThumbsDown size={12} /></button>
+                                      >
+                                        <ThumbsDown size={12} />
+                                      </button>
                                     </div>
                                   )}
                                 </div>
@@ -523,7 +704,9 @@ export default function ProductDetail() {
             <div className={styles.priceRow}>
               <div className={styles.priceBlock}>
                 <span className={styles.currencySymbol}>₹</span>
-                <span className={styles.priceValue}>{product.price.toLocaleString("en-IN")}</span>
+                <span className={styles.priceValue}>
+                  {product.price.toLocaleString("en-IN")}
+                </span>
               </div>
               <button className={styles.shareBtn} title="Share">
                 <Share2 size={17} />
@@ -532,19 +715,30 @@ export default function ProductDetail() {
 
             {/* Status */}
             <div className={styles.statusRow}>
-              <span className={`${styles.statusDot} ${product.status === "Available" ? styles.dotGreen : styles.dotGray}`} />
+              <span
+                className={`${styles.statusDot} ${product.status === "Available" ? styles.dotGreen : styles.dotGray}`}
+              />
               <span className={styles.statusLabel}>{product.status}</span>
             </div>
 
             {/* Stats */}
             <div className={styles.statsRow}>
-              <span className={styles.statChip}><MapPin size={12} />{product.location || "Campus"}</span>
-              <span className={styles.statChip}><Eye size={12} />{product.views || 0}</span>
+              <span className={styles.statChip}>
+                <MapPin size={12} />
+                {product.location || "Campus"}
+              </span>
+              <span className={styles.statChip}>
+                <Eye size={12} />
+                {product.views || 0}
+              </span>
               <button
                 className={`${styles.statChip} ${styles.likeChip} ${product.is_liked ? styles.likeChipActive : ""} ${likeAnim ? styles.likeAnim : ""}`}
                 onClick={handleToggleLike}
               >
-                <Heart size={12} fill={product.is_liked ? "currentColor" : "none"} />
+                <Heart
+                  size={12}
+                  fill={product.is_liked ? "currentColor" : "none"}
+                />
                 {product.likes_count || 0}
               </button>
             </div>
@@ -552,11 +746,17 @@ export default function ProductDetail() {
             {/* Action Buttons */}
             <div className={styles.actionButtons}>
               {isForeignCampus ? (
-                <button className={styles.disabledBtn} disabled>Campus-exclusive listing</button>
+                <button className={styles.disabledBtn} disabled>
+                  Campus-exclusive listing
+                </button>
               ) : (
                 <button
                   className={styles.primaryBtn}
-                  onClick={() => navigate(`/messages?user=${product.seller.id}&product=${product.id}`)}
+                  onClick={() =>
+                    navigate(
+                      `/messages?user=${product.seller.id}&product=${product.id}`,
+                    )
+                  }
                 >
                   <MessageSquare size={16} />
                   Message Seller
@@ -567,7 +767,10 @@ export default function ProductDetail() {
                 className={`${styles.secondaryBtn} ${product.is_saved ? styles.savedActive : ""} ${savedAnim ? styles.savedAnim : ""}`}
                 onClick={handleToggleSave}
               >
-                <Heart size={16} fill={product.is_saved ? "currentColor" : "none"} />
+                <Heart
+                  size={16}
+                  fill={product.is_saved ? "currentColor" : "none"}
+                />
                 {product.is_saved ? "Saved" : "Save Item"}
               </button>
             </div>
@@ -585,11 +788,14 @@ export default function ProductDetail() {
                   className={styles.sellerAvatar}
                 />
                 <div className={styles.sellerInfo}>
-                  <p className={styles.sellerName}>{product.seller.full_name}</p>
+                  <p className={styles.sellerName}>
+                    {product.seller.full_name}
+                  </p>
                   {product.seller.qualification && (
                     <p className={styles.sellerEdu}>
                       {product.seller.qualification}
-                      {product.seller.year_of_study && ` · ${product.seller.year_of_study}`}
+                      {product.seller.year_of_study &&
+                        ` · ${product.seller.year_of_study}`}
                     </p>
                   )}
                   <button
@@ -609,7 +815,6 @@ export default function ProductDetail() {
             </div>
           </div>
         </div>
-
       </div>
     </div>
   );
