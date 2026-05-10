@@ -159,41 +159,105 @@ const TrashIcon = ({ size = 18 }) => (
   </svg>
 );
 
+const CheckCircleIcon = ({ size = 18 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+    <polyline points="22 4 12 14.01 9 11.01"></polyline>
+  </svg>
+);
+
 /* ─────────────────────────────────────────────
    SUB-COMPONENTS 
 ───────────────────────────────────────────── */
-function Avatar({ src, size, editable, onEdit, isUploading }) {
-  const imageSource = src || "https://via.placeholder.com/250?text=User";
+function Avatar({
+  src,
+  name,
+  size,
+  editable,
+  onUpload,
+  onRemove,
+  isUploading,
+}) {
+  const [showMenu, setShowMenu] = useState(false);
+
+  // Generate beautiful fallback avatar data
+  const initials = (name || "User")
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const hue =
+    (name || "User").split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) %
+    360;
+
   return (
     <div className={styles.avatarWrap} style={{ "--av-size": size + "px" }}>
       <div className={styles.avatarRing}>
         {isUploading ? (
           <div
+            className={styles.avatarPlaceholder}
+            style={{ background: "#eee", color: "#888", fontSize: "14px" }}
+          >
+            Wait...
+          </div>
+        ) : src ? (
+          <img src={src} alt="avatar" className={styles.avatarImg} />
+        ) : (
+          <div
+            className={styles.avatarPlaceholder}
             style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              width: "100%",
-              height: "100%",
-              background: "#eee",
-              color: "#888",
-              fontSize: "12px",
+              background: `linear-gradient(135deg, hsl(${hue}, 60%, 55%), hsl(${hue + 40}, 60%, 45%))`,
             }}
           >
-            Uploading...
+            {initials}
           </div>
-        ) : (
-          <img src={imageSource} alt="avatar" className={styles.avatarImg} />
         )}
       </div>
       {editable && !isUploading && (
-        <button
-          className={styles.avatarEdit}
-          onClick={onEdit}
-          title="Change photo"
-        >
-          <PenIcon size={14} />
-        </button>
+        <>
+          <button
+            className={styles.avatarEdit}
+            onClick={() => setShowMenu(!showMenu)}
+            title="Change photo"
+          >
+            <PenIcon size={14} />
+          </button>
+
+          {/* New Dropdown Menu */}
+          {showMenu && (
+            <div className={styles.avatarMenu}>
+              <button
+                onClick={() => {
+                  onUpload();
+                  setShowMenu(false);
+                }}
+              >
+                Upload New
+              </button>
+              {src && (
+                <button
+                  onClick={() => {
+                    onRemove();
+                    setShowMenu(false);
+                  }}
+                  className={styles.dangerText}
+                >
+                  Remove Photo
+                </button>
+              )}
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -475,6 +539,105 @@ export default function Dashboard() {
     }
   }, []);
 
+  /* ── Avatar Menu Actions ── */
+  const handleRemoveAvatar = async () => {
+    setData((prev) => ({
+      ...prev,
+      profile: { ...prev.profile, avatar_url: null },
+    }));
+    try {
+      const userId = localStorage.getItem("yahora_user_id");
+      const token = localStorage.getItem("yahora_session");
+      await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/user/${userId}/profile`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ avatar_url: null }),
+        },
+      );
+    } catch (e) {
+      console.error("Failed to remove avatar:", e);
+    }
+  };
+
+  /* ── Dashboard Product Card Actions ── */
+  const handleMarkSold = async (productId) => {
+    setData((prev) => ({
+      ...prev,
+      listings: prev.listings.map((p) =>
+        p.id === productId ? { ...p, status: "sold" } : p,
+      ),
+    }));
+    try {
+      const token = localStorage.getItem("yahora_session");
+      await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/products/${productId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ status: "sold" }),
+        },
+      );
+    } catch (e) {
+      console.error("Failed to mark as sold:", e);
+    }
+  };
+
+  const handleToggleGridLike = async (productId, currentLikeState) => {
+    const userId = localStorage.getItem("yahora_user_id");
+    if (!userId) return;
+    setData((prev) => ({
+      ...prev,
+      listings: prev.listings.map((p) =>
+        p.id === productId
+          ? {
+              ...p,
+              is_liked: !currentLikeState,
+              likes_count: p.likes_count + (!currentLikeState ? 1 : -1),
+            }
+          : p,
+      ),
+    }));
+    try {
+      await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/products/${productId}/like`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: userId }),
+        },
+      );
+    } catch (e) {}
+  };
+
+  const handleToggleGridSave = async (productId, currentSaveState) => {
+    const userId = localStorage.getItem("yahora_user_id");
+    if (!userId) return;
+    setData((prev) => ({
+      ...prev,
+      listings: prev.listings.map((p) =>
+        p.id === productId ? { ...p, is_saved: !currentSaveState } : p,
+      ),
+    }));
+    try {
+      await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/products/${productId}/save`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ user_id: userId }),
+        },
+      );
+    } catch (e) {}
+  };
+
   /* ── Product Management Logic ── */
 
   // Triggers the popup modal
@@ -611,9 +774,11 @@ export default function Dashboard() {
         <div className={styles.heroHeader}>
           <Avatar
             src={profile.avatar_url}
-            size={160}
+            name={profile.full_name}
+            size={140}
             editable
-            onEdit={handleAvatarEditClick}
+            onUpload={handleAvatarEditClick}
+            onRemove={handleRemoveAvatar}
             isUploading={isUploadingAvatar}
           />
           <div className={styles.heroText}>
@@ -699,10 +864,12 @@ export default function Dashboard() {
 
           <button
             className={styles.sellBtn}
-            style = {{
+            style={{
               width: "215px",
             }}
-            onClick={() => navigate(`/user/${localStorage.getItem("yahora_user_id")}`)}
+            onClick={() =>
+              navigate(`/user/${localStorage.getItem("yahora_user_id")}`)
+            }
           >
             View Your Public Profile
           </button>
@@ -730,9 +897,11 @@ export default function Dashboard() {
           <div className={styles.sidebarProfileCard}>
             <Avatar
               src={profile.avatar_url}
+              name={profile.full_name}
               size={140}
               editable
-              onEdit={handleAvatarEditClick}
+              onUpload={handleAvatarEditClick}
+              onRemove={handleRemoveAvatar}
               isUploading={isUploadingAvatar}
             />
             <div className={styles.sidebarName}>{profile.full_name}</div>
@@ -842,6 +1011,10 @@ export default function Dashboard() {
                     currentUserId={localStorage.getItem("yahora_user_id")}
                     onEdit={() => handleEditProduct(item)}
                     onDelete={() => confirmDelete(item.id)}
+                    onMarkSold={() => handleMarkSold(item.id)}                       
+                    onToggleLike={() => handleToggleGridLike(item.id, item.is_liked)} 
+                    onToggleSave={() => handleToggleGridSave(item.id, item.is_saved)} 
+                    onChat={() => navigate('/messages')}
                   />
                 ))
               ) : (
