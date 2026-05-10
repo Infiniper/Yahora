@@ -13,33 +13,99 @@
     z-index: 9999;
 }
 
+
 .navLinks {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-evenly;
-    align-items: center;
-    padding: 0px;
-    margin: 0px;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.navLinks button {
-    /* background-color: transparent; */
-    background-color: rgb(234, 232, 232);
-    border: 0px transparent;
-    border-radius: 1.5rem;
-    margin: 0 0.25rem;
-    padding: 0rem;
-    cursor: pointer;
+.navButton {
+  align-items: center;
+  appearance: none;
+  background-color: #fff;
+  border-radius: 24px;
+  border: none;
+  box-shadow:
+    rgba(0, 0, 0, 0.2) 0 3px 5px -1px,
+    rgba(0, 0, 0, 0.14) 0 6px 10px 0,
+    rgba(0, 0, 0, 0.12) 0 1px 18px 0;
+  box-sizing: border-box;
+  color: #3c4043;
+  cursor: pointer;
+  display: inline-flex;
+  justify-content: center;
+  height: 30px;
+  padding: 5px 14px;
+  text-decoration: none;
+  transition:
+    box-shadow 280ms cubic-bezier(.4, 0, .2, 1),
+    opacity 15ms linear 30ms,
+    transform 270ms cubic-bezier(0, 0, .2, 1),
+    background 200ms ease,
+    color 200ms ease;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  position: relative;
+  white-space: nowrap;
+  font-family: inherit;
+  outline: none;
 }
 
-.navLinks p {
-    padding: 0.4rem 0.8rem;
-    margin: 0rem;
-    border-radius: 1.5rem;
-    font-size: 0.85rem;
-    font-weight: 500;
-    color: var(--black-soft);
-    transition: all 0.3s ease;
+.navButtonActive,
+.navButtonActive span,
+.navButtonActive:visited {
+  color: var(--white);
+}
+
+.navButton span {
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.25px;
+  line-height: normal;
+}
+
+.navButton:hover,
+.navButtonActive {
+  background: var(--purple-dark);
+  color: var(--white);
+}
+
+.navButton:active,
+.navButton:focus,
+.navButton:focus-visible {
+  outline: none;
+}
+
+.navButton:disabled {
+  box-shadow:
+    rgba(60, 64, 67, .3) 0 1px 3px 0,
+    rgba(60, 64, 67, .15) 0 4px 8px 3px;
+}
+
+.navButtonActive span {
+  color: inherit;
+}
+
+.unreadBadge {
+  position: absolute;
+  top: 0px;
+  right: -7px;
+  background: #EB487F;
+  color: #fff;
+  font-size: 0.1rem;
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: 10px;
+  border: 2px solid white;
+  line-height: 1;
+}
+
+.navButton .unreadBadge {
+  font-size: 0.7rem;
 }
 
 .logo {
@@ -94,15 +160,6 @@
 }
 
 /* Hover States */
-.navLinks p:hover {
-    background-color: var(--purple-dark);
-    color: var(--white);
-}
-
-.navLinks p:active {
-    background-color: var(--purple);
-}
-
 .cartButton:hover {
     background-color: var(--pink-dark);
     transition-duration: 0.5s;
