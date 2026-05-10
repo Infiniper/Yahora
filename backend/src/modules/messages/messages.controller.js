@@ -80,21 +80,36 @@ export const sendMessage = async (req, res) => {
 export const markAsRead = async (req, res) => {
     try {
         const { userId, contactId, productId } = req.body;
-
-        // Set all unread messages sent BY the contact TO the logged-in user as read
         const { error } = await supabase
             .from('messages')
-            .update({ is_read: true })
+            .update({ is_read: true, is_delivered: true }) // <-- added is_delivered: true
             .eq('receiver_id', userId)
             .eq('sender_id', contactId)
             .eq('product_id', productId)
             .eq('is_read', false);
 
         if (error) throw error;
-
         res.status(200).json({ success: true });
     } catch (error) {
         console.error('Mark as Read Error:', error);
         res.status(500).json({ error: 'Failed to update read status.' });
+    }
+};
+
+export const markAsDelivered = async (req, res) => {
+    try {
+        const { userId } = req.body;
+        // Marks all messages sent TO this user as delivered (because they just opened the app)
+        const { error } = await supabase
+            .from('messages')
+            .update({ is_delivered: true })
+            .eq('receiver_id', userId)
+            .eq('is_delivered', false);
+
+        if (error) throw error;
+        res.status(200).json({ success: true });
+    } catch (error) {
+        console.error('Mark as Delivered Error:', error);
+        res.status(500).json({ error: 'Failed to update delivery status.' });
     }
 };

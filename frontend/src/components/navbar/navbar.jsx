@@ -1,4 +1,4 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { useState, useRef, useEffect } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import styles from "./navbar.module.css";
@@ -92,6 +92,9 @@ function Navbar() {
     setIsDropdownOpen((prev) => !prev);
   };
 
+  const navLinkClass = ({ isActive }) =>
+    `${styles.navButton} ${isActive ? styles.navButtonActive : ""}`;
+
   // Close profile dropdown if clicked outside
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -142,43 +145,55 @@ function Navbar() {
       return;
     }
 
-    // 1. Initial Fetch
+    // 1. Tell backend we are online, so mark pending texts as delivered
+    fetch(`${import.meta.env.VITE_API_BASE_URL}/api/messages/deliver`, {
+        method: "PUT", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId })
+    });
+
     const fetchUnread = async () => {
       const { count } = await supabase
-        .from("messages")
-        .select("*", { count: "exact", head: true })
-        .eq("receiver_id", userId)
-        .eq("is_read", false);
+        .from('messages').select('*', { count: 'exact', head: true })
+        .eq('receiver_id', userId).eq('is_read', false);
       setUnreadCount(count || 0);
     };
     fetchUnread();
 
-    // 2. Real-time Listener (Updates dot instantly when someone texts you)
-    const channel = supabase
-      .channel("navbar-unread")
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "messages",
-          filter: `receiver_id=eq.${userId}`,
-        },
-        () => setUnreadCount((prev) => prev + 1),
+    // 2. Global Presence: Announce to the whole site that YOU are online
+    const presenceChannel = supabase.channel('online-users', {
+      config: { presence: { key: userId } } 
+    })
+    .on('presence', { event: 'sync' }, () => {
+      // NEW: When presence updates, broadcast it to the whole React app
+      const state = presenceChannel.presenceState();
+      window.dispatchEvent(new CustomEvent('yahora-presence', { detail: Object.keys(state) }));
+    });
+
+    presenceChannel.subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') await presenceChannel.track({ online_at: new Date().toISOString() });
+    });
+
+    // 3. Background Message Listener
+    const channel = supabase.channel('navbar-unread')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `receiver_id=eq.${userId}` }, 
+        () => {
+          setUnreadCount(prev => prev + 1);
+          // Instantly send a "Delivered" double-tick back to the sender!
+          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/messages/deliver`, {
+            method: "PUT", headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId })
+          });
+        }
       )
-      .on(
-        "postgres_changes",
-        {
-          event: "UPDATE",
-          schema: "public",
-          table: "messages",
-          filter: `receiver_id=eq.${userId}`,
-        },
-        () => fetchUnread(), // Refresh when messages are marked as read
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `receiver_id=eq.${userId}` }, 
+        () => fetchUnread() 
       )
       .subscribe();
 
-    return () => supabase.removeChannel(channel);
+    return () => {
+        supabase.removeChannel(channel);
+        supabase.removeChannel(presenceChannel);
+    };
   }, [isAuthenticated]);
 
   const handleLogout = () => {
@@ -198,46 +213,32 @@ function Navbar() {
       </div>
 
       <div className={`${styles.navLinks} ${isMenuOpen ? styles.active : ""}`}>
-        <Link to="/">
-          <button>
-            <p>Home</p>
-          </button>
-        </Link>
-        <Link to="/marketplace">
-          <button>
-            <p>Marketplace</p>
-          </button>
-        </Link>
-        <Link to="/hot">
-          <button>
-            <p>Campus Hot</p>
-          </button>
-        </Link>
-        {/* Messages Link with Unread Dot */}
-        <Link to="/messages" style={{ position: "relative" }}>
-          <button>
-            <p>Messages</p>
-          </button>
+        <NavLink to="/" end className={navLinkClass}>
+          <span>Home</span>
+        </NavLink>
+
+        <NavLink to="/marketplace" end className={navLinkClass}>
+          <span>Marketplace</span>
+        </NavLink>
+
+        <NavLink to="/hot" end className={navLinkClass}>
+          <span>Campus Hot</span>
+        </NavLink>
+
+        <NavLink
+          to="/messages"
+          end
+          className={navLinkClass}
+          style={{ position: "relative" }}
+        >
+          <span>Messages</span>
+
           {unreadCount > 0 && (
-            <span
-              style={{
-                position: "absolute",
-                top: "-2px",
-                right: "-8px",
-                background: "#EB487F",
-                color: "#fff",
-                fontSize: "0.65rem",
-                fontWeight: "bold",
-                padding: "2px 6px",
-                borderRadius: "10px",
-                border: "2px solid white",
-                lineHeight: "1",
-              }}
-            >
+            <span className={styles.unreadBadge}>
               {unreadCount > 99 ? "99+" : unreadCount}
             </span>
           )}
-        </Link>
+        </NavLink>
       </div>
 
       <div className={styles.navActions}>
@@ -269,7 +270,6 @@ function Navbar() {
 
               {isDropdownOpen && (
                 <div className={styles.profileDropdown}>
-                  {/* Removed &nbsp; elements */}
                   <Link
                     to="/dashboard"
                     onClick={() => setIsDropdownOpen(false)}
@@ -287,7 +287,6 @@ function Navbar() {
                     Settings
                   </Link>
 
-                  {/* Expanded Custom Logout Button */}
                   <button
                     onClick={handleLogout}
                     className={`${styles.Btn} ${styles.logoutBtn}`}
@@ -304,7 +303,6 @@ function Navbar() {
             </div>
           </div>
         ) : (
-          /* Custom Login/Signup Button */
           <Link to="/auth" style={{ textDecoration: "none" }}>
             <button className={styles.loginButton}>
               <span className={styles.loginButtonIconWrapper}>

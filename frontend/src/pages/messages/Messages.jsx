@@ -1,6 +1,6 @@
 // frontend/src/pages/messages/Messages.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import styles from "./Messages.module.css";
 import { supabase } from "../../config/supabaseClient";
 import {
@@ -16,6 +16,7 @@ const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 export default function Messages() {
   const currentUserId = localStorage.getItem("yahora_user_id");
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
 
   const [inbox, setInbox] = useState([]);
@@ -24,8 +25,8 @@ export default function Messages() {
   const [newMessage, setNewMessage] = useState("");
   const [loading, setLoading] = useState(true);
   const [showInboxOnMobile, setShowInboxOnMobile] = useState(true);
+  const [onlineUsers, setOnlineUsers] = useState(new Set()); // Tracks who is online
 
-  // FIXED: Reference to scroll the container, not the whole window
   const messagesContainerRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -35,15 +36,11 @@ export default function Messages() {
     }
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
+  useEffect(() => scrollToBottom(), [messages]);
 
+  /* ── 1. Fetch Inbox & Handle URL Persistence ── */
   useEffect(() => {
-    if (!currentUserId) {
-      navigate("/auth");
-      return;
-    }
+    if (!currentUserId) return navigate("/auth");
 
     const loadInboxAndCheckParams = async () => {
       try {
@@ -64,7 +61,7 @@ export default function Messages() {
           );
 
           if (existingChat) {
-            handleSelectChat(existingChat);
+            handleSelectChat(existingChat, true); // true = skip URL update to avoid loop
           } else {
             const prodRes = await fetch(
               `${API_BASE_URL}/products/${paramProductId}`,
@@ -78,31 +75,37 @@ export default function Messages() {
                 contact_name: prodData.product.seller?.full_name || "User",
                 contact_avatar: prodData.product.seller?.avatar_url,
                 product_title: prodData.product.title,
-                // FIXED: Safe optional chaining to prevent crashes
                 product_image:
                   prodData.product.image_urls?.[0] ||
                   "https://via.placeholder.com/20",
                 unread_count: 0,
               };
-
               fetchedInbox = [newChatData, ...fetchedInbox];
-              handleSelectChat(newChatData);
+              handleSelectChat(newChatData, true);
             }
           }
         }
         setInbox(fetchedInbox);
       } catch (error) {
-        console.error("Failed to load inbox:", error);
+        console.error(error);
       } finally {
         setLoading(false);
       }
     };
     loadInboxAndCheckParams();
-  }, [currentUserId, searchParams]);
+  }, [currentUserId]); // Removed searchParams to prevent re-fetching on chat switch
 
-  const handleSelectChat = async (chat) => {
+  /* ── 2. Select Chat & Update URL for Persistence ── */
+  const handleSelectChat = async (chat, isInitialLoad = false) => {
     setActiveChat(chat);
     setShowInboxOnMobile(false);
+
+    // FIX: Persist chat on refresh by silently updating the URL
+    if (!isInitialLoad) {
+      navigate(`/messages?user=${chat.contact_id}&product=${chat.product_id}`, {
+        replace: true,
+      });
+    }
 
     try {
       const res = await fetch(
@@ -132,84 +135,71 @@ export default function Messages() {
     } catch (error) {}
   };
 
+  /* ── 3. Realtime Ticks & Presence ── */
+  
+  // A. Listen for the global online-users event broadcasted by Navbar.jsx
+  useEffect(() => {
+    const handlePresenceSync = (e) => setOnlineUsers(new Set(e.detail));
+    window.addEventListener('yahora-presence', handlePresenceSync);
+    return () => window.removeEventListener('yahora-presence', handlePresenceSync);
+  }, []);
+
+  // B. Listen for New & Updated Messages (The Ticks!)
   useEffect(() => {
     if (!currentUserId) return;
 
-    const channel = supabase
-      .channel("realtime:messages")
-      .on(
-        "postgres_changes",
-        { event: "INSERT", schema: "public", table: "messages" },
-        (payload) => {
+    const msgChannel = supabase.channel('realtime:messages')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
           const newMsg = payload.new;
-
-          if (
-            newMsg.sender_id === currentUserId ||
-            newMsg.receiver_id === currentUserId
-          ) {
-            if (
-              activeChat &&
-              newMsg.product_id === activeChat.product_id &&
-              (newMsg.sender_id === activeChat.contact_id ||
-                newMsg.receiver_id === activeChat.contact_id)
-            ) {
-              // Let WebSocket handle the state update to avoid double messages
-              setMessages((prev) => [...prev, newMsg]);
+          if (newMsg.sender_id === currentUserId || newMsg.receiver_id === currentUserId) {
+            
+            if (activeChat && newMsg.product_id === activeChat.product_id && 
+                (newMsg.sender_id === activeChat.contact_id || newMsg.receiver_id === activeChat.contact_id)) {
+              
+              setMessages(prev => [...prev, newMsg]);
 
               if (newMsg.receiver_id === currentUserId) {
                 fetch(`${API_BASE_URL}/messages/read`, {
-                  method: "PUT",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    userId: currentUserId,
-                    contactId: newMsg.sender_id,
-                    productId: newMsg.product_id,
-                  }),
+                  method: "PUT", headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({ userId: currentUserId, contactId: newMsg.sender_id, productId: newMsg.product_id })
                 });
               }
             }
 
-            setInbox((prevInbox) => {
-              const chatIndex = prevInbox.findIndex(
-                (c) =>
-                  c.product_id === newMsg.product_id &&
-                  (c.contact_id === newMsg.sender_id ||
-                    c.contact_id === newMsg.receiver_id),
-              );
-
-              let updatedInbox = [...prevInbox];
+            setInbox(prev => {
+              const chatIndex = prev.findIndex(c => c.product_id === newMsg.product_id && (c.contact_id === newMsg.sender_id || c.contact_id === newMsg.receiver_id));
+              let updatedInbox = [...prev];
               let updatedChat = null;
 
               if (chatIndex > -1) {
                 updatedChat = updatedInbox.splice(chatIndex, 1)[0];
                 updatedChat.last_message = newMsg.content;
                 updatedChat.last_message_time = newMsg.created_at;
-
-                const isChatActive =
-                  activeChat &&
-                  activeChat.product_id === newMsg.product_id &&
-                  activeChat.contact_id === newMsg.sender_id;
+                
+                const isChatActive = activeChat && activeChat.product_id === newMsg.product_id && activeChat.contact_id === newMsg.sender_id;
                 if (newMsg.receiver_id === currentUserId && !isChatActive) {
-                  updatedChat.unread_count =
-                    Number(updatedChat.unread_count || 0) + 1;
+                  updatedChat.unread_count = Number(updatedChat.unread_count || 0) + 1;
                 }
               }
               if (updatedChat) updatedInbox.unshift(updatedChat);
               return updatedInbox;
             });
           }
-        },
-      )
+      })
+      // THE TICKS UPDATE: Listens for changes to is_read or is_delivered
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
+          const updatedMsg = payload.new;
+          setMessages(prev => prev.map(msg => msg.id === updatedMsg.id ? updatedMsg : msg));
+      })
       .subscribe();
 
-    return () => supabase.removeChannel(channel);
+    return () => {
+      supabase.removeChannel(msgChannel);
+    };
   }, [currentUserId, activeChat]);
-
-  // FIXED: Removed optimistic UI here to stop double entries
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !activeChat) return;
-
     const tempMessage = newMessage;
     setNewMessage("");
 
@@ -225,7 +215,7 @@ export default function Messages() {
         }),
       });
     } catch (error) {
-      console.error("Failed to send message:", error);
+      console.error(error);
     }
   };
 
@@ -272,32 +262,24 @@ export default function Messages() {
                   <div className={styles.inboxItemContent}>
                     <div className={styles.inboxItemTop}>
                       <span className={styles.inboxName}>
-                        {chat.contact_name}
+                        {chat?.contact_name || "Unknown"}
                       </span>
-                      {chat.last_message_time && (
+                      {chat?.last_message_time && (
                         <span className={styles.inboxTime}>
                           {formatTime(chat.last_message_time)}
                         </span>
                       )}
                     </div>
-
                     <div className={styles.inboxItemMiddle}>
-                      <img
-                        src={
-                          chat.product_image || "https://via.placeholder.com/20"
-                        }
-                        alt="Product"
-                      />
                       <span className={styles.inboxProduct}>
-                        {chat.product_title}
+                        {chat?.product_title || "Item"}
                       </span>
                     </div>
-
                     <div className={styles.inboxItemBottom}>
                       <span className={styles.inboxPreview}>
-                        {chat.last_message || "Start the conversation"}
+                        {chat?.last_message || "Start the conversation"}
                       </span>
-                      {chat.unread_count > 0 && (
+                      {chat?.unread_count > 0 && (
                         <span className={styles.unreadBadge}>
                           {chat.unread_count}
                         </span>
@@ -319,7 +301,10 @@ export default function Messages() {
               <div className={styles.chatHeader}>
                 <button
                   className={styles.mobileBackBtn}
-                  onClick={() => setShowInboxOnMobile(true)}
+                  onClick={() => {
+                    setShowInboxOnMobile(true);
+                    navigate("/messages", { replace: true });
+                  }}
                 >
                   <ArrowLeft size={20} />
                 </button>
@@ -332,14 +317,27 @@ export default function Messages() {
                   className={styles.chatHeaderAvatar}
                 />
                 <div className={styles.chatHeaderInfo}>
-                  <h3>{activeChat?.contact_name || "Unknown"}</h3>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                    }}
+                  >
+                    <h3>{activeChat?.contact_name || "Unknown"}</h3>
+                    {/* ONLINE PRESENCE INDICATOR */}
+                    {onlineUsers.has(activeChat.contact_id) && (
+                      <span className={styles.onlineStatus}>
+                        <span className={styles.onlineDot}></span>Online
+                      </span>
+                    )}
+                  </div>
                   <div
                     className={styles.chatProductSnippet}
                     onClick={() =>
                       navigate(`/product/${activeChat.product_id}`)
                     }
                   >
-                    {/* FIXED: Safe optional chaining here to prevent crashes */}
                     <img
                       src={
                         activeChat?.product_image ||
@@ -352,7 +350,6 @@ export default function Messages() {
                 </div>
               </div>
 
-              {/* FIXED: Added ref directly to this container so the page doesn't jump */}
               <div
                 className={styles.messagesContainer}
                 ref={messagesContainerRef}
@@ -365,6 +362,18 @@ export default function Messages() {
                 ) : (
                   messages.map((msg, index) => {
                     const isMine = msg.sender_id === currentUserId;
+
+                    // WHATSAPP STYLE TICK LOGIC
+                    let tickIcon = <Check size={14} color="#a0aec0" />; // Default: Single Gray Tick (Sent)
+                    if (msg.is_read) {
+                      tickIcon = <CheckCheck size={14} color="#3b82f6" />; // Read: Double Blue Tick
+                    } else if (
+                      msg.is_delivered ||
+                      onlineUsers.has(activeChat.contact_id)
+                    ) {
+                      tickIcon = <CheckCheck size={14} color="#a0aec0" />; // Delivered: Double Gray Tick
+                    }
+
                     return (
                       <div
                         key={index}
@@ -376,11 +385,7 @@ export default function Messages() {
                             <span>{formatTime(msg.created_at)}</span>
                             {isMine && (
                               <span className={styles.readReceipt}>
-                                {msg.is_read ? (
-                                  <CheckCheck size={14} color="#4ade80" />
-                                ) : (
-                                  <Check size={14} color="#aaa" />
-                                )}
+                                {tickIcon}
                               </span>
                             )}
                           </div>
