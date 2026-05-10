@@ -164,9 +164,13 @@ function Navbar() {
       config: { presence: { key: userId } } 
     })
     .on('presence', { event: 'sync' }, () => {
-      // NEW: When presence updates, broadcast it to the whole React app
       const state = presenceChannel.presenceState();
-      window.dispatchEvent(new CustomEvent('yahora-presence', { detail: Object.keys(state) }));
+      const activeIds = Object.keys(state);
+      
+      // NEW: Save the state globally so late-mounting components can read it instantly
+      window.yahoraOnlineUsers = activeIds; 
+      
+      window.dispatchEvent(new CustomEvent('yahora-presence', { detail: activeIds }));
     });
 
     presenceChannel.subscribe(async (status) => {

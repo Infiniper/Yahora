@@ -136,38 +136,65 @@ export default function Messages() {
   };
 
   /* ── 3. Realtime Ticks & Presence ── */
-  
+
   // A. Listen for the global online-users event broadcasted by Navbar.jsx
   useEffect(() => {
+    // NEW: Instantly grab the currently known online users the millisecond the page opens
+    if (window.yahoraOnlineUsers) {
+      setOnlineUsers(new Set(window.yahoraOnlineUsers));
+    }
+
+    // Continue listening for real-time changes (e.g., if they come online while you are staring at the chat)
     const handlePresenceSync = (e) => setOnlineUsers(new Set(e.detail));
-    window.addEventListener('yahora-presence', handlePresenceSync);
-    return () => window.removeEventListener('yahora-presence', handlePresenceSync);
+    window.addEventListener("yahora-presence", handlePresenceSync);
+
+    return () =>
+      window.removeEventListener("yahora-presence", handlePresenceSync);
   }, []);
 
   // B. Listen for New & Updated Messages (The Ticks!)
   useEffect(() => {
     if (!currentUserId) return;
 
-    const msgChannel = supabase.channel('realtime:messages')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+    const msgChannel = supabase
+      .channel("realtime:messages")
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
           const newMsg = payload.new;
-          if (newMsg.sender_id === currentUserId || newMsg.receiver_id === currentUserId) {
-            
-            if (activeChat && newMsg.product_id === activeChat.product_id && 
-                (newMsg.sender_id === activeChat.contact_id || newMsg.receiver_id === activeChat.contact_id)) {
-              
-              setMessages(prev => [...prev, newMsg]);
+          if (
+            newMsg.sender_id === currentUserId ||
+            newMsg.receiver_id === currentUserId
+          ) {
+            if (
+              activeChat &&
+              newMsg.product_id === activeChat.product_id &&
+              (newMsg.sender_id === activeChat.contact_id ||
+                newMsg.receiver_id === activeChat.contact_id)
+            ) {
+              setMessages((prev) => [...prev, newMsg]);
 
               if (newMsg.receiver_id === currentUserId) {
                 fetch(`${API_BASE_URL}/messages/read`, {
-                  method: "PUT", headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({ userId: currentUserId, contactId: newMsg.sender_id, productId: newMsg.product_id })
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    userId: currentUserId,
+                    contactId: newMsg.sender_id,
+                    productId: newMsg.product_id,
+                  }),
                 });
               }
             }
 
-            setInbox(prev => {
-              const chatIndex = prev.findIndex(c => c.product_id === newMsg.product_id && (c.contact_id === newMsg.sender_id || c.contact_id === newMsg.receiver_id));
+            setInbox((prev) => {
+              const chatIndex = prev.findIndex(
+                (c) =>
+                  c.product_id === newMsg.product_id &&
+                  (c.contact_id === newMsg.sender_id ||
+                    c.contact_id === newMsg.receiver_id),
+              );
               let updatedInbox = [...prev];
               let updatedChat = null;
 
@@ -175,22 +202,33 @@ export default function Messages() {
                 updatedChat = updatedInbox.splice(chatIndex, 1)[0];
                 updatedChat.last_message = newMsg.content;
                 updatedChat.last_message_time = newMsg.created_at;
-                
-                const isChatActive = activeChat && activeChat.product_id === newMsg.product_id && activeChat.contact_id === newMsg.sender_id;
+
+                const isChatActive =
+                  activeChat &&
+                  activeChat.product_id === newMsg.product_id &&
+                  activeChat.contact_id === newMsg.sender_id;
                 if (newMsg.receiver_id === currentUserId && !isChatActive) {
-                  updatedChat.unread_count = Number(updatedChat.unread_count || 0) + 1;
+                  updatedChat.unread_count =
+                    Number(updatedChat.unread_count || 0) + 1;
                 }
               }
               if (updatedChat) updatedInbox.unshift(updatedChat);
               return updatedInbox;
             });
           }
-      })
+        },
+      )
       // THE TICKS UPDATE: Listens for changes to is_read or is_delivered
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages' }, (payload) => {
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "messages" },
+        (payload) => {
           const updatedMsg = payload.new;
-          setMessages(prev => prev.map(msg => msg.id === updatedMsg.id ? updatedMsg : msg));
-      })
+          setMessages((prev) =>
+            prev.map((msg) => (msg.id === updatedMsg.id ? updatedMsg : msg)),
+          );
+        },
+      )
       .subscribe();
 
     return () => {
@@ -261,11 +299,37 @@ export default function Messages() {
                   />
                   <div className={styles.inboxItemContent}>
                     <div className={styles.inboxItemTop}>
-                      <span className={styles.inboxName}>
-                        {chat?.contact_name || "Unknown"}
-                      </span>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "6px",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <span className={styles.inboxName}>
+                          {chat?.contact_name || "Unknown"}
+                        </span>
+
+                        {/* NEW: Online presence indicator for the sidebar */}
+                        {onlineUsers.has(chat.contact_id) && (
+                          <span
+                            className={styles.onlineStatus}
+                            style={{ fontSize: "0.65rem", gap: "3px" }}
+                          >
+                            <span
+                              className={styles.onlineDot}
+                              style={{ width: "6px", height: "6px" }}
+                            ></span>
+                          </span>
+                        )}
+                      </div>
+
                       {chat?.last_message_time && (
-                        <span className={styles.inboxTime}>
+                        <span
+                          className={styles.inboxTime}
+                          style={{ flexShrink: 0, marginLeft: "4px" }}
+                        >
                           {formatTime(chat.last_message_time)}
                         </span>
                       )}
