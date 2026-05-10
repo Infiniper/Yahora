@@ -889,7 +889,7 @@ export default function Dashboard() {
             "opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1), transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
           position: isDashboard ? "relative" : "absolute",
           width: "100%",
-          top: 0,
+          top: -30,
           zIndex: isDashboard ? 10 : 0,
         }}
       >
