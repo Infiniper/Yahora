@@ -6,12 +6,33 @@ import ProductCard from "../../components/ProductCard/ProductCard";
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
-function DisplayAvatar({ src, size }) {
-  const imageSource = src || "https://via.placeholder.com/250?text=User";
+function DisplayAvatar({ src, name, size }) {
+  // Generate beautiful fallback avatar data
+  const initials = (name || "User")
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const hue =
+    (name || "User").split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) %
+    360;
+
   return (
     <div className={styles.avatarWrap} style={{ "--av-size": size + "px" }}>
       <div className={styles.avatarRing}>
-        <img src={imageSource} alt="avatar" className={styles.avatarImg} />
+        {src ? (
+          <img src={src} alt="avatar" className={styles.avatarImg} />
+        ) : (
+          <div
+            className={styles.avatarPlaceholder}
+            style={{
+              background: `linear-gradient(135deg, hsl(${hue}, 60%, 55%), hsl(${hue + 40}, 60%, 45%))`,
+            }}
+          >
+            {initials}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -209,7 +230,11 @@ export default function PublicProfile() {
         </button>
 
         <div className={styles.heroHeader}>
-          <DisplayAvatar src={profile.avatar_url} size={160} />
+          <DisplayAvatar
+            src={profile.avatar_url}
+            name={profile.full_name}
+            size={160}
+          />
           <div className={styles.heroText}>
             <div className={styles.heroEyebrow}>Verified Campus Seller</div>
             <div className={styles.sidebarUni}>
@@ -314,7 +339,11 @@ export default function PublicProfile() {
           }}
         >
           <div className={styles.sidebarProfileCard}>
-            <DisplayAvatar src={profile.avatar_url} size={140} />
+            <DisplayAvatar
+              src={profile.avatar_url}
+              name={profile.full_name}
+              size={140}
+            />
             <div className={styles.sidebarName}>{profile.full_name}</div>
             <div className={styles.sidebarUni}>
               <span className={styles.sidebarUniDot} />
