@@ -356,4 +356,38 @@ export const toggleCommentVote = async (req, res) => {
     }
 };
 
+export const markProductAsSold = async (req, res) => {
+   try {
+       const { id } = req.params;
+       const { buyer_id } = req.body;
+
+       // 1. Update the product status to 'sold'
+       const { data: product, error: updateError } = await supabase
+           .from('products')
+           .update({ status: 'sold' })
+           .eq('id', id)
+           .select()
+           .single();
+
+       if (updateError) throw updateError;
+
+       // 2. If a buyer was selected from the platform, record the purchase for social proof
+       if (buyer_id) {
+           const { error: purchaseError } = await supabase
+               .from('purchases')
+               .insert([{
+                   buyer_id: buyer_id,
+                   product_id: id
+               }]);
+
+           if (purchaseError) console.error("Failed to insert purchase record:", purchaseError);
+       }
+
+       res.status(200).json({ message: 'Product marked as sold', product });
+   } catch (error) {
+       console.error('Mark Sold Error:', error);
+       res.status(500).json({ error: 'Failed to mark product as sold.' });
+   }
+};
+
 
