@@ -177,6 +177,7 @@ const ProductCard = memo(function ProductCard({
   onEdit = null,
   onChat = null,
   onDelete = null,
+  onMarkSold = null,
   onToggleLike = null, // <-- ACCEPTED FROM MARKETPLACE
   onToggleSave = null, // <-- ACCEPTED FROM MARKETPLACE
 }) {
@@ -475,6 +476,36 @@ const ProductCard = memo(function ProductCard({
                   >
                     <ChatIcon size={14} />
                   </button>
+
+                  {/* ---- NEW MARK SOLD BUTTON ---- */}
+                  {onMarkSold && (
+                    <button
+                      className={`${styles.cardBtn}`}
+                      title="Mark as Sold"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMarkSold();
+                      }}
+                      style={{ color: "#4ade80" }}
+                    >
+                      {/* Inline Check Circle SVG */}
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
+                      </svg>
+                    </button>
+                  )}
+                  {/* ------------------------------ */}
+                  
                   <button
                     className={`${styles.cardBtn} ${styles.cardBtnEdit}`}
                     title="Edit listing"

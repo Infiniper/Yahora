@@ -80,6 +80,7 @@ function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState(null);
+  const [userName, setUserName] = useState("");
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
   const [unreadCount, setUnreadCount] = useState(0);
@@ -126,6 +127,9 @@ function Navbar() {
               if (data.profile && data.profile.avatar_url) {
                 setAvatarUrl(data.profile.avatar_url);
               }
+              if (data.profile.full_name) {
+                setUserName(data.profile.full_name);
+              }
             }
           } catch (e) {
             console.error("Could not load avatar:", e);
@@ -147,56 +151,79 @@ function Navbar() {
 
     // 1. Tell backend we are online, so mark pending texts as delivered
     fetch(`${import.meta.env.VITE_API_BASE_URL}/api/messages/deliver`, {
-        method: "PUT", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId })
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
     });
 
     const fetchUnread = async () => {
       const { count } = await supabase
-        .from('messages').select('*', { count: 'exact', head: true })
-        .eq('receiver_id', userId).eq('is_read', false);
+        .from("messages")
+        .select("*", { count: "exact", head: true })
+        .eq("receiver_id", userId)
+        .eq("is_read", false);
       setUnreadCount(count || 0);
     };
     fetchUnread();
 
     // 2. Global Presence: Announce to the whole site that YOU are online
-    const presenceChannel = supabase.channel('online-users', {
-      config: { presence: { key: userId } } 
-    })
-    .on('presence', { event: 'sync' }, () => {
-      const state = presenceChannel.presenceState();
-      const activeIds = Object.keys(state);
-      
-      // NEW: Save the state globally so late-mounting components can read it instantly
-      window.yahoraOnlineUsers = activeIds; 
-      
-      window.dispatchEvent(new CustomEvent('yahora-presence', { detail: activeIds }));
-    });
+    const presenceChannel = supabase
+      .channel("online-users", {
+        config: { presence: { key: userId } },
+      })
+      .on("presence", { event: "sync" }, () => {
+        const state = presenceChannel.presenceState();
+        const activeIds = Object.keys(state);
+
+        // NEW: Save the state globally so late-mounting components can read it instantly
+        window.yahoraOnlineUsers = activeIds;
+
+        window.dispatchEvent(
+          new CustomEvent("yahora-presence", { detail: activeIds }),
+        );
+      });
 
     presenceChannel.subscribe(async (status) => {
-      if (status === 'SUBSCRIBED') await presenceChannel.track({ online_at: new Date().toISOString() });
+      if (status === "SUBSCRIBED")
+        await presenceChannel.track({ online_at: new Date().toISOString() });
     });
 
     // 3. Background Message Listener
-    const channel = supabase.channel('navbar-unread')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages', filter: `receiver_id=eq.${userId}` }, 
+    const channel = supabase
+      .channel("navbar-unread")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "messages",
+          filter: `receiver_id=eq.${userId}`,
+        },
         () => {
-          setUnreadCount(prev => prev + 1);
+          setUnreadCount((prev) => prev + 1);
           // Instantly send a "Delivered" double-tick back to the sender!
           fetch(`${import.meta.env.VITE_API_BASE_URL}/api/messages/deliver`, {
-            method: "PUT", headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ userId })
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ userId }),
           });
-        }
+        },
       )
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'messages', filter: `receiver_id=eq.${userId}` }, 
-        () => fetchUnread() 
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "messages",
+          filter: `receiver_id=eq.${userId}`,
+        },
+        () => fetchUnread(),
       )
       .subscribe();
 
     return () => {
-        supabase.removeChannel(channel);
-        supabase.removeChannel(presenceChannel);
+      supabase.removeChannel(channel);
+      supabase.removeChannel(presenceChannel);
     };
   }, [isAuthenticated]);
 
@@ -205,6 +232,17 @@ function Navbar() {
     setIsDropdownOpen(false);
     navigate("/auth");
   };
+
+  // Generate beautiful fallback avatar data
+  const displayName = userName || "User";
+  const initials = displayName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const hue =
+    displayName.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
 
   return (
     <div className={styles.navElements}>
@@ -258,15 +296,45 @@ function Navbar() {
 
             <div className={styles.profileMenu} ref={dropdownRef}>
               <button
-                className={`${styles.iconBtn} ${styles.profileBtn} ${avatarUrl ? styles.hasAvatar : ""}`}
+                className={`${styles.iconBtn} ${styles.profileBtn}`}
                 onClick={toggleDropdown}
+                style={
+                  avatarUrl || userName
+                    ? { padding: 0, overflow: "hidden", border: "none" }
+                    : {}
+                }
               >
                 {avatarUrl ? (
                   <img
                     src={avatarUrl}
                     alt="User Avatar"
                     className={styles.navAvatarImg}
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                      
+                    }}
                   />
+                ) : userName ? (
+                  <div
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      background: `linear-gradient(135deg, hsl(${hue}, 60%, 55%), hsl(${hue + 40}, 60%, 45%))`,
+                      color: "white",
+                      fontWeight: "bold",
+                      fontSize: "15px",
+                      borderRadius: "50%",
+                      border: "2px solid #2a082a",
+                    }}
+                  >
+                    {initials}
+                  </div>
                 ) : (
                   <UserIcon />
                 )}
