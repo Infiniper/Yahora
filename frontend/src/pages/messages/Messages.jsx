@@ -4,7 +4,7 @@ import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import styles from "./Messages.module.css";
 import { supabase } from "../../config/supabaseClient";
 import {
-  ArrowLeft, Send, MessageSquare, Check, CheckCheck,
+  ArrowLeft, Send, MessageSquare, Check, CheckCheck, 
   Search, X, Smile, ShoppingBag, Sparkles, Users
 } from "lucide-react";
 
