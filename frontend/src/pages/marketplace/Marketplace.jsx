@@ -562,9 +562,12 @@ export default function Marketplace() {
 
     if (selCategories.length)
       list = list.filter((p) => selCategories.includes(p.category));
-    list = list.filter(
-      (p) => p.price >= priceRange[0] && p.price <= priceRange[1],
-    );
+    list = list.filter((p) => {
+      const meetsMin = p.price >= priceRange[0];
+      // If the max slider is at 50000, treat it as infinity (no upper limit)
+      const meetsMax = priceRange[1] >= 50000 ? true : p.price <= priceRange[1];
+      return meetsMin && meetsMax;
+    });
     if (selConditions.length)
       list = list.filter((p) => selConditions.includes(p.condition));
     if (selPostingDate)
@@ -621,8 +624,7 @@ export default function Marketplace() {
   const isForeignCampus =
     homeUniversityId && university.id !== homeUniversityId;
 
-  const isHomeCampus =
-    homeUniversityId && university.id === homeUniversityId;
+  const isHomeCampus = homeUniversityId && university.id === homeUniversityId;
 
   const SidebarContent = (
     <aside className={styles.sidebar}>
@@ -659,7 +661,12 @@ export default function Marketplace() {
           <div className={styles.priceRangeWrap}>
             <div className={styles.priceRangeLabels}>
               <span>₹{priceRange[0].toLocaleString("en-IN")}</span>
-              <span>₹{priceRange[1].toLocaleString("en-IN")}</span>
+              {/* Show a '+' sign if the slider is at max capacity */}
+              <span>
+                {priceRange[1] >= 50000
+                  ? "₹50,000+"
+                  : `₹${priceRange[1].toLocaleString("en-IN")}`}
+              </span>
             </div>
             <input
               type="range"
@@ -743,7 +750,8 @@ export default function Marketplace() {
           </div>
           <div className={styles.disclaimerTitle}>Exploring Another Campus</div>
           <div className={styles.disclaimerText}>
-            Browse, like, and save freely. Buying and selling are reserved for your home campus.
+            Browse, like, and save freely. Buying and selling are reserved for
+            your home campus.
           </div>
         </div>
       ) : (

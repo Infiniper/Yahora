@@ -390,4 +390,33 @@ export const markProductAsSold = async (req, res) => {
    }
 };
 
+export const markProductAsAvailable = async (req, res) => {
+   try {
+       const { id } = req.params;
+
+       // 1. Update the product status back to 'available'
+       const { data: product, error: updateError } = await supabase
+           .from('products')
+           .update({ status: 'available' })
+           .eq('id', id)
+           .select()
+           .single();
+
+       if (updateError) throw updateError;
+
+       // 2. Remove the purchase record to undo the social proof
+       const { error: purchaseError } = await supabase
+           .from('purchases')
+           .delete()
+           .eq('product_id', id);
+
+       if (purchaseError) console.error("Failed to delete purchase record:", purchaseError);
+
+       res.status(200).json({ message: 'Product marked as available', product });
+   } catch (error) {
+       console.error('Mark Available Error:', error);
+       res.status(500).json({ error: 'Failed to mark product as available.' });
+   }
+};
+
 
