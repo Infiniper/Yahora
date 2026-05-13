@@ -4,56 +4,156 @@ import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import styles from "./Messages.module.css";
 import { supabase } from "../../config/supabaseClient";
 import {
-  ArrowLeft, Send, MessageSquare, Check, CheckCheck, 
-  Search, X, Smile, ShoppingBag, Sparkles, Users
+  ArrowLeft,
+  Send,
+  MessageSquare,
+  Check,
+  CheckCheck,
+  Search,
+  X,
+  Smile,
+  Sparkles,
+  Users,
 } from "lucide-react";
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
 /* ── Emoji data ── */
 const EMOJI_ROWS = [
-  { label: "Smileys", emojis: ["😊","😂","😍","🥺","😭","😎","🤔","🥳","😘","🤗","😅","🤩","😆","🙂","😉","🫡"] },
-  { label: "Gestures", emojis: ["👍","👏","🙌","🤝","💪","🫶","👌","✌️","🤙","🙏","🫂","❤️","💕","🔥","✨","💯"] },
-  { label: "Campus", emojis: ["📚","🎒","💻","📱","☕","🍕","🏫","🎓","📝","💡","🎯","⚡","🛍️","📦","💰","🎁"] },
+  {
+    label: "Smileys",
+    emojis: [
+      "😊",
+      "😂",
+      "😍",
+      "🥺",
+      "😭",
+      "😎",
+      "🤔",
+      "🥳",
+      "😘",
+      "🤗",
+      "😅",
+      "🤩",
+      "😆",
+      "🙂",
+      "😉",
+      "🫡",
+    ],
+  },
+  {
+    label: "Gestures",
+    emojis: [
+      "👍",
+      "👏",
+      "🙌",
+      "🤝",
+      "💪",
+      "🫶",
+      "👌",
+      "✌️",
+      "🤙",
+      "🙏",
+      "🫂",
+      "❤️",
+      "💕",
+      "🔥",
+      "✨",
+      "💯",
+    ],
+  },
+  {
+    label: "Campus",
+    emojis: [
+      "📚",
+      "🎒",
+      "💻",
+      "📱",
+      "☕",
+      "🍕",
+      "🏫",
+      "🎓",
+      "📝",
+      "💡",
+      "🎯",
+      "⚡",
+      "🛍️",
+      "📦",
+      "💰",
+      "🎁",
+    ],
+  },
 ];
 
 /* ── Avatar Helper ── */
 function AvatarImg({ src, name, size = 40, className }) {
   const [err, setErr] = useState(false);
   const displayName = name || "User";
-  const initials = displayName.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase();
-  const hue = displayName.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
+  const initials = displayName
+    .split(" ")
+    .map((w) => w[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase();
+  const hue =
+    displayName.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
 
   if (!src || err) {
     return (
-      <div className={className} style={{
-        width: size, height: size, borderRadius: "50%", flexShrink: 0,
-        background: `linear-gradient(135deg, hsl(${hue},55%,50%), hsl(${hue + 40},55%,40%))`,
-        color: "#fff", fontWeight: 700, fontSize: size * 0.36,
-        display: "flex", alignItems: "center", justifyContent: "center",
-        userSelect: "none", border: "2px solid rgba(255,255,255,0.12)",
-      }}>
+      <div
+        className={className}
+        style={{
+          width: size,
+          height: size,
+          borderRadius: "50%",
+          flexShrink: 0,
+          background: `linear-gradient(135deg, hsl(${hue},55%,50%), hsl(${hue + 40},55%,40%))`,
+          color: "#fff",
+          fontWeight: 700,
+          fontSize: size * 0.36,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          userSelect: "none",
+          border: "2px solid rgba(255,255,255,0.12)",
+        }}
+      >
         {initials}
       </div>
     );
   }
-  return <img src={src} alt={name} className={className} onError={() => setErr(true)} />;
+  return (
+    <img
+      src={src}
+      alt={name}
+      className={className}
+      onError={() => setErr(true)}
+    />
+  );
 }
 
 /* ── Time formatter ── */
 const formatTime = (isoString) => {
   if (!isoString) return "";
-  return new Date(isoString).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  return new Date(isoString).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
 };
 
 const formatDate = (isoString) => {
   if (!isoString) return "";
   const d = new Date(isoString);
   const today = new Date();
-  const yesterday = new Date(today); yesterday.setDate(today.getDate() - 1);
+  const yesterday = new Date(today);
+  yesterday.setDate(today.getDate() - 1);
   if (d.toDateString() === today.toDateString()) return "Today";
   if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
-  return d.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric" });
+  return d.toLocaleDateString([], {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
 };
 
 export default function Messages() {
@@ -63,27 +163,28 @@ export default function Messages() {
   const [searchParams] = useSearchParams();
 
   /* ── Existing states (untouched logic) ── */
-  const [inbox, setInbox]                       = useState([]);
-  const [activeChat, setActiveChat]             = useState(null);
-  const [messages, setMessages]                 = useState([]);
-  const [newMessage, setNewMessage]             = useState("");
-  const [loading, setLoading]                   = useState(true);
+  const [inbox, setInbox] = useState([]);
+  const [activeChat, setActiveChat] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const [newMessage, setNewMessage] = useState("");
+  const [loading, setLoading] = useState(true);
   const [showInboxOnMobile, setShowInboxOnMobile] = useState(true);
-  const [onlineUsers, setOnlineUsers]           = useState(new Set());
+  const [onlineUsers, setOnlineUsers] = useState(new Set());
 
   /* ── New UI-only states ── */
-  const [searchQuery, setSearchQuery]       = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [activeEmojiRow, setActiveEmojiRow] = useState(0);
 
   /* ── Refs ── */
   const messagesContainerRef = useRef(null);
-  const chatInputRef         = useRef(null);
-  const emojiPickerRef       = useRef(null);
+  const chatInputRef = useRef(null);
+  const emojiPickerRef = useRef(null);
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
-      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+      messagesContainerRef.current.scrollTop =
+        messagesContainerRef.current.scrollHeight;
     }
   };
 
@@ -93,7 +194,10 @@ export default function Messages() {
   useEffect(() => {
     if (!showEmojiPicker) return;
     const handler = (e) => {
-      if (emojiPickerRef.current && !emojiPickerRef.current.contains(e.target)) {
+      if (
+        emojiPickerRef.current &&
+        !emojiPickerRef.current.contains(e.target)
+      ) {
         setShowEmojiPicker(false);
       }
     };
@@ -106,30 +210,38 @@ export default function Messages() {
     if (!currentUserId) return navigate("/auth");
     const loadInboxAndCheckParams = async () => {
       try {
-        const res = await fetch(`${API_BASE_URL}/messages/inbox/${currentUserId}`);
+        const res = await fetch(
+          `${API_BASE_URL}/messages/inbox/${currentUserId}`,
+        );
         const data = await res.json();
         let fetchedInbox = data.inbox || [];
-        const paramUserId   = searchParams.get("user");
+        const paramUserId = searchParams.get("user");
         const paramProductId = searchParams.get("product");
 
         if (paramUserId && paramProductId) {
           const existingChat = fetchedInbox.find(
-            chat => chat.contact_id === paramUserId && chat.product_id === paramProductId
+            (chat) =>
+              chat.contact_id === paramUserId &&
+              chat.product_id === paramProductId,
           );
           if (existingChat) {
             handleSelectChat(existingChat, true);
           } else {
-            const prodRes  = await fetch(`${API_BASE_URL}/products/${paramProductId}`);
+            const prodRes = await fetch(
+              `${API_BASE_URL}/products/${paramProductId}`,
+            );
             const prodData = await prodRes.json();
             if (prodData.product) {
               const newChatData = {
-                contact_id:      paramUserId,
-                product_id:      paramProductId,
-                contact_name:    prodData.product.seller?.full_name || "User",
-                contact_avatar:  prodData.product.seller?.avatar_url,
-                product_title:   prodData.product.title,
-                product_image:   prodData.product.image_urls?.[0] || "https://via.placeholder.com/20",
-                unread_count:    0,
+                contact_id: paramUserId,
+                product_id: paramProductId,
+                contact_name: prodData.product.seller?.full_name || "User",
+                contact_avatar: prodData.product.seller?.avatar_url,
+                product_title: prodData.product.title,
+                product_image:
+                  prodData.product.image_urls?.[0] ||
+                  "https://via.placeholder.com/20",
+                unread_count: 0,
               };
               fetchedInbox = [newChatData, ...fetchedInbox];
               handleSelectChat(newChatData, true);
@@ -152,33 +264,45 @@ export default function Messages() {
     setShowInboxOnMobile(false);
     setShowEmojiPicker(false);
     if (!isInitialLoad) {
-      navigate(`/messages?user=${chat.contact_id}&product=${chat.product_id}`, { replace: true });
+      navigate(`/messages?user=${chat.contact_id}&product=${chat.product_id}`, {
+        replace: true,
+      });
     }
     try {
       const res = await fetch(
-        `${API_BASE_URL}/messages/history?userId=${currentUserId}&contactId=${chat.contact_id}&productId=${chat.product_id}`
+        `${API_BASE_URL}/messages/history?userId=${currentUserId}&contactId=${chat.contact_id}&productId=${chat.product_id}`,
       );
       const data = await res.json();
       setMessages(data.messages || []);
       if (chat.unread_count > 0) {
         await fetch(`${API_BASE_URL}/messages/read`, {
-          method: "PUT", headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ userId: currentUserId, contactId: chat.contact_id, productId: chat.product_id }),
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            userId: currentUserId,
+            contactId: chat.contact_id,
+            productId: chat.product_id,
+          }),
         });
-        setInbox(prev => prev.map(c =>
-          c.contact_id === chat.contact_id && c.product_id === chat.product_id
-            ? { ...c, unread_count: 0 } : c
-        ));
+        setInbox((prev) =>
+          prev.map((c) =>
+            c.contact_id === chat.contact_id && c.product_id === chat.product_id
+              ? { ...c, unread_count: 0 }
+              : c,
+          ),
+        );
       }
     } catch {}
   };
 
   /* ── 3. Presence (LOGIC UNCHANGED) ── */
   useEffect(() => {
-    if (window.yahoraOnlineUsers) setOnlineUsers(new Set(window.yahoraOnlineUsers));
+    if (window.yahoraOnlineUsers)
+      setOnlineUsers(new Set(window.yahoraOnlineUsers));
     const handlePresenceSync = (e) => setOnlineUsers(new Set(e.detail));
     window.addEventListener("yahora-presence", handlePresenceSync);
-    return () => window.removeEventListener("yahora-presence", handlePresenceSync);
+    return () =>
+      window.removeEventListener("yahora-presence", handlePresenceSync);
   }, []);
 
   /* ── 4. Realtime (LOGIC UNCHANGED) ── */
@@ -186,46 +310,71 @@ export default function Messages() {
     if (!currentUserId) return;
     const msgChannel = supabase
       .channel("realtime:messages")
-      .on("postgres_changes", { event: "INSERT", schema: "public", table: "messages" }, (payload) => {
-        const newMsg = payload.new;
-        if (newMsg.sender_id === currentUserId || newMsg.receiver_id === currentUserId) {
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "messages" },
+        (payload) => {
+          const newMsg = payload.new;
           if (
-            activeChat &&
-            newMsg.product_id === activeChat.product_id &&
-            (newMsg.sender_id === activeChat.contact_id || newMsg.receiver_id === activeChat.contact_id)
+            newMsg.sender_id === currentUserId ||
+            newMsg.receiver_id === currentUserId
           ) {
-            setMessages(prev => [...prev, newMsg]);
-            if (newMsg.receiver_id === currentUserId) {
-              fetch(`${API_BASE_URL}/messages/read`, {
-                method: "PUT", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ userId: currentUserId, contactId: newMsg.sender_id, productId: newMsg.product_id }),
-              });
-            }
-          }
-          setInbox(prev => {
-            const chatIndex = prev.findIndex(c =>
-              c.product_id === newMsg.product_id &&
-              (c.contact_id === newMsg.sender_id || c.contact_id === newMsg.receiver_id)
-            );
-            let updatedInbox = [...prev];
-            let updatedChat  = null;
-            if (chatIndex > -1) {
-              updatedChat = updatedInbox.splice(chatIndex, 1)[0];
-              updatedChat.last_message      = newMsg.content;
-              updatedChat.last_message_time = newMsg.created_at;
-              const isChatActive = activeChat && activeChat.product_id === newMsg.product_id && activeChat.contact_id === newMsg.sender_id;
-              if (newMsg.receiver_id === currentUserId && !isChatActive) {
-                updatedChat.unread_count = Number(updatedChat.unread_count || 0) + 1;
+            if (
+              activeChat &&
+              newMsg.product_id === activeChat.product_id &&
+              (newMsg.sender_id === activeChat.contact_id ||
+                newMsg.receiver_id === activeChat.contact_id)
+            ) {
+              setMessages((prev) => [...prev, newMsg]);
+              if (newMsg.receiver_id === currentUserId) {
+                fetch(`${API_BASE_URL}/messages/read`, {
+                  method: "PUT",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    userId: currentUserId,
+                    contactId: newMsg.sender_id,
+                    productId: newMsg.product_id,
+                  }),
+                });
               }
             }
-            if (updatedChat) updatedInbox.unshift(updatedChat);
-            return updatedInbox;
-          });
-        }
-      })
-      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "messages" }, (payload) => {
-        setMessages(prev => prev.map(msg => msg.id === payload.new.id ? payload.new : msg));
-      })
+            setInbox((prev) => {
+              const chatIndex = prev.findIndex(
+                (c) =>
+                  c.product_id === newMsg.product_id &&
+                  (c.contact_id === newMsg.sender_id ||
+                    c.contact_id === newMsg.receiver_id),
+              );
+              let updatedInbox = [...prev];
+              let updatedChat = null;
+              if (chatIndex > -1) {
+                updatedChat = updatedInbox.splice(chatIndex, 1)[0];
+                updatedChat.last_message = newMsg.content;
+                updatedChat.last_message_time = newMsg.created_at;
+                const isChatActive =
+                  activeChat &&
+                  activeChat.product_id === newMsg.product_id &&
+                  activeChat.contact_id === newMsg.sender_id;
+                if (newMsg.receiver_id === currentUserId && !isChatActive) {
+                  updatedChat.unread_count =
+                    Number(updatedChat.unread_count || 0) + 1;
+                }
+              }
+              if (updatedChat) updatedInbox.unshift(updatedChat);
+              return updatedInbox;
+            });
+          }
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "messages" },
+        (payload) => {
+          setMessages((prev) =>
+            prev.map((msg) => (msg.id === payload.new.id ? payload.new : msg)),
+          );
+        },
+      )
       .subscribe();
     return () => supabase.removeChannel(msgChannel);
   }, [currentUserId, activeChat]);
@@ -239,29 +388,33 @@ export default function Messages() {
     setShowEmojiPicker(false);
     try {
       await fetch(`${API_BASE_URL}/messages/send`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sender_id:   currentUserId,
+          sender_id: currentUserId,
           receiver_id: activeChat.contact_id,
-          product_id:  activeChat.product_id,
-          content:     tempMessage,
+          product_id: activeChat.product_id,
+          content: tempMessage,
         }),
       });
-    } catch (error) { console.error(error); }
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   /* ── Emoji insert ── */
   const handleEmojiClick = (emoji) => {
-    setNewMessage(prev => prev + emoji);
+    setNewMessage((prev) => prev + emoji);
     chatInputRef.current?.focus();
   };
 
   /* ── Filtered inbox for search ── */
-  const filteredInbox = inbox.filter(chat =>
-    !searchQuery ||
-    chat.contact_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    chat.product_title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    chat.last_message?.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredInbox = inbox.filter(
+    (chat) =>
+      !searchQuery ||
+      chat.contact_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      chat.product_title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      chat.last_message?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   /* ── Group messages by date ── */
@@ -273,28 +426,29 @@ export default function Messages() {
   }, {});
 
   /* ── Loading state ── */
-  if (loading) return (
-    <div className={styles.loadingScreen}>
-      <div className={styles.loadingSpinner} />
-      <p>Loading your conversations…</p>
-    </div>
-  );
+  if (loading)
+    return (
+      <div className={styles.loadingScreen}>
+        <div className={styles.loadingSpinner} />
+        <p>Loading your conversations…</p>
+      </div>
+    );
 
   return (
     <div className={styles.root}>
       <div className={styles.container}>
-
         {/* ════════════ INBOX SIDEBAR ════════════ */}
-        <div className={`${styles.inboxSidebar} ${!showInboxOnMobile ? styles.hideOnMobile : ""}`}>
-
+        <div
+          className={`${styles.inboxSidebar} ${!showInboxOnMobile ? styles.hideOnMobile : ""}`}
+        >
           {/* Sidebar Header */}
           <div className={styles.inboxHeader}>
             <div className={styles.inboxHeaderTop}>
               <div className={styles.inboxTitleRow}>
                 <h2 className={styles.inboxTitle}>Messages</h2>
-                {inbox.length > 0 && (
+                {/* {inbox.length > 0 && (
                   <span className={styles.inboxCount}>{inbox.length}</span>
-                )}
+                )} */}
               </div>
               <Sparkles size={16} className={styles.headerSparkle} />
             </div>
@@ -306,11 +460,14 @@ export default function Messages() {
                 type="text"
                 placeholder="Search conversations…"
                 value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className={styles.searchInput}
               />
               {searchQuery && (
-                <button className={styles.clearSearchBtn} onClick={() => setSearchQuery("")}>
+                <button
+                  className={styles.clearSearchBtn}
+                  onClick={() => setSearchQuery("")}
+                >
                   <X size={12} />
                 </button>
               )}
@@ -324,21 +481,32 @@ export default function Messages() {
                 {searchQuery ? (
                   <>
                     <Search size={28} />
-                    <p>No results for "<strong>{searchQuery}</strong>"</p>
+                    <p>
+                      No results for "<strong>{searchQuery}</strong>"
+                    </p>
                     <span>Try a different name or keyword</span>
                   </>
                 ) : (
                   <>
-                    <div className={styles.emptyInboxIcon}><MessageSquare size={28} /></div>
+                    <div className={styles.emptyInboxIcon}>
+                      <MessageSquare size={28} />
+                    </div>
                     <p>No conversations yet</p>
-                    <span>Browse the marketplace and message a seller to get started!</span>
+                    <span>
+                      Browse the marketplace and message a seller to get
+                      started!
+                    </span>
                   </>
                 )}
               </div>
             ) : (
               filteredInbox.map((chat, idx) => {
-                const isActive = activeChat?.product_id === chat.product_id && activeChat?.contact_id === chat.contact_id;
-                const isOnline = onlineUsers.has(chat.contact_id) && chat.contact_id !== currentUserId;
+                const isActive =
+                  activeChat?.product_id === chat.product_id &&
+                  activeChat?.contact_id === chat.contact_id;
+                const isOnline =
+                  onlineUsers.has(chat.contact_id) &&
+                  chat.contact_id !== currentUserId;
                 return (
                   <div
                     key={`${chat.contact_id}-${chat.product_id}`}
@@ -346,6 +514,7 @@ export default function Messages() {
                     onClick={() => handleSelectChat(chat)}
                     style={{ animationDelay: `${idx * 40}ms` }}
                   >
+                    {/* Removed the onlinePip from here */}
                     <div className={styles.avatarWrap}>
                       <AvatarImg
                         src={chat?.contact_avatar}
@@ -353,29 +522,48 @@ export default function Messages() {
                         size={46}
                         className={styles.inboxAvatar}
                       />
-                      {isOnline && <span className={styles.onlinePip} />}
                     </div>
 
                     <div className={styles.inboxItemContent}>
                       <div className={styles.inboxItemTop}>
-                        <span className={styles.inboxName}>
-                          {chat?.contact_name || "Unknown"}
-                          {chat?.contact_id === currentUserId ? " (You)" : ""}
+                        {/* Added inboxNameRow to hold name and the online dot */}
+                        <div className={styles.inboxNameRow}>
+                          <span className={styles.inboxName}>
+                            {chat?.contact_name || "Unknown"}
+                            {chat?.contact_id === currentUserId ? " (You)" : ""}
+                          </span>
+                          {isOnline && (
+                            <span className={styles.onlineDot} title="Online" />
+                          )}
+                        </div>
+                        <span className={styles.inboxTime}>
+                          {formatTime(chat?.last_message_time)}
                         </span>
-                        <span className={styles.inboxTime}>{formatTime(chat?.last_message_time)}</span>
                       </div>
 
+                      {/* Replaced <ShoppingBag /> SVG with actual product image */}
                       <div className={styles.inboxProductChip}>
-                        <ShoppingBag size={10} />
+                        <img
+                          src={
+                            chat?.product_image ||
+                            "https://via.placeholder.com/20"
+                          }
+                          alt={chat?.product_title || "Item"}
+                          className={styles.inboxChipImg}
+                        />
                         <span>{chat?.product_title || "Item"}</span>
                       </div>
 
                       <div className={styles.inboxItemBottom}>
-                        <span className={`${styles.inboxPreview} ${chat?.unread_count > 0 ? styles.inboxPreviewBold : ""}`}>
+                        <span
+                          className={`${styles.inboxPreview} ${chat?.unread_count > 0 ? styles.inboxPreviewBold : ""}`}
+                        >
                           {chat?.last_message || "Start the conversation ✨"}
                         </span>
                         {chat?.unread_count > 0 && (
-                          <span className={styles.unreadBadge}>{chat.unread_count}</span>
+                          <span className={styles.unreadBadge}>
+                            {chat.unread_count}
+                          </span>
                         )}
                       </div>
                     </div>
@@ -387,15 +575,19 @@ export default function Messages() {
         </div>
 
         {/* ════════════ CHAT AREA ════════════ */}
-        <div className={`${styles.chatArea} ${showInboxOnMobile ? styles.hideOnMobile : ""}`}>
-
+        <div
+          className={`${styles.chatArea} ${showInboxOnMobile ? styles.hideOnMobile : ""}`}
+        >
           {activeChat ? (
             <>
               {/* Chat Header */}
               <div className={styles.chatHeader}>
                 <button
                   className={styles.mobileBackBtn}
-                  onClick={() => { setShowInboxOnMobile(true); navigate("/messages", { replace: true }); }}
+                  onClick={() => {
+                    setShowInboxOnMobile(true);
+                    navigate("/messages", { replace: true });
+                  }}
                 >
                   <ArrowLeft size={19} />
                 </button>
@@ -407,9 +599,10 @@ export default function Messages() {
                     size={42}
                     className={styles.chatHeaderAvatar}
                   />
-                  {onlineUsers.has(activeChat.contact_id) && activeChat.contact_id !== currentUserId && (
-                    <span className={styles.chatOnlinePip} />
-                  )}
+                  {onlineUsers.has(activeChat.contact_id) &&
+                    activeChat.contact_id !== currentUserId && (
+                      <span className={styles.chatOnlinePip} />
+                    )}
                 </div>
 
                 <div className={styles.chatHeaderInfo}>
@@ -418,51 +611,82 @@ export default function Messages() {
                       {activeChat?.contact_name || "Unknown"}
                       {activeChat?.contact_id === currentUserId ? " (You)" : ""}
                     </h3>
-                    {onlineUsers.has(activeChat.contact_id) && activeChat.contact_id !== currentUserId && (
-                      <span className={styles.onlineLabel}>
-                        <span className={styles.onlineDot} /> Online
-                      </span>
-                    )}
+                    {onlineUsers.has(activeChat.contact_id) &&
+                      activeChat.contact_id !== currentUserId && (
+                        <span className={styles.onlineLabel}>
+                          <span className={styles.onlineDot} /> Online
+                        </span>
+                      )}
                   </div>
                   <button
                     className={styles.chatProductSnippet}
-                    onClick={() => navigate(`/product/${activeChat.product_id}`)}
+                    onClick={() =>
+                      navigate(`/product/${activeChat.product_id}`)
+                    }
                   >
                     <img
-                      src={activeChat?.product_image || "https://via.placeholder.com/20"}
+                      src={
+                        activeChat?.product_image ||
+                        "https://via.placeholder.com/20"
+                      }
                       alt="Product"
                       className={styles.chatProductImg}
                     />
-                    <span className={styles.chatProductTitle}>{activeChat?.product_title || "Item"}</span>
+                    <span className={styles.chatProductTitle}>
+                      {activeChat?.product_title || "Item"}
+                    </span>
                     <span className={styles.chatProductArrow}>→</span>
                   </button>
                 </div>
               </div>
 
               {/* Messages Container */}
-              <div className={styles.messagesContainer} ref={messagesContainerRef}>
-
+              <div
+                className={styles.messagesContainer}
+                ref={messagesContainerRef}
+              >
                 {/* Welcome message at top */}
                 <div className={styles.chatWelcomeBanner}>
-                  <div className={styles.chatWelcomeIcon}><Users size={18} /></div>
+                  <div className={styles.chatWelcomeIcon}>
+                    <Users size={18} />
+                  </div>
                   <p>
                     This is the beginning of your conversation with{" "}
-                    <strong>{activeChat?.contact_id === currentUserId ? "yourself" : activeChat?.contact_name?.split(" ")[0]}</strong>{" "}
-                    about <strong>{activeChat?.product_title}</strong>. Be respectful and transact safely on campus! 🎓
+                    <strong>
+                      {activeChat?.contact_id === currentUserId
+                        ? "yourself"
+                        : activeChat?.contact_name?.split(" ")[0]}
+                    </strong>{" "}
+                    about <strong>{activeChat?.product_title}</strong>. Be
+                    respectful and transact safely on campus! 🎓
                   </p>
                 </div>
 
                 {messages.length === 0 ? (
                   <div className={styles.emptyChat}>
                     <div className={styles.emptyChatEmoji}>👋</div>
-                    <p>Say hello to <strong>{activeChat?.contact_id === currentUserId ? "yourself" : (activeChat?.contact_name?.split(" ")[0] || "them")}</strong>!</p>
+                    <p>
+                      Say hello to{" "}
+                      <strong>
+                        {activeChat?.contact_id === currentUserId
+                          ? "yourself"
+                          : activeChat?.contact_name?.split(" ")[0] || "them"}
+                      </strong>
+                      !
+                    </p>
                     <div className={styles.emptyChatSuggestions}>
-                      {["Hi! Is this still available? 😊", "What's the condition?", "Can we meet on campus?"].map(s => (
+                      {[
+                        "Hi! Is this still available? 😊",
+                        "What's the condition?",
+                        "Can we meet on campus?",
+                      ].map((s) => (
                         <button
                           key={s}
                           className={styles.suggestionChip}
                           onClick={() => setNewMessage(s)}
-                        >{s}</button>
+                        >
+                          {s}
+                        </button>
                       ))}
                     </div>
                   </div>
@@ -480,11 +704,23 @@ export default function Messages() {
                         const isMine = msg.sender_id === currentUserId;
 
                         /* ── Tick icons (amber for read, not blue) ── */
-                        let tickIcon = <Check size={13} className={styles.tickSent} />;
+                        let tickIcon = (
+                          <Check size={13} className={styles.tickSent} />
+                        );
                         if (msg.is_read) {
-                          tickIcon = <CheckCheck size={13} className={styles.tickRead} />;
-                        } else if (msg.is_delivered || onlineUsers.has(activeChat.contact_id)) {
-                          tickIcon = <CheckCheck size={13} className={styles.tickDelivered} />;
+                          tickIcon = (
+                            <CheckCheck size={13} className={styles.tickRead} />
+                          );
+                        } else if (
+                          msg.is_delivered ||
+                          onlineUsers.has(activeChat.contact_id)
+                        ) {
+                          tickIcon = (
+                            <CheckCheck
+                              size={13}
+                              className={styles.tickDelivered}
+                            />
+                          );
                         }
 
                         return (
@@ -500,11 +736,21 @@ export default function Messages() {
                                 className={styles.messageAvatar}
                               />
                             )}
-                            <div className={`${styles.messageBubble} ${isMine ? styles.bubbleMine : styles.bubbleTheirs}`}>
-                              <p className={styles.messageText}>{msg.content}</p>
+                            <div
+                              className={`${styles.messageBubble} ${isMine ? styles.bubbleMine : styles.bubbleTheirs}`}
+                            >
+                              <p className={styles.messageText}>
+                                {msg.content}
+                              </p>
                               <div className={styles.messageMeta}>
-                                <span className={styles.messageTime}>{formatTime(msg.created_at)}</span>
-                                {isMine && <span className={styles.readReceipt}>{tickIcon}</span>}
+                                <span className={styles.messageTime}>
+                                  {formatTime(msg.created_at)}
+                                </span>
+                                {isMine && (
+                                  <span className={styles.readReceipt}>
+                                    {tickIcon}
+                                  </span>
+                                )}
                               </div>
                             </div>
                           </div>
@@ -517,13 +763,15 @@ export default function Messages() {
 
               {/* Chat Input Area */}
               <div className={styles.chatInputArea}>
-
                 {/* Emoji Picker */}
-                <div className={styles.emojiPickerContainer} ref={emojiPickerRef}>
+                <div
+                  className={styles.emojiPickerContainer}
+                  ref={emojiPickerRef}
+                >
                   <button
                     type="button"
                     className={`${styles.emojiToggleBtn} ${showEmojiPicker ? styles.emojiToggleActive : ""}`}
-                    onClick={() => setShowEmojiPicker(prev => !prev)}
+                    onClick={() => setShowEmojiPicker((prev) => !prev)}
                     title="Emoji"
                   >
                     <Smile size={20} />
@@ -544,7 +792,7 @@ export default function Messages() {
                         ))}
                       </div>
                       <div className={styles.emojiGrid}>
-                        {EMOJI_ROWS[activeEmojiRow].emojis.map(emoji => (
+                        {EMOJI_ROWS[activeEmojiRow].emojis.map((emoji) => (
                           <button
                             key={emoji}
                             type="button"
@@ -566,7 +814,7 @@ export default function Messages() {
                     type="text"
                     placeholder="Type a message…"
                     value={newMessage}
-                    onChange={e => setNewMessage(e.target.value)}
+                    onChange={(e) => setNewMessage(e.target.value)}
                     className={styles.chatInput}
                     onFocus={() => setShowEmojiPicker(false)}
                   />
@@ -593,18 +841,24 @@ export default function Messages() {
               </div>
               <h3 className={styles.noChatTitle}>Your Conversations</h3>
               <p className={styles.noChatSubtitle}>
-                Connect with fellow students. Buy, sell, and<br />
+                Connect with fellow students. Buy, sell, and
+                <br />
                 chat safely within your campus community.
               </p>
               <div className={styles.noChatTips}>
-                <div className={styles.noChatTip}><span>💡</span> Ask about item condition or price</div>
-                <div className={styles.noChatTip}><span>📍</span> Arrange a safe campus meetup</div>
-                <div className={styles.noChatTip}><span>🤝</span> Negotiate and close the deal</div>
+                <div className={styles.noChatTip}>
+                  <span>💡</span> Ask about item condition or price
+                </div>
+                <div className={styles.noChatTip}>
+                  <span>📍</span> Arrange a safe campus meetup
+                </div>
+                <div className={styles.noChatTip}>
+                  <span>🤝</span> Negotiate and close the deal
+                </div>
               </div>
             </div>
           )}
         </div>
-
       </div>
     </div>
   );

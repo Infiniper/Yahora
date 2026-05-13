@@ -351,7 +351,7 @@
   height: 23px;
   border-radius: 50%;
   object-fit: cover;
-  border: 1.5px solid #eee;
+  border: 1.5px solid var(--purple-emphasis);
   background: #f0f0f0;
 }
 
