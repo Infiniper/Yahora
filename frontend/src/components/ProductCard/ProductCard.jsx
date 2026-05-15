@@ -178,12 +178,11 @@ const ProductCard = memo(function ProductCard({
   onChat = null,
   onDelete = null,
   onMarkSold = null,
-  onToggleLike = null, // <-- ACCEPTED FROM MARKETPLACE
-  onToggleSave = null, // <-- ACCEPTED FROM MARKETPLACE
+  onMarkAvailable = null,
+  onToggleLike = null,
+  onToggleSave = null,
 }) {
   const [imgIndex, setImgIndex] = useState(0);
-
-  // Real-time tracking states (Initialize them with the prop values)
   const [likeCount, setLikeCount] = useState(product.likes_count ?? 0);
   const [viewCount, setViewCount] = useState(product.views ?? 0);
   const [commentCount, setCommentCount] = useState(product.comments_count ?? 0);
@@ -192,7 +191,6 @@ const ProductCard = memo(function ProductCard({
   const likeThrottle = useRef(false);
   const saveThrottle = useRef(false);
 
-  // Sync real-time count with the optimistic updates from the parent Marketplace
   useEffect(() => {
     setLikeCount(product.likes_count ?? 0);
     setCommentCount(product.comments_count ?? 0);
@@ -220,7 +218,6 @@ const ProductCard = memo(function ProductCard({
     return () => clearInterval(id);
   }, [product.created_at]);
 
-  // Supabase Real-time Listener
   useEffect(() => {
     if (!supabase || !product.id) return;
     const channel = supabase
@@ -245,7 +242,7 @@ const ProductCard = memo(function ProductCard({
     return () => supabase.removeChannel(channel);
   }, [product.id]);
 
-  // View Counter logic
+  // FIX: Sent p_id instead of product_id to resolve the 400 Bad Request error
   useEffect(() => {
     if (!supabase || !product.id) return;
     if (currentUserId && currentUserId === product.seller?.id) return;
@@ -278,7 +275,6 @@ const ProductCard = memo(function ProductCard({
     [totalImages],
   );
 
-  /* ── UPDATED: Delegate to parent (Marketplace.jsx) ── */
   const handleLike = useCallback(
     (e) => {
       e.stopPropagation();
@@ -289,13 +285,11 @@ const ProductCard = memo(function ProductCard({
       setTimeout(() => {
         likeThrottle.current = false;
       }, 600);
-
-      if (onToggleLike) onToggleLike(); // Calls Marketplace's optimistic function
+      if (onToggleLike) onToggleLike();
     },
     [currentUserId, onToggleLike],
   );
 
-  /* ── UPDATED: Delegate to parent (Marketplace.jsx) ── */
   const handleSave = useCallback(
     (e) => {
       e.stopPropagation();
@@ -306,8 +300,7 @@ const ProductCard = memo(function ProductCard({
       setTimeout(() => {
         saveThrottle.current = false;
       }, 600);
-
-      if (onToggleSave) onToggleSave(); // Calls Marketplace's optimistic function
+      if (onToggleSave) onToggleSave();
     },
     [currentUserId, onToggleSave],
   );
@@ -383,7 +376,6 @@ const ProductCard = memo(function ProductCard({
           </>
         )}
 
-        {/* UPDATED: Rely on product.is_liked prop */}
         <button
           className={`${styles.overlayHeart} ${product.is_liked ? styles.overlayHeartLiked : ""}`}
           onClick={handleLike}
@@ -422,7 +414,6 @@ const ProductCard = memo(function ProductCard({
               <span>{viewCount}</span>
             </span>
 
-            {/* UPDATED: Rely on product.is_liked prop */}
             <button
               className={`${styles.statBtn} ${product.is_liked ? styles.statBtnLiked : ""}`}
               onClick={handleLike}
@@ -434,15 +425,14 @@ const ProductCard = memo(function ProductCard({
             <button
               className={styles.statBtn}
               onClick={(e) => {
-                e.stopPropagation(); // Prevents the card's main click from firing
-                if (onCardClick) onCardClick(`${product.id}#comments`); // Adds the hash to the URL
+                e.stopPropagation();
+                if (onCardClick) onCardClick(`${product.id}#comments`);
               }}
             >
               <CommentIcon size={16} />
               <span>{commentCount}</span>
             </button>
 
-            {/* UPDATED: Rely on product.is_saved prop */}
             <button
               className={`${styles.statBtn} ${product.is_saved ? styles.statBtnSaved : ""}`}
               onClick={handleSave}
@@ -458,12 +448,60 @@ const ProductCard = memo(function ProductCard({
 
         <div className={styles.timeAvatar}>
           <p className={styles.timeAgo}>{timeLabel}</p>
+
           {isOwner ? (
             <div className={styles.ownerActions}>
-              {product.status === "sold" && product.sold_to ? (
-                <span className={styles.cardSoldTo}>
-                  SOLD TO @{product.sold_to}
-                </span>
+              {product.status === "sold" ? (
+                <>
+                  <span
+                    className={styles.cardSoldTo}
+                    style={{
+                      marginRight: "auto",
+                      fontWeight: "bold",
+                      color: "#f87171",
+                    }}
+                  >
+                    {product.sold_to ? `SOLD TO @${product.sold_to}` : "SOLD"}
+                  </span>
+
+                  {onMarkAvailable && (
+                    <button
+                      className={styles.cardBtn}
+                      title="Mark as Available"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onMarkAvailable();
+                      }}
+                      style={{ color: "#2BB7FF" }}
+                    >
+                      <svg
+                        width="15"
+                        height="15"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      >
+                        <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
+                        <polyline points="3 3 3 8 8 8"></polyline>
+                      </svg>
+                    </button>
+                  )}
+
+                  <button
+                    className={`${styles.cardBtn} ${styles.cardBtnDelete}`}
+                    title="Delete listing"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete?.();
+                    }}
+                    style={{ color: "#f87171" }}
+                  >
+                    <TrashIcon size={14} />
+                  </button>
+                </>
               ) : (
                 <>
                   <button
@@ -477,10 +515,9 @@ const ProductCard = memo(function ProductCard({
                     <ChatIcon size={14} />
                   </button>
 
-                  {/* ---- NEW MARK SOLD BUTTON ---- */}
                   {onMarkSold && (
                     <button
-                      className={`${styles.cardBtn}`}
+                      className={styles.cardBtn}
                       title="Mark as Sold"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -488,7 +525,6 @@ const ProductCard = memo(function ProductCard({
                       }}
                       style={{ color: "#4ade80" }}
                     >
-                      {/* Inline Check Circle SVG */}
                       <svg
                         width="15"
                         height="15"
@@ -504,8 +540,7 @@ const ProductCard = memo(function ProductCard({
                       </svg>
                     </button>
                   )}
-                  {/* ------------------------------ */}
-                  
+
                   <button
                     className={`${styles.cardBtn} ${styles.cardBtnEdit}`}
                     title="Edit listing"

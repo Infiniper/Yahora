@@ -20,9 +20,10 @@ export const getDashboardData = async (req, res) => {
         if (profileError) throw profileError;
 
         // B. Fetch User's Listings
+        // B. Fetch User's Listings
         const { data: listings, error: listingsError } = await supabase
             .from('products')
-            .select('id, title, description, category, condition, location, price, status, image_urls, created_at')
+            .select('id, title, description, category, condition, location, price, status, image_urls, created_at, likes_count, views, comments_count')
             .eq('seller_id', userId)
             .order('created_at', { ascending: false });
 
