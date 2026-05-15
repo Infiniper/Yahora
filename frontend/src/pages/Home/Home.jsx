@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom"; // Added useNavigate for the product card
 import UniversityModal from "../../components/modal/UniversityModal";
 import { useAuth } from "../../contexts/AuthContext";
 import ProductCard from "../../components/ProductCard/ProductCard";
@@ -21,6 +21,7 @@ import {
 import "./Home.css";
 
 // --- MOCK DATA FOR UI DEVELOPMENT ---
+// [Keep all your existing MOCK_BUZZ and MOCK_LISTINGS data exactly the same here]
 const MOCK_BUZZ = [
   {
     id: 1,
@@ -76,14 +77,14 @@ const MOCK_LISTINGS = [
     image_urls: [
       "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?auto=format&fit=crop&q=80&w=800",
       "https://images.unsplash.com/photo-1484704849700-f032a568e944?auto=format&fit=crop&q=80&w=800",
-    ], // Two images to test the carousel!
+    ],
     condition: "Mint",
     location: "Hall 1",
     status: "available",
     views: 124,
     likes_count: 12,
     comments_count: 3,
-    created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(), // 5 mins ago
+    created_at: new Date(Date.now() - 1000 * 60 * 5).toISOString(),
     is_liked: false,
     is_saved: false,
     seller: {
@@ -107,8 +108,8 @@ const MOCK_LISTINGS = [
     views: 89,
     likes_count: 8,
     comments_count: 1,
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(), // 2 hours ago
-    is_liked: true, // Tests the pre-liked pink heart state
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 2).toISOString(),
+    is_liked: true,
     is_saved: false,
     seller: {
       id: "user-2",
@@ -127,13 +128,13 @@ const MOCK_LISTINGS = [
     ],
     condition: "Good",
     location: "Hall 2",
-    status: "sold", // Tests the SOLD banner!
+    status: "sold",
     views: 250,
     likes_count: 34,
     comments_count: 8,
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(), // 2 days ago
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
     is_liked: false,
-    is_saved: true, // Tests the pre-saved bookmark state
+    is_saved: true,
     seller: {
       id: "user-3",
       full_name: "Dikhsha Prajapati",
@@ -155,7 +156,7 @@ const MOCK_LISTINGS = [
     views: 56,
     likes_count: 5,
     comments_count: 0,
-    created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(), // 15 mins ago
+    created_at: new Date(Date.now() - 1000 * 60 * 15).toISOString(),
     is_liked: false,
     is_saved: false,
     seller: {
@@ -166,17 +167,63 @@ const MOCK_LISTINGS = [
     },
   },
 ];
+
+// --- TAGLINES ARRAY ---
+const TAGLINES = [
+  "Because Every Item Has a Memory.",
+  "Where Every Thing Finds Its Next Story.",
+  "Keep the Story Going.",
+];
+
 const Home = () => {
   const [likedPosts, setLikedPosts] = useState({});
-  const [likedItems, setLikedItems] = useState({});
   const videoRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isAuthenticated } = useAuth();
   const currentUserId = localStorage.getItem("yahora_user_id");
+  const navigate = useNavigate();
+
+  // --- TYPEWRITER STATES ---
+  const [text, setText] = useState("");
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [loopNum, setLoopNum] = useState(0);
+  const [typingSpeed, setTypingSpeed] = useState(100);
+
+  // --- TYPEWRITER LOGIC ---
+  useEffect(() => {
+    const handleType = () => {
+      const i = loopNum % TAGLINES.length;
+      const fullText = TAGLINES[i];
+
+      // Determine next text state
+      setText(
+        isDeleting
+          ? fullText.substring(0, text.length - 1)
+          : fullText.substring(0, text.length + 1)
+      );
+
+      // Adjust typing speed (delete faster)
+      setTypingSpeed(isDeleting ? 40 : 100);
+
+      // If word is complete, wait and start deleting
+      if (!isDeleting && text === fullText) {
+        setTimeout(() => setIsDeleting(true), 2500); // 2.5 second pause reading time
+      } 
+      // If deleted completely, move to next word
+      else if (isDeleting && text === "") {
+        setIsDeleting(false);
+        setLoopNum(loopNum + 1);
+        setTypingSpeed(500); // Pause before typing new sentence
+      }
+    };
+
+    const timer = setTimeout(handleType, typingSpeed);
+    return () => clearTimeout(timer);
+  }, [text, isDeleting, loopNum, typingSpeed]);
 
   useEffect(() => {
     if (videoRef.current) {
-      videoRef.current.playbackRate = 0.65; // Slowed down as requested
+      videoRef.current.playbackRate = 0.65;
     }
   }, []);
 
@@ -196,7 +243,13 @@ const Home = () => {
         <div className="hero-overlay">
           <div className="hero-content">
             <span className="hero-badge">Buy and sell within your campus.</span>
-            <h1 className="hero-title">Keep the Story Going.</h1>
+            
+            {/* UPDATED TITLE WITH TYPEWRITER */}
+            <h1 className="hero-title" style={{ minHeight: '120px' }}>
+              {text}
+              <span className="typewriter-cursor">|</span>
+            </h1>
+            
             <div className="hero-buttons">
               <button
                 className="btn-secondary"
@@ -208,12 +261,13 @@ const Home = () => {
           </div>
         </div>
       </section>
-      {/* Render the modal at the bottom of your component */}
+
       <UniversityModal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
 
+      {/* [The rest of your JSX code remains exactly the same below here] */}
       {/* 2. SPLIT SECTION: BUZZ & LISTINGS */}
       <section className="split-section">
         {/* Left Column: 35% */}
@@ -403,8 +457,6 @@ const Home = () => {
           you.
         </p>
         <div className="cta-buttons">
-          {/* <button className="btn-primary">View Supported Campuses</button> */}
-
           {isAuthenticated ? (
             <Link
               to="/dashboard"

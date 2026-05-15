@@ -230,7 +230,7 @@ export const getProductById = async (req, res) => {
         }
 
         // 3. Increment the view metric via the RPC
-        await supabase.rpc('increment_product_views', { p_id: id });
+        await supabase.rpc('increment_product_views', { product_id: id });
 
         res.status(200).json({ product });
     } catch (error) {
