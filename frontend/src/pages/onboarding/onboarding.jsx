@@ -2,23 +2,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import Select from "react-select";
-import { 
-  User, 
-  BookOpen, 
-  Calendar, 
-  ImagePlus, 
-  Sparkles, 
-  GraduationCap, 
+import {
+  User,
+  BookOpen,
+  Calendar,
+  ImagePlus,
+  Sparkles,
+  GraduationCap,
   Award,
-  Loader2 // Imported the loading spinner icon
+  Loader2, // Imported the loading spinner icon
 } from "lucide-react";
 import styles from "./onboarding.module.css";
 // IMPORT YOUR FRONTEND SUPABASE CLIENT
-import { supabase } from "../../config/supabaseClient.js"; 
+import { supabase } from "../../config/supabaseClient.js";
 
 const Onboarding = () => {
   const navigate = useNavigate();
-  
+
   // 1. Form State
   const [formData, setFormData] = useState({
     fullName: "",
@@ -27,9 +27,9 @@ const Onboarding = () => {
     yearOfStudy: "",
     specializationId: "",
     bio: "",
-    avatarUrl: ""
+    avatarUrl: "",
   });
-  
+
   // 2. State for Backend Lists
   const [courses, setCourses] = useState([]);
   const [specializations, setSpecializations] = useState([]);
@@ -42,13 +42,18 @@ const Onboarding = () => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef(null);
 
+  // Check if they are a demo user
+  const isDemoUser = localStorage.getItem("yahora_demo_user") === "true";
+
   // 3. Fetch Courses and Specializations on Mount
   useEffect(() => {
     const fetchAcademicData = async () => {
       try {
         const [coursesRes, specsRes] = await Promise.all([
           fetch(`${import.meta.env.VITE_API_BASE_URL}/api/academic/courses`),
-          fetch(`${import.meta.env.VITE_API_BASE_URL}/api/academic/specializations`)
+          fetch(
+            `${import.meta.env.VITE_API_BASE_URL}/api/academic/specializations`,
+          ),
         ]);
 
         if (coursesRes.ok && specsRes.ok) {
@@ -77,7 +82,10 @@ const Onboarding = () => {
   };
 
   const handleDropdownChange = (selectedOption, actionMeta) => {
-    setFormData((prev) => ({ ...prev, [actionMeta.name]: selectedOption.value }));
+    setFormData((prev) => ({
+      ...prev,
+      [actionMeta.name]: selectedOption.value,
+    }));
   };
 
   // NEW: Handle Image Upload to Supabase Storage
@@ -96,25 +104,24 @@ const Onboarding = () => {
       setUploadingImage(true);
 
       // Create a unique file name to prevent overwriting (e.g., profiles/16839213-abc123.jpg)
-      const fileExt = file.name.split('.').pop();
+      const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
-      const filePath = `profiles/${fileName}`; 
+      const filePath = `profiles/${fileName}`;
 
       // Upload to Supabase Storage (in the 'avatars' bucket)
       const { error: uploadError } = await supabase.storage
-        .from('avatars')
+        .from("avatars")
         .upload(filePath, file);
 
       if (uploadError) throw uploadError;
 
       // Get the Public URL to display and save to database
       const { data: publicUrlData } = supabase.storage
-        .from('avatars')
+        .from("avatars")
         .getPublicUrl(filePath);
 
       // Update state with the new image URL
       setFormData((prev) => ({ ...prev, avatarUrl: publicUrlData.publicUrl }));
-
     } catch (error) {
       console.error("Upload error:", error);
       setError("Failed to upload image. Please try again.");
@@ -130,10 +137,10 @@ const Onboarding = () => {
 
     // Frontend Validation
     if (
-      !formData.fullName || 
-      !formData.qualification || 
-      !formData.courseId || 
-      !formData.yearOfStudy || 
+      !formData.fullName ||
+      !formData.qualification ||
+      !formData.courseId ||
+      !formData.yearOfStudy ||
       !formData.specializationId
     ) {
       setError("Please fill in all required fields.");
@@ -142,26 +149,30 @@ const Onboarding = () => {
     }
 
     try {
-      const token = localStorage.getItem("yahora_session"); 
-      const userId = localStorage.getItem("yahora_user_id") || "replace-with-actual-uuid"; 
-      
-      const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/onboarding`, {
-        method: "POST",
-        headers: { 
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` 
+      const token = localStorage.getItem("yahora_session");
+      const userId =
+        localStorage.getItem("yahora_user_id") || "replace-with-actual-uuid";
+
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/onboarding`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            userId: userId,
+            full_name: formData.fullName,
+            avatar_url: formData.avatarUrl, // This will now securely save the Supabase URL
+            qualification: formData.qualification,
+            course_id: formData.courseId,
+            year_of_study: formData.yearOfStudy,
+            specialization_id: formData.specializationId,
+            bio: formData.bio,
+          }),
         },
-        body: JSON.stringify({
-          userId: userId, 
-          full_name: formData.fullName,
-          avatar_url: formData.avatarUrl, // This will now securely save the Supabase URL
-          qualification: formData.qualification,
-          course_id: formData.courseId,
-          year_of_study: formData.yearOfStudy,
-          specialization_id: formData.specializationId,
-          bio: formData.bio
-        }),
-      });
+      );
 
       const data = await response.json();
 
@@ -178,51 +189,55 @@ const Onboarding = () => {
   };
 
   // Format data for react-select
-  const courseOptions = courses.map(course => ({
+  const courseOptions = courses.map((course) => ({
     value: course.id,
-    label: course.name
+    label: course.name,
   }));
 
-  const specializationOptions = specializations.map(spec => ({
+  const specializationOptions = specializations.map((spec) => ({
     value: spec.id,
-    label: spec.name
+    label: spec.name,
   }));
 
   // Reusable custom styles for react-select to match your UI
   const customSelectStyles = {
     control: (base, state) => ({
       ...base,
-      padding: '0.3rem',
-      borderRadius: '0.8rem',
-      borderColor: state.isFocused ? 'var(--purple-light)' : '#e0e0e0',
-      backgroundColor: '#FAFAFA',
+      padding: "0.3rem",
+      borderRadius: "0.8rem",
+      borderColor: state.isFocused ? "var(--purple-light)" : "#e0e0e0",
+      backgroundColor: "#FAFAFA",
       fontFamily: "'Inter', sans-serif",
-      boxShadow: state.isFocused ? '0 0 0 3px rgba(215, 0, 215, 0.1)' : 'none',
-      cursor: 'pointer',
-      '&:hover': {
-        borderColor: 'var(--purple-light)'
-      }
+      boxShadow: state.isFocused ? "0 0 0 3px rgba(215, 0, 215, 0.1)" : "none",
+      cursor: "pointer",
+      "&:hover": {
+        borderColor: "var(--purple-light)",
+      },
     }),
     option: (base, state) => ({
       ...base,
       fontFamily: "'Inter', sans-serif",
-      backgroundColor: state.isSelected ? 'var(--purple)' : state.isFocused ? 'var(--pink-bg)' : 'white',
-      color: state.isSelected ? 'white' : 'var(--black-soft)',
-      cursor: 'pointer',
-      '&:active': {
-        backgroundColor: 'var(--purple-light)'
-      }
+      backgroundColor: state.isSelected
+        ? "var(--purple)"
+        : state.isFocused
+          ? "var(--pink-bg)"
+          : "white",
+      color: state.isSelected ? "white" : "var(--black-soft)",
+      cursor: "pointer",
+      "&:active": {
+        backgroundColor: "var(--purple-light)",
+      },
     }),
     placeholder: (base) => ({
       ...base,
-      color: '#aaa',
-      fontSize: '0.95rem'
+      color: "#aaa",
+      fontSize: "0.95rem",
     }),
     singleValue: (base) => ({
       ...base,
-      color: 'var(--black)',
-      fontSize: '0.95rem'
-    })
+      color: "var(--black)",
+      fontSize: "0.95rem",
+    }),
   };
 
   return (
@@ -234,33 +249,47 @@ const Onboarding = () => {
       <div className={styles.onboardingCard}>
         <div className={styles.onboardingHeader}>
           <h2>Complete Your Profile</h2>
-          <p>Let your campus know who you are before you start buying and selling.</p>
+          <p>
+            Let your campus know who you are before you start buying and
+            selling.
+          </p>
         </div>
 
         {error && <div className={styles.errorBanner}>{error}</div>}
 
         <form onSubmit={handleSubmit} className={styles.onboardingForm}>
-          
           {/* Section 1: Identity */}
           <div className={styles.formSection}>
             <h3 className={styles.sectionTitle}>Identity</h3>
-            
+
             <div className={styles.avatarUploadWrapper}>
               <div className={styles.avatarPreview}>
                 {/* Dynamically show the loader, the uploaded image, or the default placeholder */}
                 {formData.avatarUrl ? (
-                  <img src={formData.avatarUrl} alt="Profile preview" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '50%' }} />
+                  <img
+                    src={formData.avatarUrl}
+                    alt="Profile preview"
+                    style={{
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      borderRadius: "50%",
+                    }}
+                  />
                 ) : uploadingImage ? (
-                  <Loader2 size={40} color="#888" style={{ animation: "spin 1s linear infinite" }} />
+                  <Loader2
+                    size={40}
+                    color="#888"
+                    style={{ animation: "spin 1s linear infinite" }}
+                  />
                 ) : (
                   <User size={40} color="#888" />
                 )}
               </div>
               <div className={styles.avatarActions}>
-                
                 {/* HIDDEN INPUT FOR FILE UPLOAD */}
-                <input 
-                  type="file" 
+                <input
+                  type="file"
                   accept="image/png, image/jpeg, image/webp"
                   style={{ display: "none" }}
                   ref={fileInputRef}
@@ -269,20 +298,23 @@ const Onboarding = () => {
                 />
 
                 {/* BUTTON TO TRIGGER HIDDEN INPUT */}
-                <button 
-                  type="button" 
+                <button
+                  type="button"
                   className={`${styles.cuteBtn} ${styles.avatarBtn}`}
                   onClick={() => fileInputRef.current.click()}
                   disabled={uploadingImage}
                 >
-                  <ImagePlus size={16} /> {uploadingImage ? "Uploading..." : "Upload Photo (Optional)"}
+                  <ImagePlus size={16} />{" "}
+                  {uploadingImage ? "Uploading..." : "Upload Photo (Optional)"}
                 </button>
                 <p className={styles.helperText}>A real photo builds trust.</p>
               </div>
             </div>
 
             <div className={styles.inputGroup}>
-              <label>FULL NAME <span className={styles.required}>*</span></label>
+              <label>
+                FULL NAME <span className={styles.required}>*</span>
+              </label>
               <div className={styles.inputWithIcon}>
                 <User size={18} className={styles.inputIcon} />
                 <input
@@ -300,36 +332,49 @@ const Onboarding = () => {
           {/* Section 2: Academic Details */}
           <div className={styles.formSection}>
             <h3 className={styles.sectionTitle}>Academic Details</h3>
-            
+
             <div className={styles.inputRow}>
               <div className={styles.inputGroup}>
-                <label>QUALIFICATION <span className={styles.required}>*</span></label>
+                <label>
+                  QUALIFICATION <span className={styles.required}>*</span>
+                </label>
                 <div className={styles.inputWithIcon}>
                   <GraduationCap size={18} className={styles.inputIcon} />
-                  <select 
-                    name="qualification" 
-                    value={formData.qualification} 
+                  <select
+                    name="qualification"
+                    value={formData.qualification}
                     onChange={handleChange}
                     required
                   >
-                    <option value="" disabled>Select Qualification</option>
+                    <option value="" disabled>
+                      Select Qualification
+                    </option>
                     <option value="PhD">PhD</option>
                     <option value="Post Graduation">Post Graduation</option>
                     <option value="Graduation">Graduation</option>
-                    <option value="Intermediate (12th)">Intermediate (12th)</option>
-                    <option value="High School (10th)">High School (10th)</option>
+                    <option value="Intermediate (12th)">
+                      Intermediate (12th)
+                    </option>
+                    <option value="High School (10th)">
+                      High School (10th)
+                    </option>
                   </select>
                 </div>
               </div>
 
               <div className={styles.inputGroup}>
-                <label>COURSE (Select 'Others' if not listed) <span className={styles.required}>*</span></label>
-                <div style={{ position: 'relative', zIndex: 50 }}>
+                <label>
+                  COURSE (Select 'Others' if not listed){" "}
+                  <span className={styles.required}>*</span>
+                </label>
+                <div style={{ position: "relative", zIndex: 50 }}>
                   <Select
                     name="courseId"
                     options={courseOptions}
                     onChange={handleDropdownChange}
-                    placeholder={fetchingLists ? "Loading courses..." : "Search course..."}
+                    placeholder={
+                      fetchingLists ? "Loading courses..." : "Search course..."
+                    }
                     isDisabled={fetchingLists}
                     isSearchable={true}
                     styles={customSelectStyles}
@@ -340,16 +385,20 @@ const Onboarding = () => {
 
             <div className={styles.inputRow}>
               <div className={styles.inputGroup}>
-                <label>YEAR OF STUDY <span className={styles.required}>*</span></label>
+                <label>
+                  YEAR OF STUDY <span className={styles.required}>*</span>
+                </label>
                 <div className={styles.inputWithIcon}>
                   <Calendar size={18} className={styles.inputIcon} />
-                  <select 
-                    name="yearOfStudy" 
-                    value={formData.yearOfStudy} 
+                  <select
+                    name="yearOfStudy"
+                    value={formData.yearOfStudy}
                     onChange={handleChange}
                     required
                   >
-                    <option value="" disabled>Select Year</option>
+                    <option value="" disabled>
+                      Select Year
+                    </option>
                     <option value="1st year">1st year</option>
                     <option value="2nd year">2nd year</option>
                     <option value="3rd year">3rd year</option>
@@ -360,13 +409,20 @@ const Onboarding = () => {
               </div>
 
               <div className={styles.inputGroup}>
-                <label>SPECIALIZATION (Select 'Others' if not listed)<span className={styles.required}>*</span></label>
-                <div style={{ position: 'relative', zIndex: 40 }}>
+                <label>
+                  SPECIALIZATION (Select 'Others' if not listed)
+                  <span className={styles.required}>*</span>
+                </label>
+                <div style={{ position: "relative", zIndex: 40 }}>
                   <Select
                     name="specializationId"
                     options={specializationOptions}
                     onChange={handleDropdownChange}
-                    placeholder={fetchingLists ? "Loading specializations..." : "Search specialization..."}
+                    placeholder={
+                      fetchingLists
+                        ? "Loading specializations..."
+                        : "Search specialization..."
+                    }
                     isDisabled={fetchingLists}
                     isSearchable={true}
                     styles={customSelectStyles}
@@ -382,10 +438,15 @@ const Onboarding = () => {
             <div className={styles.inputGroup}>
               <label>
                 SHORT BIO (Optional)
-                <span className={styles.charCount}>{formData.bio.length}/250</span>
+                <span className={styles.charCount}>
+                  {formData.bio.length}/250
+                </span>
               </label>
               <div className={styles.textareaWrapper}>
-                <Sparkles size={18} className={`${styles.inputIcon} ${styles.textareaIcon}`} />
+                <Sparkles
+                  size={18}
+                  className={`${styles.inputIcon} ${styles.textareaIcon}`}
+                />
                 <textarea
                   name="bio"
                   placeholder="e.g., CSE student, selling mostly electronics and books."
@@ -397,11 +458,29 @@ const Onboarding = () => {
             </div>
           </div>
 
-          <div className={styles.submitWrapper}>
-            <button 
-              type="submit" 
+          <div
+            className={styles.submitWrapper}
+            style={{ display: "flex", gap: "10px" }}
+          >
+            {isDemoUser && (
+              <button
+                type="button"
+                onClick={() => navigate("/marketplace")}
+                className={`${styles.btnPrimary}`}
+                style={{
+                  background: "#f0f0f0",
+                  color: "#555",
+                  border: "1px solid #ddd",
+                }}
+              >
+                Skip for now
+              </button>
+            )}
+            <button
+              type="submit"
               className={`${styles.btnPrimary} ${styles.fullWidth}`}
               disabled={loading || fetchingLists}
+              style={{ flex: 1 }}
             >
               {loading ? "Saving Profile..." : "Save & Enter Yahora"}
             </button>

@@ -1,12 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import UniversityModal from "../../components/modal/UniversityModal";
-import { useAuth } from '../../contexts/AuthContext'; 
+import { useAuth } from "../../contexts/AuthContext";
 import "./Auth.css";
 
 const Auth = () => {
   const navigate = useNavigate();
-  const { login } = useAuth(); 
+  const { login } = useAuth();
   const [step, setStep] = useState(1); // 1: Email, 2: OTP
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -14,6 +14,8 @@ const Auth = () => {
   const [message, setMessage] = useState("");
   const videoRef = useRef(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showDemoOptions, setShowDemoOptions] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
 
   useEffect(() => {
     if (videoRef.current) {
@@ -65,8 +67,9 @@ const Auth = () => {
 
       if (response.ok) {
         // Extract User ID
-        const userId = data.userProfile?.id || data.userAuth?.id || data.user?.id;
-        
+        const userId =
+          data.userProfile?.id || data.userAuth?.id || data.user?.id;
+
         // 👈 NEW: Use context login function to save session & instantly update global state
         if (userId) {
           login(data.session.access_token, userId);
@@ -74,11 +77,10 @@ const Auth = () => {
 
         // --- CONDITIONAL REDIRECT LOGIC ---
         if (data.userProfile && data.userProfile.is_profile_complete) {
-          navigate("/dashboard"); 
+          navigate("/dashboard");
         } else {
           navigate("/onboarding");
         }
-        
       } else {
         setMessage(data.message || "Invalid verification code.");
       }
@@ -86,6 +88,38 @@ const Auth = () => {
       setMessage("Failed to verify code.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setDemoLoading(true);
+    setMessage("");
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/api/auth/demo-login`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+      const data = await response.json();
+
+      if (response.ok) {
+        // Set a flag in localStorage so the rest of the app knows this is a demo user
+        localStorage.setItem("yahora_demo_user", "true");
+
+        const userId = data.userProfile?.id || data.userAuth?.id;
+        if (userId) login(data.session.access_token, userId);
+
+        // Always route to onboarding first so they see the flow
+        navigate("/onboarding");
+      } else {
+        setMessage(data.error || "Failed to launch demo environment.");
+      }
+    } catch (error) {
+      setMessage("Failed to connect to server.");
+    } finally {
+      setDemoLoading(false);
     }
   };
 
@@ -146,7 +180,15 @@ const Auth = () => {
 
                 {message && <p className="form-message error">{message}</p>}
 
-                <div className="text-center mt-2">
+                <div
+                  className="text-center mt-2"
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                    alignItems: "center",
+                  }}
+                >
                   <button
                     type="button"
                     className="cute-btn"
@@ -154,6 +196,48 @@ const Auth = () => {
                   >
                     See Supported Universities
                   </button>
+
+                  {/* NEW: Demo Options Wrapper */}
+                  <div style={{ position: "relative" }}>
+                    <button
+                      type="button"
+                      className="text-btn mt-2"
+                      style={{
+                        fontWeight: "bold",
+                        color: "var(--purple)",
+                        border: "1px solid var(--purple)",
+                        padding: "6px 12px",
+                        borderRadius: "8px",
+                      }}
+                      onClick={() => setShowDemoOptions(!showDemoOptions)}
+                    >
+                      ✨ Explore Live Demo
+                    </button>
+
+                    {/* The Popup */}
+                    {showDemoOptions && (
+                      <div className="demo-popup">
+                        <button
+                          type="button"
+                          className="demo-popup-btn"
+                          onClick={handleDemoLogin}
+                          disabled={demoLoading}
+                        >
+                          {demoLoading
+                            ? "Creating Sandbox..."
+                            : "🚀 Enter Interactive Sandbox"}
+                        </button>
+                        <a
+                          href="https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK"
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="demo-popup-btn video-btn"
+                        >
+                          📺 View Demo Video
+                        </a>
+                      </div>
+                    )}
+                  </div>
                 </div>
                 <UniversityModal
                   isOpen={isModalOpen}
