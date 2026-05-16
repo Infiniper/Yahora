@@ -172,3 +172,70 @@ export const completeOnboarding = async (req, res) => {
         res.status(500).json({ error: 'Internal server error during onboarding.' });
     }
 };
+
+// 4. Demo Login (Interactive Sandbox)
+export const demoLogin = async (req, res) => {
+    try {
+        // 1. Generate unique temporary credentials
+        const timestamp = Date.now();
+        const randomStr = Math.random().toString(36).substring(2, 8);
+        const demoEmail = `guest_${timestamp}_${randomStr}@demo.yahora.com`;
+        const demoPassword = `Demo!${timestamp}${randomStr}`; 
+
+        // 2. Fetch the Demo University ID
+        const { data: university, error: uniError } = await supabase
+            .from('universities')
+            .select('id, name')
+            .eq('domain', 'demo.yahora.com')
+            .single();
+
+        if (uniError || !university) {
+            return res.status(500).json({ 
+                error: 'Demo university not found. Please run the seed script first.' 
+            });
+        }
+
+        // 3. Create the user using the Admin API (auto-confirms the email)
+        const { data: authData, error: createError } = await supabase.auth.admin.createUser({
+            email: demoEmail,
+            password: demoPassword,
+            email_confirm: true
+        });
+
+        if (createError) throw createError;
+
+        // 4. Sign in immediately to generate a valid session token for the frontend
+        const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+            email: demoEmail,
+            password: demoPassword
+        });
+
+        if (signInError) throw signInError;
+
+        // 5. Create their public profile
+        // Notice we set is_profile_complete: false so they STILL see the onboarding screen!
+        const { data: newUser, error: insertError } = await supabase
+            .from('users')
+            .insert([{
+                id: signInData.user.id,
+                university_id: university.id,
+                is_profile_complete: false 
+            }])
+            .select()
+            .single();
+
+        if (insertError) throw insertError;
+
+        // 6. Return the exact same payload structure as verifyOtp
+        res.status(200).json({
+            message: 'Demo login successful',
+            session: signInData.session,
+            userAuth: signInData.user,
+            userProfile: newUser
+        });
+
+    } catch (error) {
+        console.error('Demo Login Error:', error);
+        res.status(500).json({ error: 'Internal server error during demo login.' });
+    }
+};
