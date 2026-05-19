@@ -215,6 +215,14 @@ const SwipeCard = memo(function SwipeCard({
 function UniSwitcher({ current, universities, onSelect, onClose }) {
   const [searchQuery, setSearchQuery] = useState("");
 
+  // NEW: Lock background scrolling while this modal is open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = "auto";
+    };
+  }, []);
+
   const filteredUniversities = universities.filter(
     (u) =>
       u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
