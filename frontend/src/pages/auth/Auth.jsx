@@ -66,6 +66,8 @@ const Auth = () => {
       const data = await response.json();
 
       if (response.ok) {
+        // Clear the demo flag when a real user logs in successfully
+        localStorage.removeItem("yahora_demo_user");
         // Extract User ID
         const userId =
           data.userProfile?.id || data.userAuth?.id || data.user?.id;
@@ -107,6 +109,9 @@ const Auth = () => {
       if (response.ok) {
         // Set a flag in localStorage so the rest of the app knows this is a demo user
         localStorage.setItem("yahora_demo_user", "true");
+        if (data.userProfile?.university_id) {
+            localStorage.setItem("yahora_university_id", data.userProfile.university_id);
+        }
 
         const userId = data.userProfile?.id || data.userAuth?.id;
         if (userId) login(data.session.access_token, userId);

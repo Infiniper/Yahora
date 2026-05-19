@@ -1,6 +1,6 @@
+// backend/src/config/supabaseClient.js
 import { createClient } from '@supabase/supabase-js';
 import dotenv from 'dotenv';
-
 dotenv.config();
 
 const supabaseUrl = process.env.SUPABASE_URL;
@@ -10,6 +10,9 @@ if (!supabaseUrl || !supabaseKey) {
     throw new Error('Missing Supabase environment variables!');
 }
 
-// The Service Role Key allows the backend to bypass Row Level Security 
-// to verify domains and manage users securely.
-export const supabase = createClient(supabaseUrl, supabaseKey);
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+    auth: {
+        autoRefreshToken: false,
+        persistSession: false
+    }
+});
