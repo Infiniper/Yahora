@@ -254,7 +254,15 @@ const Onboarding = () => {
             selling.
           </p>
         </div>
-
+        {isDemoUser && (
+          <button
+            type="button"
+            onClick={() => navigate("/marketplace")}
+            className={styles.skipBtn}
+          >
+            Skip for now
+          </button>
+        )}
         {error && <div className={styles.errorBanner}>{error}</div>}
 
         <form onSubmit={handleSubmit} className={styles.onboardingForm}>
@@ -458,33 +466,15 @@ const Onboarding = () => {
             </div>
           </div>
 
-          <div
-            className={styles.submitWrapper}
-            style={{ display: "flex", gap: "10px" }}
-          >
-            {isDemoUser && (
-              <button
-                type="button"
-                onClick={() => navigate("/marketplace")}
-                className={`${styles.btnPrimary}`}
-                style={{
-                  background: "#f0f0f0",
-                  color: "#555",
-                  border: "1px solid #ddd",
-                }}
-              >
-                Skip for now
-              </button>
-            )}
+          
             <button
               type="submit"
-              className={`${styles.btnPrimary} ${styles.fullWidth}`}
+              className={styles.btnPrimary}
               disabled={loading || fetchingLists}
               style={{ flex: 1 }}
             >
               {loading ? "Saving Profile..." : "Save & Enter Yahora"}
             </button>
-          </div>
         </form>
       </div>
     </div>
