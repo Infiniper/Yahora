@@ -1,4 +1,3 @@
-// backend/scripts/seedDemo.js
 import 'dotenv/config';
 import { createClient } from '@supabase/supabase-js';
 
@@ -16,6 +15,8 @@ const supabase = createClient(
 const DEMO_DOMAIN = 'demo.yahora.com';
 const DEMO_UNI_NAME = 'Yahora University (Demo)';
 
+const makeImg = (seed) => `https://picsum.photos/seed/${encodeURIComponent(seed)}/900/700`;
+
 const DUMMY_USERS = [
   { email: 'rahul.senior@demo.yahora.com', name: 'Rahul Sharma', role: 'B.Tech CSE, Final Year', avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&q=80' },
   { email: 'priya.alumni@demo.yahora.com', name: 'Priya Verma', role: 'MBA Graduate', avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=150&q=80' },
@@ -29,33 +30,53 @@ const DUMMY_USERS = [
   { email: 'tanya.creative@demo.yahora.com', name: 'Tanya Singh', role: 'BBA 3rd Year', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80' },
   { email: 'rohan.cycles@demo.yahora.com', name: 'Rohan Patel', role: 'Diploma Student', avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=format&fit=crop&w=150&q=80' },
   { email: 'isha.hostel@demo.yahora.com', name: 'Isha Malhotra', role: 'B.Tech Civil', avatar: 'https://images.unsplash.com/photo-1491349174775-aaafddd81942?auto=format&fit=crop&w=150&q=80' },
+  { email: 'vedant.gaming@demo.yahora.com', name: 'Vedant Soni', role: 'B.Tech CSE', avatar: 'https://images.unsplash.com/photo-1504593811423-6dd665756598?auto=format&fit=crop&w=150&q=80' },
+  { email: 'pallavi.sports@demo.yahora.com', name: 'Pallavi Jain', role: 'BCA Final Year', avatar: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=150&q=80' },
+  { email: 'devansh.startup@demo.yahora.com', name: 'Devansh Agarwal', role: 'B.Tech IT', avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&w=150&q=80' },
+  { email: 'nisha.uiux@demo.yahora.com', name: 'Nisha Mehta', role: 'B.Des Final Year', avatar: 'https://images.unsplash.com/photo-1488426862026-3ee34a7d66df?auto=format&fit=crop&w=150&q=80' },
 ];
 
 const DUMMY_PRODUCTS = [
-  { title: 'MacBook Air M1 (Mint Condition)', price: 45000, category: 'Electronics', condition: 'Like New', desc: 'Used for coding and assignments. Battery health is excellent. Comes with original charger and box.', img: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Dell XPS 13 Laptop', price: 52000, category: 'Electronics', condition: 'Good', desc: 'Premium ultrabook for design and development work. Very light and powerful.', img: 'https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80' },
-  { title: 'IKEA Study Table (White)', price: 1200, category: 'Furniture', condition: 'Good', desc: 'Sturdy table ideal for hostel rooms. Minor marks from daily use.', img: 'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Ergonomic Office Chair', price: 2000, category: 'Furniture', condition: 'Like New', desc: 'Excellent back support for long study sessions and project work.', img: 'https://images.unsplash.com/photo-1505843490538-5133c6c7d0e1?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Firefox Geared Bicycle', price: 4500, category: 'Vehicles', condition: 'Fair', desc: 'Perfect for campus travel. A little chain oil needed, otherwise rides well.', img: 'https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Casio fx-991EX Scientific Calculator', price: 600, category: 'Academics', condition: 'Good', desc: 'Fully functional calculator used for engineering math and exams.', img: 'https://images.unsplash.com/photo-1611078485603-9e1262ab0b03?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Data Structures & Algorithms in C++', price: 350, category: 'Academics', condition: 'Good', desc: 'Classic CS textbook with a few highlighted pages, still very readable.', img: 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Apple iPad 10th Gen', price: 28000, category: 'Electronics', condition: 'Like New', desc: 'Great for note-taking, sketches, and presentations. Pencil can be added separately.', img: 'https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Yamaha F310 Acoustic Guitar', price: 5000, category: 'Hobbies', condition: 'Good', desc: 'Used for campus fests and practice sessions. Comes with padded carry bag.', img: 'https://images.unsplash.com/photo-1550226891-ef816aed4a98?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Mini Fridge (45L)', price: 3000, category: 'Appliances', condition: 'Good', desc: 'Perfect for hostel rooms. Cleaned, defrosted, and ready to use.', img: 'https://images.unsplash.com/photo-1584568694244-14fbdf83bd30?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Study Lamp with USB Port', price: 450, category: 'Hostel Essentials', condition: 'Like New', desc: 'Bright LED lamp with adjustable neck and phone charging port.', img: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Mattress and Pillow Combo', price: 1800, category: 'Hostel Essentials', condition: 'Good', desc: 'Comfortable single bed mattress with matching pillow. Clean and well kept.', img: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Bluetooth Speaker JBL Charge 5', price: 9000, category: 'Electronics', condition: 'Like New', desc: 'Powerful speaker with deep bass. Great for hostel events and gatherings.', img: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Physics Lab Coat', price: 300, category: 'Academics', condition: 'Good', desc: 'White lab coat used for practicals. Clean and in good condition.', img: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Logitech Wireless Mouse', price: 700, category: 'Accessories', condition: 'Like New', desc: 'Smooth performance, ideal for coding, presentations, and daily use.', img: 'https://images.unsplash.com/photo-1615663245857-ac93bb7c2b6e?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Bulk Book Set: CSE Semester 4', price: 1400, category: 'Academics', condition: 'Fair', desc: 'Bundle of core semester books at a student-friendly price.', img: 'https://images.unsplash.com/photo-1455885666463-6f8c6d3f7f8a?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Tripod Stand for Camera / Phone', price: 650, category: 'Accessories', condition: 'Good', desc: 'Useful for content creation, presentations, and project recordings.', img: 'https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Shoe Rack for Hostel Room', price: 900, category: 'Furniture', condition: 'Good', desc: 'Compact and durable shoe rack with multiple shelves.', img: 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Fan Regulator + Extension Board', price: 250, category: 'Hostel Essentials', condition: 'Good', desc: 'Useful hostel utility combo item for everyday convenience.', img: 'https://images.unsplash.com/photo-1615224143859-5b0b4f1f80cb?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Sketchbook and Art Supplies Kit', price: 800, category: 'Creative', condition: 'Like New', desc: 'Ideal for design and art students. Includes pens, markers, and notebooks.', img: 'https://images.unsplash.com/photo-1513364776144-60967b0f800f?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Gaming Keyboard RGB', price: 1600, category: 'Electronics', condition: 'Good', desc: 'Mechanical-feel RGB keyboard with excellent key response.', img: 'https://images.unsplash.com/photo-1541140532154-b024d705b90a?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Helmet for Bike / Cycle', price: 500, category: 'Vehicles', condition: 'Good', desc: 'Safe and comfortable helmet for daily campus commuting.', img: 'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Whiteboard with Markers', price: 550, category: 'Study Tools', condition: 'Good', desc: 'Great for room study planning, to-do lists, and revision.', img: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=800&q=80' },
-  { title: 'Winter Blanket Set', price: 1100, category: 'Hostel Essentials', condition: 'Good', desc: 'Warm and soft blanket set perfect for hostel life.', img: 'https://images.unsplash.com/photo-1507842217343-583bb7270b66?auto=format&fit=crop&w=800&q=80' },
+  { title: 'MacBook Air M1 (Mint Condition)', price: 45000, category: 'Electronics', condition: 'Like New', status: 'available', desc: 'Used for coding and assignments. Battery health is excellent. Comes with original charger and box.', img: makeImg('macbook-air-m1') },
+  { title: 'Dell XPS 13 Laptop', price: 52000, category: 'Electronics', condition: 'Good', status: 'reserved', desc: 'Premium ultrabook for design and development work. Very light and powerful.', img: makeImg('dell-xps-13') },
+  { title: 'Apple iPad 10th Gen', price: 28000, category: 'Electronics', condition: 'Like New', status: 'sold', desc: 'Great for note-taking, sketches, and presentations. Pencil can be added separately.', img: makeImg('ipad-10th-gen') },
+  { title: 'Bluetooth Speaker JBL Charge 5', price: 9000, category: 'Electronics', condition: 'Like New', status: 'available', desc: 'Powerful speaker with deep bass. Great for hostel events and gatherings.', img: makeImg('jbl-charge-5') },
+  { title: 'Gaming Keyboard RGB', price: 1600, category: 'Electronics', condition: 'Good', status: 'available', desc: 'Mechanical-feel RGB keyboard with excellent key response.', img: makeImg('gaming-keyboard-rgb') },
+  { title: 'Logitech Wireless Mouse', price: 700, category: 'Accessories', condition: 'Like New', status: 'sold', desc: 'Smooth performance, ideal for coding, presentations, and daily use.', img: makeImg('logitech-wireless-mouse') },
+
+  { title: 'IKEA Study Table (White)', price: 1200, category: 'Furniture', condition: 'Good', status: 'available', desc: 'Sturdy table ideal for hostel rooms. Minor marks from daily use.', img: makeImg('ikea-study-table-white') },
+  { title: 'Ergonomic Office Chair', price: 2000, category: 'Furniture', condition: 'Like New', status: 'reserved', desc: 'Excellent back support for long study sessions and project work.', img: makeImg('ergonomic-office-chair') },
+  { title: 'Shoe Rack for Hostel Room', price: 900, category: 'Furniture', condition: 'Good', status: 'available', desc: 'Compact and durable shoe rack with multiple shelves.', img: makeImg('shoe-rack-hostel') },
+  { title: 'Whiteboard with Markers', price: 550, category: 'Study Tools', condition: 'Good', status: 'available', desc: 'Great for room study planning, to-do lists, and revision.', img: makeImg('whiteboard-markers') },
+  { title: 'Study Lamp with USB Port', price: 450, category: 'Hostel Essentials', condition: 'Like New', status: 'available', desc: 'Bright LED lamp with adjustable neck and phone charging port.', img: makeImg('study-lamp-usb') },
+  { title: 'Winter Blanket Set', price: 1100, category: 'Hostel Essentials', condition: 'Good', status: 'reserved', desc: 'Warm and soft blanket set perfect for hostel life.', img: makeImg('winter-blanket-set') },
+  { title: 'Mattress and Pillow Combo', price: 1800, category: 'Hostel Essentials', condition: 'Good', status: 'sold', desc: 'Comfortable single bed mattress with matching pillow. Clean and well kept.', img: makeImg('mattress-pillow-combo') },
+  { title: 'Mini Fridge (45L)', price: 3000, category: 'Appliances', condition: 'Good', status: 'available', desc: 'Perfect for hostel rooms. Cleaned, defrosted, and ready to use.', img: makeImg('mini-fridge-45l') },
+  { title: 'Fan Regulator + Extension Board', price: 250, category: 'Hostel Essentials', condition: 'Good', status: 'available', desc: 'Useful hostel utility combo item for everyday convenience.', img: makeImg('fan-regulator-extension-board') },
+
+  { title: 'Casio fx-991EX Scientific Calculator', price: 600, category: 'Academics', condition: 'Good', status: 'available', desc: 'Fully functional calculator used for engineering math and exams.', img: makeImg('casio-fx-991ex') },
+  { title: 'Bulk Book Set: CSE Semester 4', price: 1400, category: 'Academics', condition: 'Fair', status: 'reserved', desc: 'Bundle of core semester books at a student-friendly price.', img: makeImg('cse-semester-4-book-set') },
+  { title: 'Data Structures & Algorithms in C++', price: 350, category: 'Academics', condition: 'Good', status: 'sold', desc: 'Classic CS textbook with a few highlighted pages, still very readable.', img: makeImg('dsa-in-cpp') },
+  { title: 'Physics Lab Coat', price: 300, category: 'Academics', condition: 'Good', status: 'available', desc: 'White lab coat used for practicals. Clean and in good condition.', img: makeImg('physics-lab-coat') },
+  { title: 'Bulk Notes: AI & DS Core Subjects', price: 500, category: 'Academics', condition: 'Fair', status: 'available', desc: 'Handwritten and printed notes for important subjects in one bundle.', img: makeImg('ai-ds-core-notes') },
+
+  { title: 'Firefox Geared Bicycle', price: 4500, category: 'Vehicles', condition: 'Fair', status: 'available', desc: 'Perfect for campus travel. A little chain oil needed, otherwise rides well.', img: makeImg('firefox-geared-bicycle') },
+  { title: 'Helmet for Bike / Cycle', price: 500, category: 'Vehicles', condition: 'Good', status: 'sold', desc: 'Safe and comfortable helmet for daily campus commuting.', img: makeImg('bike-cycle-helmet') },
+  { title: 'Cycle Chain Lock', price: 350, category: 'Vehicles', condition: 'Like New', status: 'available', desc: 'Strong lock for securing cycles in hostel parking areas.', img: makeImg('cycle-chain-lock') },
+
+  { title: 'Yamaha F310 Acoustic Guitar', price: 5000, category: 'Hobbies', condition: 'Good', status: 'available', desc: 'Used for campus fests and practice sessions. Comes with padded carry bag.', img: makeImg('yamaha-f310-guitar') },
+  { title: 'Sketchbook and Art Supplies Kit', price: 800, category: 'Creative', condition: 'Like New', status: 'reserved', desc: 'Ideal for design and art students. Includes pens, markers, and notebooks.', img: makeImg('sketchbook-art-supplies-kit') },
+  { title: 'Tripod Stand for Camera / Phone', price: 650, category: 'Accessories', condition: 'Good', status: 'available', desc: 'Useful for content creation, presentations, and project recordings.', img: makeImg('tripod-stand') },
+  { title: 'Logitech Webcam HD', price: 2200, category: 'Accessories', condition: 'Like New', status: 'available', desc: 'Great for online classes, interviews, and portfolio recordings.', img: makeImg('logitech-webcam-hd') },
+  { title: 'Bulk Stationery Set', price: 420, category: 'Study Tools', condition: 'Good', status: 'sold', desc: 'Pens, highlighters, sticky notes, and folders bundled together.', img: makeImg('bulk-stationery-set') },
+  { title: 'Desk Organizer + Pen Stand', price: 280, category: 'Study Tools', condition: 'Like New', status: 'available', desc: 'Keeps the study desk neat and tidy with multiple sections.', img: makeImg('desk-organizer-pen-stand') },
+  { title: 'Portable Laundry Basket', price: 260, category: 'Hostel Essentials', condition: 'Good', status: 'available', desc: 'Lightweight basket for hostel room laundry and storage.', img: makeImg('portable-laundry-basket') },
+  { title: 'Electric Kettle 1.5L', price: 750, category: 'Appliances', condition: 'Good', status: 'reserved', desc: 'Handy kettle for tea, coffee, and quick instant meals.', img: makeImg('electric-kettle') },
+  { title: 'Board Game Set for Hostel Nights', price: 999, category: 'Hobbies', condition: 'Like New', status: 'available', desc: 'A fun set for group hangouts, farewell nights, and breaks.', img: makeImg('board-game-set') },
+  { title: 'Sports T-Shirt Bundle', price: 650, category: 'Sports', condition: 'Fair', status: 'available', desc: 'Set of athletic T-shirts ideal for sports day and campus events.', img: makeImg('sports-tshirt-bundle') },
+  { title: 'Umbrella and Raincoat Combo', price: 320, category: 'Hostel Essentials', condition: 'Good', status: 'sold', desc: 'Useful rainy-season combo for hostel students.', img: makeImg('umbrella-raincoat-combo') },
+  { title: 'Power Bank 20000mAh', price: 1500, category: 'Electronics', condition: 'Good', status: 'available', desc: 'Long backup power bank for phones and tablets. Great for campus use.', img: makeImg('power-bank-20000mah') },
+  { title: 'Ceramic Mug Set', price: 240, category: 'Hostel Essentials', condition: 'Like New', status: 'available', desc: 'Clean mug set for hostel rooms and quick beverage use.', img: makeImg('ceramic-mug-set') },
 ];
 
 const DUMMY_POSTS = [
@@ -70,7 +91,10 @@ const DUMMY_POSTS = [
   'Got my hostel room set up almost entirely through reused items. Saved a lot.',
   'Selling a mini fridge and study table bundle. Great for a fresh hostel room setup.',
   'Any design students interested in a sketchbook and art supplies combo?',
-  'This is exactly the kind of campus-only marketplace we needed.'
+  'This is exactly the kind of campus-only marketplace we needed.',
+  'The best part is seeing only students from my own college in the feed.',
+  'Reserved items should stay visible so buyers know what has already moved.',
+  'Campus resale is honestly the easiest way to save money during semester changes.'
 ];
 
 async function maybeSingle(query) {
@@ -97,16 +121,64 @@ async function getOrCreateAuthUser(user) {
   });
 
   if (error) {
-    if (
-      error.message?.toLowerCase().includes('already registered') ||
-      error.message?.toLowerCase().includes('already exists')
-    ) {
+    const msg = (error.message || '').toLowerCase();
+    if (msg.includes('already registered') || msg.includes('already exists')) {
       return await getAuthUserByEmail(user.email);
     }
     throw error;
   }
 
   return data.user;
+}
+
+async function upsertDemoProduct(product, universityId, sellerId) {
+  const existing = await maybeSingle(
+    supabase.from('products').select('id, image_urls').eq('title', product.title)
+  );
+
+  const payload = {
+    seller_id: sellerId,
+    university_id: universityId,
+    title: product.title,
+    description: product.desc,
+    price: product.price,
+    category: product.category,
+    condition: product.condition,
+    image_urls: [product.img],
+    status: product.status,
+    likes_count: Math.floor(Math.random() * 70) + 5,
+  };
+
+  if (!existing) {
+    const { error } = await supabase.from('products').insert([payload]);
+    if (error) throw error;
+    return;
+  }
+
+  const currentImages = Array.isArray(existing.image_urls) ? existing.image_urls : [];
+  const needsImageFix = currentImages.length === 0 || !currentImages[0];
+
+  const { error } = await supabase
+    .from('products')
+    .update(needsImageFix ? payload : { ...payload, image_urls: currentImages })
+    .eq('id', existing.id);
+
+  if (error) throw error;
+}
+
+async function upsertDemoPost(content, universityId, authorId) {
+  const existing = await maybeSingle(
+    supabase.from('posts').select('id').eq('content', content)
+  );
+
+  if (!existing) {
+    const { error } = await supabase.from('posts').insert([{
+      author_id: authorId,
+      university_id: universityId,
+      content,
+    }]);
+    if (error) throw error;
+  }
 }
 
 async function seedSandbox() {
@@ -147,8 +219,6 @@ async function seedSandbox() {
           full_name: u.name,
           avatar_url: u.avatar,
           qualification: u.role,
-          bio: u.role,
-          is_profile_complete: true,
         },
         { onConflict: 'id' }
       );
@@ -159,51 +229,16 @@ async function seedSandbox() {
 
     console.log(`🛍️ Seeding ${DUMMY_PRODUCTS.length} demo products...`);
     for (let i = 0; i < DUMMY_PRODUCTS.length; i++) {
-      const p = DUMMY_PRODUCTS[i];
+      const product = DUMMY_PRODUCTS[i];
       const sellerId = userIds[i % userIds.length];
-
-      const exists = await maybeSingle(
-        supabase.from('products').select('id').eq('title', p.title)
-      );
-
-      if (!exists) {
-        const { error: prodErr } = await supabase.from('products').insert([{
-          seller_id: sellerId,
-          university_id: demoUniId,
-          title: p.title,
-          description: p.desc,
-          price: p.price,
-          category: p.category,
-          condition: p.condition,
-          image_urls: [p.img],
-          status: 'available',
-          location: 'Campus Main Gate',
-          views: Math.floor(Math.random() * 400) + 20,
-          likes_count: Math.floor(Math.random() * 70) + 5,
-        }]);
-
-        if (prodErr) throw prodErr;
-      }
+      await upsertDemoProduct(product, demoUniId, sellerId);
     }
 
     console.log(`💬 Seeding ${DUMMY_POSTS.length} community posts...`);
     for (let i = 0; i < DUMMY_POSTS.length; i++) {
       const content = DUMMY_POSTS[i];
       const authorId = userIds[(i + 2) % userIds.length];
-
-      const exists = await maybeSingle(
-        supabase.from('posts').select('id').eq('content', content)
-      );
-
-      if (!exists) {
-        const { error: postErr } = await supabase.from('posts').insert([{
-          author_id: authorId,
-          university_id: demoUniId,
-          content,
-        }]);
-
-        if (postErr) throw postErr;
-      }
+      await upsertDemoPost(content, demoUniId, authorId);
     }
 
     console.log('🎉 Demo seeding completed successfully.');

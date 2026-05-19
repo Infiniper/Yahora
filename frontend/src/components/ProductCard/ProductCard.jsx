@@ -328,8 +328,7 @@ const ProductCard = memo(function ProductCard({
     if (onCardClick) onCardClick(product.id);
   }, [onCardClick, product.id]);
 
-  const sellerName =
-    product.seller?.full_name || product.seller || "Unknown Seller";
+  const sellerName = product.seller?.full_name || "Unknown Seller";
   const sellerAvatar = product.seller?.avatar_url || null;
   const sellerInitial =
     typeof sellerName === "string" ? sellerName.charAt(0).toUpperCase() : "U";
