@@ -30,6 +30,8 @@ export const AuthProvider = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('yahora_session');
     localStorage.removeItem('yahora_user_id');
+    localStorage.removeItem("yahora_demo_user");
+    localStorage.removeItem("yahora_university_id");
     setIsAuthenticated(false);
   };
 
