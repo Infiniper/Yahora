@@ -68,6 +68,12 @@ const Auth = () => {
       if (response.ok) {
         // Clear the demo flag when a real user logs in successfully
         localStorage.removeItem("yahora_demo_user");
+
+        // Save the real user's university ID so they aren't treated as a visitor!
+        if (data.userProfile?.university_id) {
+            localStorage.setItem("yahora_university_id", data.userProfile.university_id);
+        }
+
         // Extract User ID
         const userId =
           data.userProfile?.id || data.userAuth?.id || data.user?.id;
