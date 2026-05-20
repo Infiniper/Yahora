@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import UniversityModal from "../../components/modal/UniversityModal";
 import { useAuth } from "../../contexts/AuthContext";
-import "./Auth.css";
+import styles from "./Auth.module.css";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -141,24 +141,25 @@ const Auth = () => {
   };
 
   return (
-    <div className="auth-container">
+    <div className={styles['auth-container']}>
       {/* ── Left Side: Form ── */}
-      <div className="auth-left">
+      <div className={styles['auth-left']}>
+        {/* Global classes kept as standard strings */}
         <div className="glow-orb purple-orb"></div>
         <div className="glow-orb pink-orb"></div>
 
-        <div className="auth-form-wrapper">
-          <div className="marketing-badge">
-            <span className="dot"></span>
+        <div className={styles['auth-form-wrapper']}>
+          <div className={styles['marketing-badge']}>
+            <span className={styles.dot}></span>
             Students-only marketplace — now launching
           </div>
 
-          <h1 className="gradient-heading">Buy &amp; Sell on Your Campus.</h1>
+          <h1 className={styles['gradient-heading']}>Buy &amp; Sell on Your Campus.</h1>
 
           {/* Glass Form Card */}
-          <div className="form-card">
+          <div className={styles['form-card']}>
             {/* Floating Icon inspired by the image */}
-            <div className="floating-icon">
+            <div className={styles['floating-icon']}>
               <svg
                 viewBox="0 0 24 24"
                 fill="currentColor"
@@ -173,12 +174,12 @@ const Auth = () => {
 
             {step === 1 ? (
               <form onSubmit={handleRequestOtp}>
-                <p className="subtitle">
+                <p className={styles.subtitle}>
                   Enter your university email to get started
                 </p>
 
-                <label className="input-label">UNIVERSITY EMAIL ADDRESS</label>
-                <div className="modern-input-group">
+                <label className={styles['input-label']}>UNIVERSITY EMAIL ADDRESS</label>
+                <div className={styles['modern-input-group']}>
                   <input
                     type="email"
                     placeholder="yourUniID@university.domain"
@@ -188,17 +189,17 @@ const Auth = () => {
                   />
                   <button
                     type="submit"
-                    className="inside-btn brand-gradient"
+                    className={`${styles['inside-btn']} ${styles['brand-gradient']}`}
                     disabled={loading}
                   >
                     {loading ? "Sending…" : "Send Code"}
                   </button>
                 </div>
 
-                {message && <p className="form-message error">{message}</p>}
+                {message && <p className={`${styles['form-message']} ${styles.error}`}>{message}</p>}
 
                 <div
-                  className="text-center mt-2"
+                  className={`${styles['text-center']} ${styles['mt-2']}`}
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -206,37 +207,32 @@ const Auth = () => {
                     alignItems: "center",
                   }}
                 >
-                  <button
-                    type="button"
-                    className="cute-btn"
-                    onClick={() => setIsModalOpen(true)}
-                  >
-                    See Supported Universities
-                  </button>
-
-                  {/* NEW: Demo Options Wrapper */}
-                  <div style={{ position: "relative" }}>
+                  <div className={styles.UniDemo}>
                     <button
                       type="button"
-                      className="text-btn mt-2"
-                      style={{
-                        fontWeight: "bold",
-                        color: "var(--purple)",
-                        border: "1px solid var(--purple)",
-                        padding: "6px 12px",
-                        borderRadius: "8px",
-                      }}
-                      onClick={() => setShowDemoOptions(!showDemoOptions)}
+                      className={styles['cute-btn']}
+                      onClick={() => setIsModalOpen(true)}
                     >
-                      ✨ Explore Live Demo
+                      See Supported Universities
                     </button>
+
+                    {/* NEW: Demo Options Wrapper */}
+                    <div style={{ position: "relative" }}>
+                      <button
+                        type="button"
+                        className={`${styles['text-btn']}`}
+                        onClick={() => setShowDemoOptions(!showDemoOptions)}
+                      >
+                        ✨ Explore Live Demo
+                      </button>
+                    </div>
 
                     {/* The Popup */}
                     {showDemoOptions && (
-                      <div className="demo-popup">
+                      <div className={styles['demo-popup']}>
                         <button
                           type="button"
-                          className="demo-popup-btn"
+                          className={styles['demo-popup-btn']}
                           onClick={handleDemoLogin}
                           disabled={demoLoading}
                         >
@@ -248,7 +244,7 @@ const Auth = () => {
                           href="https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="demo-popup-btn video-btn"
+                          className={`${styles['demo-popup-btn']} ${styles['video-btn']}`}
                         >
                           📺 View Demo Video
                         </a>
@@ -263,15 +259,15 @@ const Auth = () => {
               </form>
             ) : (
               <form onSubmit={handleVerifyOtp}>
-                <p className="subtitle">
+                <p className={styles.subtitle}>
                   Enter the 6-digit code sent to{" "}
                   <strong style={{ color: "var(--purple-dark)" }}>
                     {email}
                   </strong>
                 </p>
 
-                <label className="input-label">8-DIGIT VERIFICATION CODE</label>
-                <div className="modern-input-group">
+                <label className={styles['input-label']}>8-DIGIT VERIFICATION CODE</label>
+                <div className={styles['modern-input-group']}>
                   <input
                     type="text"
                     placeholder="• • • • • • • •"
@@ -279,11 +275,11 @@ const Auth = () => {
                     onChange={(e) => setOtp(e.target.value)}
                     required
                     maxLength={8}
-                    className="otp-input"
+                    className={styles['otp-input']}
                   />
                   <button
                     type="submit"
-                    className="inside-btn brand-gradient"
+                    className={`${styles['inside-btn']} ${styles['brand-gradient']}`}
                     disabled={loading}
                   >
                     {loading ? "Verifying…" : "Verify"}
@@ -292,7 +288,7 @@ const Auth = () => {
 
                 {message && (
                   <p
-                    className={`form-message ${message.includes("sent") ? "success" : "error"}`}
+                    className={`${styles['form-message']} ${message.includes("sent") ? styles.success : styles.error}`}
                   >
                     {message}
                   </p>
@@ -300,7 +296,7 @@ const Auth = () => {
 
                 <button
                   type="button"
-                  className="text-btn mt-2"
+                  className={`${styles['text-btn']} ${styles['mt-2']}`}
                   onClick={() => setStep(1)}
                 >
                   ← Wrong email? Go back
@@ -310,36 +306,36 @@ const Auth = () => {
           </div>
 
           {/* App Download Buttons */}
-          <div className="app-downloads">
-            <button className="app-btn android-btn">
+          <div className={styles['app-downloads']}>
+            <button className={`${styles['app-btn']} ${styles['android-btn']}`}>
               <img src="/playstore.svg" alt="playstore" />
               Android App
-              <span className="coming-soon">Soon</span>
+              <span className={styles['coming-soon']}>Soon</span>
             </button>
-            <button className="app-btn ios-btn">
+            <button className={`${styles['app-btn']} ${styles['ios-btn']}`}>
               <img src="/apple.svg" alt="apple" />
               iOS App
-              <span className="coming-soon">Soon</span>
+              <span className={styles['coming-soon']}>Soon</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* ── Right Side: Video ── */}
-      <div className="auth-right">
-        <div className="video-container">
+      <div className={styles['auth-right']}>
+        <div className={styles['video-container']}>
           <video
             ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
-            className="feature-video"
+            className={styles['feature-video']}
             src="https://iwhtzhejyhaqctoqsolz.supabase.co/storage/v1/object/public/yahora%20videos/yahora_login_page_girl.mp4"
           >
             Your browser does not support the video tag.
           </video>
-          <div className="video-overlay">
+          <div className={styles['video-overlay']}>
             <h3>Keep the Story Going</h3>
             <p>Because Every Item Has a Memory.</p>
           </div>
