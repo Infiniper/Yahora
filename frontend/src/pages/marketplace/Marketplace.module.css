@@ -1176,6 +1176,44 @@
   line-height: 1.4;
 }
 
+/* ── Beautiful Demo Alert ── */
+.demoAlertOverlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.4);
+  backdrop-filter: blur(4px); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+.demoAlertBox {
+  background: #fff; border-radius: 20px; padding: 24px;
+  width: 90%; max-width: 400px; text-align: center;
+  box-shadow: 0 20px 40px rgba(128,0,128,0.15);
+  animation: scaleUp 0.2s ease;
+}
+.demoAlertIconWrap {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: #f8f4ff; display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 16px; border: 4px solid #f0eaf8;
+}
+.demoAlertTitle { margin: 0 0 8px; font-size: 1.25rem; color: #1a0a2e; font-family: "Bree Serif", serif; }
+.demoAlertText { margin: 0 0 24px; font-size: 0.9rem; color: #64748b; line-height: 1.5; }
+.demoAlertActions { display: flex; gap: 12px; }
+.demoAlertBtnCancel {
+  flex: 1; padding: 10px; border-radius: 10px; border: 1px solid #e2e8f0;
+  background: #fff; color: #64748b; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.demoAlertBtnCancel:hover { background: #f8fafc; color: #1e293b; }
+.demoAlertBtnPrimary {
+  flex: 1; padding: 10px; border-radius: 10px; border: none;
+  background: linear-gradient(135deg, var(--purple), var(--pink-dark)); 
+  color: #fff; font-weight: 600; cursor: pointer; transition: all 0.2s;
+}
+.demoAlertBtnPrimary:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(128,0,128,0.3); }
+
+@keyframes scaleUp { 
+  from { transform: scale(0.95); opacity: 0; } 
+  to { transform: scale(1); opacity: 1; } 
+}
+
 /* ──────────────────────────────────────
    RESPONSIVE
 ────────────────────────────────────── */

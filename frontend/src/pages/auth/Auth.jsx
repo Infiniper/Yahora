@@ -71,7 +71,10 @@ const Auth = () => {
 
         // Save the real user's university ID so they aren't treated as a visitor!
         if (data.userProfile?.university_id) {
-            localStorage.setItem("yahora_university_id", data.userProfile.university_id);
+          localStorage.setItem(
+            "yahora_university_id",
+            data.userProfile.university_id,
+          );
         }
 
         // Extract User ID
@@ -116,7 +119,10 @@ const Auth = () => {
         // Set a flag in localStorage so the rest of the app knows this is a demo user
         localStorage.setItem("yahora_demo_user", "true");
         if (data.userProfile?.university_id) {
-            localStorage.setItem("yahora_university_id", data.userProfile.university_id);
+          localStorage.setItem(
+            "yahora_university_id",
+            data.userProfile.university_id,
+          );
         }
 
         const userId = data.userProfile?.id || data.userAuth?.id;
@@ -190,7 +196,6 @@ const Auth = () => {
                 </div>
 
                 {message && <p className="form-message error">{message}</p>}
-
 
                 <div
                   className="text-center mt-2"
