@@ -1,4 +1,4 @@
- /* onboarding css file */
+/* onboarding css file */
 /* frontend/src/pages/onboarding/Onboarding.module.css */
 
 .onboardingContainer {
@@ -27,7 +27,7 @@
 
 .onboardingHeader {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1rem;
 }
 
 .onboardingHeader h2 {
@@ -53,7 +53,7 @@
 }
 
 .sectionTitle {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-size: 1rem;
   font-weight: 700;
   text-transform: uppercase;
@@ -137,7 +137,8 @@
   color: #888;
 }
 
-.inputWithIcon, .textareaWrapper {
+.inputWithIcon,
+.textareaWrapper {
   position: relative;
   display: flex;
   align-items: center;
@@ -153,15 +154,15 @@
   top: 1rem;
 }
 
-.inputWithIcon input, 
+.inputWithIcon input,
 .inputWithIcon select,
 .textareaWrapper textarea {
   width: 100%;
   padding: 0.8rem 1rem 0.8rem 2.8rem;
   border-radius: 0.8rem;
   border: 1px solid #e0e0e0;
-  background-color: #FAFAFA;
-  font-family: 'Inter', sans-serif;
+  background-color: #fafafa;
+  font-family: "Inter", sans-serif;
   font-size: 0.95rem;
   color: var(--black);
   transition: all 0.3s ease;
@@ -172,7 +173,7 @@
   padding-top: 1rem;
 }
 
-.inputWithIcon input:focus, 
+.inputWithIcon input:focus,
 .inputWithIcon select:focus,
 .textareaWrapper textarea:focus {
   outline: none;
@@ -192,14 +193,6 @@
   font-weight: 500;
 }
 
-.fullWidth {
-  width: 100%;
-  padding: 1rem;
-  font-size: 1.1rem;
-}
-
-
-/* 📱 Mobile (0 – 600px) */
 @media (max-width: 600px) {
   .inputRow {
     grid-template-columns: 1fr;
@@ -256,8 +249,13 @@
 */
 
 @keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-20px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 /* --- BUTTON STYLES --- */
@@ -282,15 +280,23 @@
   background: linear-gradient(135deg, var(--purple) 0%, var(--pink-dark) 100%);
   color: var(--white);
   border: none;
+  font-size: 0.9rem;
   border-radius: 2rem;
-  font-weight: 600;
+  font-weight: 450;
   cursor: pointer;
   transition: all 0.3s ease;
   box-shadow: 0 8px 20px rgba(128, 0, 128, 0.3);
-  width: 15rem;
+  width: 12rem;
+  height: 2.6rem;
   display: block;
   margin: 0.5rem auto; /* centers horizontally */
 
+}
+
+.btnPrimary:hover {
+  background-color: purple;
+  color: white;
+  transform: translateY(-2px);
 }
 
 .btnPrimary:hover:not(:disabled) {
@@ -303,4 +309,26 @@
   cursor: not-allowed;
   transform: none;
   box-shadow: none;
+}
+
+.skipBtn {
+  background: linear-gradient(135deg, var(--purple) 0%, var(--pink-dark) 100%);
+  color: var(--white);
+  border: none;
+  font-size: 0.9rem;
+  border-radius: 2rem;
+  font-weight: 450;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(128, 0, 128, 0.3);
+  width: 8rem;
+  display: block;
+  margin: 0.5rem auto; /* centers horizontally */
+  margin-bottom: 1rem;
+  height:2rem;
+}
+
+.skipBtn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 24px rgba(128, 0, 128, 0.4);
 }

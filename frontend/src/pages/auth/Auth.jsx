@@ -191,6 +191,7 @@ const Auth = () => {
 
                 {message && <p className="form-message error">{message}</p>}
 
+
                 <div
                   className="text-center mt-2"
                   style={{
