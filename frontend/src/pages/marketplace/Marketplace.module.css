@@ -260,7 +260,7 @@
 }
 .conditionChip:hover {
   border-color: var(--purple, #800080);
-  color: var(--purple, #800080);
+  /* color: var(--purple, #800080); */
 }
 .conditionChipActive {
   background: var(--purple, #800080);
@@ -312,7 +312,6 @@
 }
 .dateChip:hover {
   border-color: var(--pink-dark, #eb487f);
-  color: var(--pink-dark, #eb487f);
 }
 .dateChipActive {
   background: var(--pink-dark, #eb487f);
