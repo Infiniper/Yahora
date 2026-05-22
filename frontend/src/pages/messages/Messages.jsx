@@ -175,6 +175,7 @@ export default function Messages() {
   const [searchQuery, setSearchQuery] = useState("");
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [activeEmojiRow, setActiveEmojiRow] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
 
   /* ── Refs ── */
   const messagesContainerRef = useRef(null);
@@ -315,6 +316,9 @@ export default function Messages() {
         { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
           const newMsg = payload.new;
+          if (activeChat && newMsg.sender_id === activeChat.contact_id) {
+            setIsTyping(false);
+          }
           if (
             newMsg.sender_id === currentUserId ||
             newMsg.receiver_id === currentUserId
@@ -386,6 +390,13 @@ export default function Messages() {
     const tempMessage = newMessage;
     setNewMessage("");
     setShowEmojiPicker(false);
+    const isDemoUser = localStorage.getItem("yahora_demo_user") === "true";
+    // If this is a demo user, trigger the typing illusion immediately
+    if (isDemoUser) {
+      setIsTyping(true);
+      // Failsafe: turn it off after 5 seconds just in case the network fails
+      setTimeout(() => setIsTyping(false), 5000);
+    }
     try {
       await fetch(`${API_BASE_URL}/messages/send`, {
         method: "POST",
@@ -759,6 +770,22 @@ export default function Messages() {
                     </React.Fragment>
                   ))
                 )}
+                {/* The Typing Indicator Bubble */}
+              {isTyping && (
+                <div className={styles.messageWrapper} style={{ justifyContent: "flex-start", animation: "fadeIn 0.3s ease" }}>
+                  <AvatarImg
+                    src={activeChat?.contact_avatar}
+                    name={activeChat?.contact_name}
+                    size={28}
+                    className={styles.messageAvatar}
+                  />
+                  <div className={`${styles.messageBubble} ${styles.bubbleTheirs} ${styles.typingBubble}`}>
+                    <div className={styles.typingDots}>
+                      <span></span><span></span><span></span>
+                    </div>
+                  </div>
+                </div>
+              )}
               </div>
 
               {/* Chat Input Area */}
