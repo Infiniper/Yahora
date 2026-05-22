@@ -196,9 +196,7 @@ const Auth = () => {
                   </button>
                 </div>
 
-                {message && (
-                  <p className={`${styles.formMessage} ${styles.error}`}>{message}</p>
-                )}
+                {message && <p className={`${styles['form-message']} ${styles.error}`}>{message}</p>}
 
                 <div
                   className={`${styles.textCenter} ${styles.mt2}`}
