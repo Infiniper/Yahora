@@ -3,7 +3,7 @@
    ============================================ */
 
 /* ---- Layout ---- */
-.auth-container {
+.authContainer {
   display: flex;
   height: calc(100vh - 4.5rem);
   overflow: hidden;
@@ -11,7 +11,7 @@
 }
 
 /* ---- Left Side ---- */
-.auth-left {
+.authLeft {
   flex: 0.45;
   display: flex;
   justify-content: center;
@@ -23,7 +23,7 @@
   background: var(--pink-light); 
 }
 
-.auth-form-wrapper {
+.authFormWrapper {
   max-width: 440px;
   width: 100%;
   z-index: 10;
@@ -31,7 +31,7 @@
 }
 
 /* ---- Marketing Badge ---- */
-.marketing-badge {
+.marketingBadge {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -46,22 +46,22 @@
   box-shadow: 0 2px 10px rgba(128, 0, 128, 0.05);
 }
 
-.marketing-badge .dot {
+.dot {
   width: 6px;
   height: 6px;
   background: var(--pink-dark);
   border-radius: 50%;
-  animation: pulse-dot 2.5s ease-in-out infinite;
+  animation: pulseDot 2.5s ease-in-out infinite;
   flex-shrink: 0;
 }
 
-@keyframes pulse-dot {
+@keyframes pulseDot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: 0.6; transform: scale(0.8); }
 }
 
 /* ---- Gradient Heading ---- */
-.gradient-heading {
+.gradientHeading {
   font-size: 1.85rem; /* Reduced font size */
   line-height: 1.15;
   margin-bottom: 2rem; /* Added space for the floating icon */
@@ -73,7 +73,7 @@
 }
 
 /* ---- Glass Form Card ---- */
-.form-card {
+.formCard {
   background: var(--white);
   padding: 2rem 1.5rem 1.5rem; /* Reduced padding, larger top for icon */
   border-radius: 1.25rem;
@@ -84,7 +84,7 @@
 }
 
 /* Floating Icon */
-.floating-icon {
+.floatingIcon {
   position: absolute;
   top: -24px;
   left: 50%;
@@ -101,7 +101,7 @@
   border: 1px solid #f0e6f5;
 }
 
-.form-card h2 {
+.formCard h2 {
   margin: 0 0 0.2rem 0;
   font-size: 1.25rem;
   color: var(--black-soft);
@@ -116,7 +116,7 @@
 }
 
 /* ---- Modern Pill Input Group ---- */
-.input-label {
+.inputLabel {
   display: block;
   font-size: 0.7rem;
   font-weight: 700;
@@ -127,7 +127,7 @@
   padding-left: 0.8rem;
 }
 
-.modern-input-group {
+.modernInputGroup {
   display: flex;
   align-items: center;
   background-color: #f3f0ef;
@@ -138,13 +138,13 @@
   transition: all 0.3s ease;
 }
 
-.modern-input-group:focus-within {
+.modernInputGroup:focus-within {
   background-color: var(--white);
   border-color: var(--purple-light);
   box-shadow: 0 0 0 4px rgba(215, 0, 215, 0.1);
 }
 
-.modern-input-group input {
+.modernInputGroup input {
   flex: 1;
   border: none;
   background: transparent;
@@ -155,18 +155,18 @@
   width: 100%;
 }
 
-.modern-input-group input::placeholder {
+.modernInputGroup input::placeholder {
   color: #bbb6c8;
 }
 
-.otp-input {
+.otpInput {
   letter-spacing: 0.4rem;
   font-weight: 700;
   color: var(--purple-dark) !important;
 }
 
 /* ---- Buttons inside input ---- */
-.inside-btn {
+.insideBtn {
   border: none;
   border-radius: 2rem;
   padding: 0.65rem 1.25rem;
@@ -179,26 +179,26 @@
   box-shadow: 0 4px 12px rgba(128, 0, 128, 0.2);
 }
 
-.brand-gradient {
+.brandGradient {
   background: linear-gradient(135deg, var(--purple) 0%, var(--pink-dark) 100%);
 }
 
-.inside-btn:hover:not(:disabled) {
+.insideBtn:hover:not(:disabled) {
   transform: translateY(-1px) scale(1.02);
   box-shadow: 0 6px 16px rgba(128, 0, 128, 0.3);
   filter: brightness(1.1);
 }
 
-.inside-btn:active:not(:disabled) {
+.insideBtn:active:not(:disabled) {
   transform: scale(0.98);
 }
 
-.inside-btn:disabled {
+.insideBtn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
 
-.cute-btn {
+.cuteBtn {
   display: inline-flex;
   align-items: center;
   background: var(--purple);
@@ -214,13 +214,13 @@
   box-shadow: 0 4px 10px rgba(215, 0, 215, 0.2);
 }
 
-.cute-btn:hover {
+.cuteBtn:hover {
   background: var(--purple-dark);
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(128, 0, 128, 0.3);
 }
 
-.demo-popup {
+.demoPopup {
   position: absolute;
   top: 100%;
   left: 50%;
@@ -239,7 +239,7 @@
   animation: fadeIn 0.2s ease-out;
 }
 
-.demo-popup-btn {
+.demoPopupBtn {
   background: #f8f4ff;
   border: none;
   padding: 10px;
@@ -254,23 +254,23 @@
   display: block;
 }
 
-.demo-popup-btn:hover {
+.demoPopupBtn:hover {
   background: var(--purple);
   color: white;
 }
 
-.video-btn {
+.videoBtn {
   background: #fff4f7;
   color: var(--pink-dark);
 }
 
-.video-btn:hover {
+.videoBtn:hover {
   background: var(--pink-dark);
   color: white;
 }
 
 /* ---- Text / Back Button ---- */
-.text-btn {
+.textBtn {
   display: inline-flex;
   align-items: center;
   background: var(--purple);
@@ -286,21 +286,19 @@
   box-shadow: 0 4px 10px rgba(215, 0, 215, 0.2);
 }
 
-.text-btn:hover {
+.textBtn:hover {
   background: var(--purple-dark);
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(128, 0, 128, 0.3);
-
 }
 
 /* ---- App Downloads ---- */
-.app-downloads {
+.appDownloads {
   display: flex;
   gap: 0.75rem;
 }
 
-
-.app-btn {
+.appBtn {
   flex: 1;
   border: none;
   padding: 0.7rem 0.5rem;
@@ -315,37 +313,31 @@
   transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
 }
 
-
 /* Using global variables instead of white */
-.android-btn {
+.androidBtn {
   background: var(--blue-light);
   color: var(--black-soft);
 }
 
-
-.ios-btn {
+.iosBtn {
   background: var(--pink);
   color: var(--pink-emphasis);
 }
 
-
-.app-btn:hover {
+.appBtn:hover {
   transform: translateY(-3px);
   filter: brightness(0.95);
 }
 
-
-.android-btn:hover {
+.androidBtn:hover {
   box-shadow: 0 8px 20px rgba(43, 183, 255, 0.25);
 }
 
-
-.ios-btn:hover {
+.iosBtn:hover {
   box-shadow: 0 8px 20px rgba(255, 120, 166, 0.25);
 }
 
-
-.coming-soon {
+.comingSoon {
   background: rgba(255, 255, 255, 0.5);
   color: inherit;
   font-size: 0.55rem;
@@ -356,9 +348,8 @@
   font-weight: 700;
 }
 
-
 /* ---- Form Messages ---- */
-.form-message {
+.formMessage {
   font-size: 0.8rem;
   margin-bottom: 0.8rem;
   padding: 0.6rem 0.8rem;
@@ -367,26 +358,25 @@
   font-weight: 500;
 }
 
-.form-message.error {
+.error {
   background-color: #fef0f0;
   color: #b91c1c;
 }
 
-.form-message.success {
+.success {
   background-color: #f0fdf4;
   color: #15803d;
 }
 
 /* ---- Utilities ---- */
-.mt-2 { margin-top: 0.5rem; }
-.text-center { text-align: center; }
+.mt2 { margin-top: 0.5rem; }
+.textCenter { text-align: center; }
 
 /* ============================================
    Right Side — Video Area
    ============================================ */
-.auth-right {
+.authRight {
   flex: 0.55;
-  /* background: linear-gradient(145deg, var(--purple) 0%, var(--purple-light) 40%, var(--white) 100%); */
   background: #f2e5e1;
   display: flex;
   align-items: center;
@@ -396,9 +386,8 @@
 }
 
 /* ---- Video Container (enhanced frame) ---- */
-.video-container {
+.videoContainer {
   width: 100%;
-  /* max-width: 500px; */
   aspect-ratio: 4/3;
   border-radius: 1.5rem;
   overflow: hidden;
@@ -407,18 +396,18 @@
   transition: transform 0.5s cubic-bezier(0.34, 1.3, 0.64, 1), box-shadow 0.5s ease;
 }
 
-.video-container:hover {
+.videoContainer:hover {
   transform: scale(1.02) translateY(-4px);
 }
 
-.feature-video {
+.featureVideo {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
 }
 
-.video-overlay {
+.videoOverlay {
   position: absolute;
   bottom: 0; left: 0; right: 0;
   padding: 3rem 1.5rem 1.5rem;
@@ -426,12 +415,12 @@
   color: var(--white);
 }
 
-.video-overlay h3 {
+.videoOverlay h3 {
   margin: 0 0 0.3rem 0;
   font-size: 1.4rem;
 }
 
-.video-overlay p {
+.videoOverlay p {
   margin: 0;
   opacity: 0.8;
   font-size: 0.85rem;
@@ -441,38 +430,37 @@
    Mobile Responsiveness
    ============================================ */
 @media (max-width: 968px) {
-  .auth-container {
+  .authContainer {
     height: auto;
     min-height: calc(100vh - 4.5rem);
     flex-direction: column;
   }
-  .auth-left { padding: 2rem 1.5rem; }
-  .auth-right { display: none; }
-  .gradient-heading { font-size: 1.6rem; }
+  .authLeft { padding: 2rem 1.5rem; }
+  .authRight { display: none; }
+  .gradientHeading { font-size: 1.6rem; }
 }
 
 @media (max-width: 400px) {
-  .gradient-heading { font-size: 1.4rem; }
-  .modern-input-group {
+  .gradientHeading { font-size: 1.4rem; }
+  .modernInputGroup {
     flex-direction: column;
     border-radius: 1rem;
     padding: 0.5rem;
     background-color: transparent;
   }
-  .app-downloads { flex-direction: column; }
-  .modern-input-group input {
+  .appDownloads { flex-direction: column; }
+  .modernInputGroup input {
     background-color: #f4f5f8;
     border-radius: 0.5rem;
     padding: 0.8rem;
     margin-bottom: 0.5rem;
   }
-  .inside-btn {
+  .insideBtn {
     width: 100%;
     border-radius: 0.5rem;
   }
 }
-
-.UniDemo{
+.uniDemo {
   display: flex;
   gap: 0.75rem;
 }

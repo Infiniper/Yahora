@@ -329,7 +329,7 @@ function FilterSection({ icon, title, children, defaultOpen = false }) {
 export default function Marketplace() {
   const navigate = useNavigate();
   const [currentUserId] = useState(localStorage.getItem("yahora_user_id"));
-
+  const isDemoUser = localStorage.getItem("yahora_demo_user") === "true";
   const [universities, setUniversities] = useState([]);
   const [university, setUniversity] = useState(null);
 
@@ -344,6 +344,7 @@ export default function Marketplace() {
   const [showUniModal, setShowUniModal] = useState(false);
   const [showMobileFilter, setShowMobileFilter] = useState(false);
   const [swipeDeck, setSwipeDeck] = useState([]);
+  const [showDemoAlert, setShowDemoAlert] = useState(false);
 
   const [selCategories, setSelCategories] = useState([]);
   const [priceRange, setPriceRange] = useState([0, 50000]);
@@ -351,6 +352,16 @@ export default function Marketplace() {
   const [selPostingDate, setSelPostingDate] = useState("");
   const [showWishlist, setShowWishlist] = useState(false);
   const [showMyListings, setShowMyListings] = useState(false);
+
+  // Protect marketplace route
+  useEffect(() => {
+    const userId = localStorage.getItem("yahora_user_id");
+    const session = localStorage.getItem("yahora_session");
+
+    if (!userId || !session) {
+      navigate("/auth");
+    }
+  }, [navigate]);
 
   /* ── 1. Fetch Universities & Restore Last Campus on Mount ── */
   useEffect(() => {
@@ -423,6 +434,11 @@ export default function Marketplace() {
   }, [university, currentUserId]);
 
   const handleSetUniversity = (u) => {
+    // Check if they are in demo mode and trying to leave the demo campus
+    if (isDemoUser && homeUniversityId && u.id !== homeUniversityId) {
+      setShowDemoAlert(true); // Show the beautiful alert
+      return; // Stop them from actually switching
+    }
     setUniversity(u);
     sessionStorage.setItem("yahora_last_visited_uni", u.id);
   };
@@ -812,6 +828,36 @@ export default function Marketplace() {
           onSelect={handleSetUniversity}
           onClose={() => setShowUniModal(false)}
         />
+      )}
+
+      {showDemoAlert && (
+        <div className={styles.demoAlertOverlay} onClick={() => setShowDemoAlert(false)}>
+          <div className={styles.demoAlertBox} onClick={(e) => e.stopPropagation()}>
+            <div className={styles.demoAlertIconWrap}>
+              <Globe2 size={32} color="var(--purple)" />
+            </div>
+            <h3 className={styles.demoAlertTitle}>Unlock All Campuses</h3>
+            <p className={styles.demoAlertText}>
+              You are currently exploring the Interactive Sandbox. To view real listings from other universities like IIITDM Kurnool or NIET, please create a verified student account.
+            </p>
+            <div className={styles.demoAlertActions}>
+              <button className={styles.demoAlertBtnCancel} onClick={() => setShowDemoAlert(false)}>
+                Stay in Sandbox
+              </button>
+              <button 
+                className={styles.demoAlertBtnPrimary} 
+                onClick={() => {
+                  localStorage.removeItem("yahora_demo_user");
+                  localStorage.removeItem("yahora_session");
+                  localStorage.removeItem("yahora_user_id");
+                  navigate("/auth");
+                }}
+              >
+                Create Account
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       <div className={styles.sidebarWrap}>{SidebarContent}</div>

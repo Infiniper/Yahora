@@ -141,25 +141,25 @@ const Auth = () => {
   };
 
   return (
-    <div className={styles['auth-container']}>
+    <div className={styles.authContainer}>
       {/* ── Left Side: Form ── */}
-      <div className={styles['auth-left']}>
-        {/* Global classes kept as standard strings */}
+      <div className={styles.authLeft}>
+        {/* Preserved as global classes assuming they are defined globally */}
         <div className="glow-orb purple-orb"></div>
         <div className="glow-orb pink-orb"></div>
 
-        <div className={styles['auth-form-wrapper']}>
-          <div className={styles['marketing-badge']}>
+        <div className={styles.authFormWrapper}>
+          <div className={styles.marketingBadge}>
             <span className={styles.dot}></span>
             Students-only marketplace — now launching
           </div>
 
-          <h1 className={styles['gradient-heading']}>Buy &amp; Sell on Your Campus.</h1>
+          <h1 className={styles.gradientHeading}>Buy &amp; Sell on Your Campus.</h1>
 
           {/* Glass Form Card */}
-          <div className={styles['form-card']}>
+          <div className={styles.formCard}>
             {/* Floating Icon inspired by the image */}
-            <div className={styles['floating-icon']}>
+            <div className={styles.floatingIcon}>
               <svg
                 viewBox="0 0 24 24"
                 fill="currentColor"
@@ -178,8 +178,8 @@ const Auth = () => {
                   Enter your university email to get started
                 </p>
 
-                <label className={styles['input-label']}>UNIVERSITY EMAIL ADDRESS</label>
-                <div className={styles['modern-input-group']}>
+                <label className={styles.inputLabel}>UNIVERSITY EMAIL ADDRESS</label>
+                <div className={styles.modernInputGroup}>
                   <input
                     type="email"
                     placeholder="yourUniID@university.domain"
@@ -189,17 +189,19 @@ const Auth = () => {
                   />
                   <button
                     type="submit"
-                    className={`${styles['inside-btn']} ${styles['brand-gradient']}`}
+                    className={`${styles.insideBtn} ${styles.brandGradient}`}
                     disabled={loading}
                   >
                     {loading ? "Sending…" : "Send Code"}
                   </button>
                 </div>
 
-                {message && <p className={`${styles['form-message']} ${styles.error}`}>{message}</p>}
+                {message && (
+                  <p className={`${styles.formMessage} ${styles.error}`}>{message}</p>
+                )}
 
                 <div
-                  className={`${styles['text-center']} ${styles['mt-2']}`}
+                  className={`${styles.textCenter} ${styles.mt2}`}
                   style={{
                     display: "flex",
                     flexDirection: "column",
@@ -207,10 +209,10 @@ const Auth = () => {
                     alignItems: "center",
                   }}
                 >
-                  <div className={styles.UniDemo}>
+                  <div className={styles.uniDemo}>
                     <button
                       type="button"
-                      className={styles['cute-btn']}
+                      className={styles.cuteBtn}
                       onClick={() => setIsModalOpen(true)}
                     >
                       See Supported Universities
@@ -220,7 +222,7 @@ const Auth = () => {
                     <div style={{ position: "relative" }}>
                       <button
                         type="button"
-                        className={`${styles['text-btn']}`}
+                        className={`${styles.textBtn} ${styles.mt2}`}
                         onClick={() => setShowDemoOptions(!showDemoOptions)}
                       >
                         ✨ Explore Live Demo
@@ -229,10 +231,10 @@ const Auth = () => {
 
                     {/* The Popup */}
                     {showDemoOptions && (
-                      <div className={styles['demo-popup']}>
+                      <div className={styles.demoPopup}>
                         <button
                           type="button"
-                          className={styles['demo-popup-btn']}
+                          className={styles.demoPopupBtn}
                           onClick={handleDemoLogin}
                           disabled={demoLoading}
                         >
@@ -244,7 +246,7 @@ const Auth = () => {
                           href="https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK"
                           target="_blank"
                           rel="noopener noreferrer"
-                          className={`${styles['demo-popup-btn']} ${styles['video-btn']}`}
+                          className={`${styles.demoPopupBtn} ${styles.videoBtn}`}
                         >
                           📺 View Demo Video
                         </a>
@@ -266,8 +268,8 @@ const Auth = () => {
                   </strong>
                 </p>
 
-                <label className={styles['input-label']}>8-DIGIT VERIFICATION CODE</label>
-                <div className={styles['modern-input-group']}>
+                <label className={styles.inputLabel}>8-DIGIT VERIFICATION CODE</label>
+                <div className={styles.modernInputGroup}>
                   <input
                     type="text"
                     placeholder="• • • • • • • •"
@@ -275,11 +277,11 @@ const Auth = () => {
                     onChange={(e) => setOtp(e.target.value)}
                     required
                     maxLength={8}
-                    className={styles['otp-input']}
+                    className={styles.otpInput}
                   />
                   <button
                     type="submit"
-                    className={`${styles['inside-btn']} ${styles['brand-gradient']}`}
+                    className={`${styles.insideBtn} ${styles.brandGradient}`}
                     disabled={loading}
                   >
                     {loading ? "Verifying…" : "Verify"}
@@ -288,7 +290,9 @@ const Auth = () => {
 
                 {message && (
                   <p
-                    className={`${styles['form-message']} ${message.includes("sent") ? styles.success : styles.error}`}
+                    className={`${styles.formMessage} ${
+                      message.includes("sent") ? styles.success : styles.error
+                    }`}
                   >
                     {message}
                   </p>
@@ -296,7 +300,7 @@ const Auth = () => {
 
                 <button
                   type="button"
-                  className={`${styles['text-btn']} ${styles['mt-2']}`}
+                  className={`${styles.textBtn} ${styles.mt2}`}
                   onClick={() => setStep(1)}
                 >
                   ← Wrong email? Go back
@@ -306,36 +310,36 @@ const Auth = () => {
           </div>
 
           {/* App Download Buttons */}
-          <div className={styles['app-downloads']}>
-            <button className={`${styles['app-btn']} ${styles['android-btn']}`}>
+          <div className={styles.appDownloads}>
+            <button className={`${styles.appBtn} ${styles.androidBtn}`}>
               <img src="/playstore.svg" alt="playstore" />
               Android App
-              <span className={styles['coming-soon']}>Soon</span>
+              <span className={styles.comingSoon}>Soon</span>
             </button>
-            <button className={`${styles['app-btn']} ${styles['ios-btn']}`}>
+            <button className={`${styles.appBtn} ${styles.iosBtn}`}>
               <img src="/apple.svg" alt="apple" />
               iOS App
-              <span className={styles['coming-soon']}>Soon</span>
+              <span className={styles.comingSoon}>Soon</span>
             </button>
           </div>
         </div>
       </div>
 
       {/* ── Right Side: Video ── */}
-      <div className={styles['auth-right']}>
-        <div className={styles['video-container']}>
+      <div className={styles.authRight}>
+        <div className={styles.videoContainer}>
           <video
             ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
-            className={styles['feature-video']}
+            className={styles.featureVideo}
             src="https://iwhtzhejyhaqctoqsolz.supabase.co/storage/v1/object/public/yahora%20videos/yahora_login_page_girl.mp4"
           >
             Your browser does not support the video tag.
           </video>
-          <div className={styles['video-overlay']}>
+          <div className={styles.videoOverlay}>
             <h3>Keep the Story Going</h3>
             <p>Because Every Item Has a Memory.</p>
           </div>
