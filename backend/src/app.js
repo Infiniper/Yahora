@@ -1,3 +1,4 @@
+// backend\src\app.js
 import express from 'express';
 import cors from 'cors';
 import authRoutes from './modules/auth/auth.routes.js'; 
