@@ -1,6 +1,6 @@
 // frontend/src/pages/messages/Messages.jsx
 import React, { useState, useEffect, useRef } from "react";
-import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import styles from "./Messages.module.css";
 import { supabase } from "../../config/supabaseClient";
 import {
@@ -95,6 +95,7 @@ function AvatarImg({ src, name, size = 40, className }) {
     .join("")
     .slice(0, 2)
     .toUpperCase();
+
   const hue =
     displayName.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) % 360;
 
@@ -122,6 +123,7 @@ function AvatarImg({ src, name, size = 40, className }) {
       </div>
     );
   }
+
   return (
     <img
       src={src}
@@ -147,8 +149,10 @@ const formatDate = (isoString) => {
   const today = new Date();
   const yesterday = new Date(today);
   yesterday.setDate(today.getDate() - 1);
+
   if (d.toDateString() === today.toDateString()) return "Today";
   if (d.toDateString() === yesterday.toDateString()) return "Yesterday";
+
   return d.toLocaleDateString([], {
     weekday: "short",
     month: "short",
@@ -159,10 +163,11 @@ const formatDate = (isoString) => {
 export default function Messages() {
   const currentUserId = localStorage.getItem("yahora_user_id");
   const navigate = useNavigate();
-  const location = useLocation();
   const [searchParams] = useSearchParams();
 
-  /* ── Existing states (untouched logic) ── */
+  const isDemoUser = localStorage.getItem("yahora_demo_user") === "true";
+
+  /* ── Existing states ── */
   const [inbox, setInbox] = useState([]);
   const [activeChat, setActiveChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -194,6 +199,7 @@ export default function Messages() {
   /* ── Close emoji picker on outside click ── */
   useEffect(() => {
     if (!showEmojiPicker) return;
+
     const handler = (e) => {
       if (
         emojiPickerRef.current &&
@@ -202,13 +208,15 @@ export default function Messages() {
         setShowEmojiPicker(false);
       }
     };
+
     document.addEventListener("mousedown", handler);
     return () => document.removeEventListener("mousedown", handler);
   }, [showEmojiPicker]);
 
-  /* ── 1. Fetch Inbox & Handle URL Persistence (LOGIC UNCHANGED) ── */
+  /* ── 1. Fetch Inbox & Handle URL Persistence ── */
   useEffect(() => {
     if (!currentUserId) return navigate("/auth");
+
     const loadInboxAndCheckParams = async () => {
       try {
         const res = await fetch(
@@ -216,6 +224,7 @@ export default function Messages() {
         );
         const data = await res.json();
         let fetchedInbox = data.inbox || [];
+
         const paramUserId = searchParams.get("user");
         const paramProductId = searchParams.get("product");
 
@@ -225,6 +234,7 @@ export default function Messages() {
               chat.contact_id === paramUserId &&
               chat.product_id === paramProductId,
           );
+
           if (existingChat) {
             handleSelectChat(existingChat, true);
           } else {
@@ -232,6 +242,7 @@ export default function Messages() {
               `${API_BASE_URL}/products/${paramProductId}`,
             );
             const prodData = await prodRes.json();
+
             if (prodData.product) {
               const newChatData = {
                 contact_id: paramUserId,
@@ -244,11 +255,13 @@ export default function Messages() {
                   "https://via.placeholder.com/20",
                 unread_count: 0,
               };
+
               fetchedInbox = [newChatData, ...fetchedInbox];
               handleSelectChat(newChatData, true);
             }
           }
         }
+
         setInbox(fetchedInbox);
       } catch (error) {
         console.error(error);
@@ -256,25 +269,29 @@ export default function Messages() {
         setLoading(false);
       }
     };
-    loadInboxAndCheckParams();
-  }, [currentUserId]);
 
-  /* ── 2. Select Chat (LOGIC UNCHANGED) ── */
+    loadInboxAndCheckParams();
+  }, [currentUserId, navigate, searchParams]);
+
+  /* ── 2. Select Chat ── */
   const handleSelectChat = async (chat, isInitialLoad = false) => {
     setActiveChat(chat);
     setShowInboxOnMobile(false);
     setShowEmojiPicker(false);
+
     if (!isInitialLoad) {
       navigate(`/messages?user=${chat.contact_id}&product=${chat.product_id}`, {
         replace: true,
       });
     }
+
     try {
       const res = await fetch(
         `${API_BASE_URL}/messages/history?userId=${currentUserId}&contactId=${chat.contact_id}&productId=${chat.product_id}`,
       );
       const data = await res.json();
       setMessages(data.messages || []);
+
       if (chat.unread_count > 0) {
         await fetch(`${API_BASE_URL}/messages/read`, {
           method: "PUT",
@@ -285,6 +302,7 @@ export default function Messages() {
             productId: chat.product_id,
           }),
         });
+
         setInbox((prev) =>
           prev.map((c) =>
             c.contact_id === chat.contact_id && c.product_id === chat.product_id
@@ -293,22 +311,28 @@ export default function Messages() {
           ),
         );
       }
-    } catch {}
+    } catch (error) {
+      console.error("Failed to load chat history:", error);
+    }
   };
 
-  /* ── 3. Presence (LOGIC UNCHANGED) ── */
+  /* ── 3. Presence ── */
   useEffect(() => {
-    if (window.yahoraOnlineUsers)
+    if (window.yahoraOnlineUsers) {
       setOnlineUsers(new Set(window.yahoraOnlineUsers));
+    }
+
     const handlePresenceSync = (e) => setOnlineUsers(new Set(e.detail));
     window.addEventListener("yahora-presence", handlePresenceSync);
+
     return () =>
       window.removeEventListener("yahora-presence", handlePresenceSync);
   }, []);
 
-  /* ── 4. Realtime (LOGIC UNCHANGED) ── */
+  /* ── 4. Realtime ── */
   useEffect(() => {
     if (!currentUserId) return;
+
     const msgChannel = supabase
       .channel("realtime:messages")
       .on(
@@ -316,9 +340,11 @@ export default function Messages() {
         { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
           const newMsg = payload.new;
+
           if (activeChat && newMsg.sender_id === activeChat.contact_id) {
             setIsTyping(false);
           }
+
           if (
             newMsg.sender_id === currentUserId ||
             newMsg.receiver_id === currentUserId
@@ -329,7 +355,11 @@ export default function Messages() {
               (newMsg.sender_id === activeChat.contact_id ||
                 newMsg.receiver_id === activeChat.contact_id)
             ) {
-              setMessages((prev) => [...prev, newMsg]);
+              setMessages((prev) => {
+                if (prev.some((m) => m.id === newMsg.id)) return prev;
+                return [...prev, newMsg];
+              });
+
               if (newMsg.receiver_id === currentUserId) {
                 fetch(`${API_BASE_URL}/messages/read`, {
                   method: "PUT",
@@ -342,6 +372,7 @@ export default function Messages() {
                 });
               }
             }
+
             setInbox((prev) => {
               const chatIndex = prev.findIndex(
                 (c) =>
@@ -349,21 +380,26 @@ export default function Messages() {
                   (c.contact_id === newMsg.sender_id ||
                     c.contact_id === newMsg.receiver_id),
               );
+
               let updatedInbox = [...prev];
               let updatedChat = null;
+
               if (chatIndex > -1) {
                 updatedChat = updatedInbox.splice(chatIndex, 1)[0];
                 updatedChat.last_message = newMsg.content;
                 updatedChat.last_message_time = newMsg.created_at;
+
                 const isChatActive =
                   activeChat &&
                   activeChat.product_id === newMsg.product_id &&
                   activeChat.contact_id === newMsg.sender_id;
+
                 if (newMsg.receiver_id === currentUserId && !isChatActive) {
                   updatedChat.unread_count =
                     Number(updatedChat.unread_count || 0) + 1;
                 }
               }
+
               if (updatedChat) updatedInbox.unshift(updatedChat);
               return updatedInbox;
             });
@@ -380,25 +416,26 @@ export default function Messages() {
         },
       )
       .subscribe();
+
     return () => supabase.removeChannel(msgChannel);
   }, [currentUserId, activeChat]);
 
-  /* ── Send Message (LOGIC UNCHANGED) ── */
+  /* ── Send Message ── */
   const handleSendMessage = async (e) => {
     e.preventDefault();
     if (!newMessage.trim() || !activeChat) return;
+
     const tempMessage = newMessage;
     setNewMessage("");
     setShowEmojiPicker(false);
-    const isDemoUser = localStorage.getItem("yahora_demo_user") === "true";
-    // If this is a demo user, trigger the typing illusion immediately
+
     if (isDemoUser) {
       setIsTyping(true);
-      // Failsafe: turn it off after 5 seconds just in case the network fails
       setTimeout(() => setIsTyping(false), 5000);
     }
+
     try {
-      await fetch(`${API_BASE_URL}/messages/send`, {
+      const res = await fetch(`${API_BASE_URL}/messages/send`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -408,8 +445,17 @@ export default function Messages() {
           content: tempMessage,
         }),
       });
+
+      const data = await res.json();
+
+      if (res.ok && data.message) {
+        setMessages((prev) => {
+          if (prev.some((m) => m.id === data.message.id)) return prev;
+          return [...prev, data.message];
+        });
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Failed to send message:", error);
     }
   };
 
@@ -437,13 +483,14 @@ export default function Messages() {
   }, {});
 
   /* ── Loading state ── */
-  if (loading)
+  if (loading) {
     return (
       <div className={styles.loadingScreen}>
         <div className={styles.loadingSpinner} />
         <p>Loading your conversations…</p>
       </div>
     );
+  }
 
   return (
     <div className={styles.root}>
@@ -457,9 +504,6 @@ export default function Messages() {
             <div className={styles.inboxHeaderTop}>
               <div className={styles.inboxTitleRow}>
                 <h2 className={styles.inboxTitle}>Messages</h2>
-                {/* {inbox.length > 0 && (
-                  <span className={styles.inboxCount}>{inbox.length}</span>
-                )} */}
               </div>
               <Sparkles size={16} className={styles.headerSparkle} />
             </div>
@@ -515,9 +559,12 @@ export default function Messages() {
                 const isActive =
                   activeChat?.product_id === chat.product_id &&
                   activeChat?.contact_id === chat.contact_id;
+
                 const isOnline =
-                  onlineUsers.has(chat.contact_id) &&
-                  chat.contact_id !== currentUserId;
+                  isDemoUser ||
+                  (onlineUsers.has(chat.contact_id) &&
+                    chat.contact_id !== currentUserId);
+
                 return (
                   <div
                     key={`${chat.contact_id}-${chat.product_id}`}
@@ -525,7 +572,6 @@ export default function Messages() {
                     onClick={() => handleSelectChat(chat)}
                     style={{ animationDelay: `${idx * 40}ms` }}
                   >
-                    {/* Removed the onlinePip from here */}
                     <div className={styles.avatarWrap}>
                       <AvatarImg
                         src={chat?.contact_avatar}
@@ -537,7 +583,6 @@ export default function Messages() {
 
                     <div className={styles.inboxItemContent}>
                       <div className={styles.inboxItemTop}>
-                        {/* Added inboxNameRow to hold name and the online dot */}
                         <div className={styles.inboxNameRow}>
                           <span className={styles.inboxName}>
                             {chat?.contact_name || "Unknown"}
@@ -552,7 +597,6 @@ export default function Messages() {
                         </span>
                       </div>
 
-                      {/* Replaced <ShoppingBag /> SVG with actual product image */}
                       <div className={styles.inboxProductChip}>
                         <img
                           src={
@@ -610,10 +654,11 @@ export default function Messages() {
                     size={42}
                     className={styles.chatHeaderAvatar}
                   />
-                  {onlineUsers.has(activeChat.contact_id) &&
-                    activeChat.contact_id !== currentUserId && (
-                      <span className={styles.chatOnlinePip} />
-                    )}
+                  {(isDemoUser ||
+                    (onlineUsers.has(activeChat.contact_id) &&
+                      activeChat.contact_id !== currentUserId)) && (
+                    <span className={styles.chatOnlinePip} />
+                  )}
                 </div>
 
                 <div className={styles.chatHeaderInfo}>
@@ -622,18 +667,19 @@ export default function Messages() {
                       {activeChat?.contact_name || "Unknown"}
                       {activeChat?.contact_id === currentUserId ? " (You)" : ""}
                     </h3>
-                    {onlineUsers.has(activeChat.contact_id) &&
-                      activeChat.contact_id !== currentUserId && (
-                        <span className={styles.onlineLabel}>
-                          <span className={styles.onlineDot} /> Online
-                        </span>
-                      )}
+
+                    {(isDemoUser ||
+                      (onlineUsers.has(activeChat.contact_id) &&
+                        activeChat.contact_id !== currentUserId)) && (
+                      <span className={styles.onlineLabel}>
+                        <span className={styles.onlineDot} /> Online
+                      </span>
+                    )}
                   </div>
+
                   <button
                     className={styles.chatProductSnippet}
-                    onClick={() =>
-                      navigate(`/product/${activeChat.product_id}`)
-                    }
+                    onClick={() => navigate(`/product/${activeChat.product_id}`)}
                   >
                     <img
                       src={
@@ -704,20 +750,21 @@ export default function Messages() {
                 ) : (
                   Object.entries(groupedMessages).map(([date, msgs]) => (
                     <React.Fragment key={date}>
-                      {/* Date separator */}
                       <div className={styles.dateSeparator}>
                         <span className={styles.dateSeparatorLine} />
-                        <span className={styles.dateSeparatorText}>{date}</span>
+                        <span className={styles.dateSeparatorText}>
+                          {date}
+                        </span>
                         <span className={styles.dateSeparatorLine} />
                       </div>
 
                       {msgs.map((msg, index) => {
                         const isMine = msg.sender_id === currentUserId;
 
-                        /* ── Tick icons (amber for read, not blue) ── */
                         let tickIcon = (
                           <Check size={13} className={styles.tickSent} />
                         );
+
                         if (msg.is_read) {
                           tickIcon = (
                             <CheckCheck size={13} className={styles.tickRead} />
@@ -750,9 +797,7 @@ export default function Messages() {
                             <div
                               className={`${styles.messageBubble} ${isMine ? styles.bubbleMine : styles.bubbleTheirs}`}
                             >
-                              <p className={styles.messageText}>
-                                {msg.content}
-                              </p>
+                              <p className={styles.messageText}>{msg.content}</p>
                               <div className={styles.messageMeta}>
                                 <span className={styles.messageTime}>
                                   {formatTime(msg.created_at)}
@@ -770,27 +815,36 @@ export default function Messages() {
                     </React.Fragment>
                   ))
                 )}
-                {/* The Typing Indicator Bubble */}
-              {isTyping && (
-                <div className={styles.messageWrapper} style={{ justifyContent: "flex-start", animation: "fadeIn 0.3s ease" }}>
-                  <AvatarImg
-                    src={activeChat?.contact_avatar}
-                    name={activeChat?.contact_name}
-                    size={28}
-                    className={styles.messageAvatar}
-                  />
-                  <div className={`${styles.messageBubble} ${styles.bubbleTheirs} ${styles.typingBubble}`}>
-                    <div className={styles.typingDots}>
-                      <span></span><span></span><span></span>
+
+                {isTyping && (
+                  <div
+                    className={styles.messageWrapper}
+                    style={{
+                      justifyContent: "flex-start",
+                      animation: "fadeIn 0.3s ease",
+                    }}
+                  >
+                    <AvatarImg
+                      src={activeChat?.contact_avatar}
+                      name={activeChat?.contact_name}
+                      size={28}
+                      className={styles.messageAvatar}
+                    />
+                    <div
+                      className={`${styles.messageBubble} ${styles.bubbleTheirs} ${styles.typingBubble}`}
+                    >
+                      <div className={styles.typingDots}>
+                        <span />
+                        <span />
+                        <span />
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
               </div>
 
               {/* Chat Input Area */}
               <div className={styles.chatInputArea}>
-                {/* Emoji Picker */}
                 <div
                   className={styles.emojiPickerContainer}
                   ref={emojiPickerRef}
@@ -806,7 +860,6 @@ export default function Messages() {
 
                   {showEmojiPicker && (
                     <div className={styles.emojiPicker}>
-                      {/* Emoji category tabs */}
                       <div className={styles.emojiTabs}>
                         {EMOJI_ROWS.map((row, i) => (
                           <button
@@ -856,7 +909,6 @@ export default function Messages() {
               </div>
             </>
           ) : (
-            /* ── No active chat welcome screen ── */
             <div className={styles.noActiveChat}>
               <div className={styles.noChatDecor}>
                 <div className={styles.noChatOrb1} />
