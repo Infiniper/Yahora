@@ -395,8 +395,9 @@
   animation: sidebarChildIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) 0.36s both;
 }
 .completeBtn {
-  width: 100%;
-  padding: 16px;
+  width: 50%;
+  margin: 0 auto; 
+  padding: 12px;
   border-radius: 99px;
   border: none;
   cursor: pointer;

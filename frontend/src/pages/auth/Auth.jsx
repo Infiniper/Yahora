@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { Sparkles, Rocket, MonitorPlay, X } from "lucide-react";
 import UniversityModal from "../../components/modal/UniversityModal";
 import { useAuth } from "../../contexts/AuthContext";
 import styles from "./Auth.module.css";
@@ -66,10 +67,8 @@ const Auth = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Clear the demo flag when a real user logs in successfully
         localStorage.removeItem("yahora_demo_user");
 
-        // Save the real user's university ID so they aren't treated as a visitor!
         if (data.userProfile?.university_id) {
           localStorage.setItem(
             "yahora_university_id",
@@ -77,16 +76,13 @@ const Auth = () => {
           );
         }
 
-        // Extract User ID
         const userId =
           data.userProfile?.id || data.userAuth?.id || data.user?.id;
 
-        // 👈 NEW: Use context login function to save session & instantly update global state
         if (userId) {
           login(data.session.access_token, userId);
         }
 
-        // --- CONDITIONAL REDIRECT LOGIC ---
         if (data.userProfile && data.userProfile.is_profile_complete) {
           navigate("/dashboard");
         } else {
@@ -116,7 +112,6 @@ const Auth = () => {
       const data = await response.json();
 
       if (response.ok) {
-        // Set a flag in localStorage so the rest of the app knows this is a demo user
         localStorage.setItem("yahora_demo_user", "true");
         if (data.userProfile?.university_id) {
           localStorage.setItem(
@@ -128,7 +123,6 @@ const Auth = () => {
         const userId = data.userProfile?.id || data.userAuth?.id;
         if (userId) login(data.session.access_token, userId);
 
-        // Always route to onboarding first so they see the flow
         navigate("/onboarding");
       } else {
         setMessage(data.error || "Failed to launch demo environment.");
@@ -141,207 +135,235 @@ const Auth = () => {
   };
 
   return (
-    <div className={styles['auth-container']}>
-      {/* ── Left Side: Form ── */}
-      <div className={styles['auth-left']}>
-        {/* Global classes kept as standard strings */}
-        <div className="glow-orb purple-orb"></div>
-        <div className="glow-orb pink-orb"></div>
+    <>
+      <div className={styles.authContainer}>
+        {/* ── Left Side: Form ── */}
+        <div className={styles.authLeft}>
+          <div className="glow-orb purple-orb"></div>
+          <div className="glow-orb pink-orb"></div>
 
-        <div className={styles['auth-form-wrapper']}>
-          <div className={styles['marketing-badge']}>
-            <span className={styles.dot}></span>
-            Students-only marketplace — now launching
-          </div>
-
-          <h1 className={styles['gradient-heading']}>Buy &amp; Sell on Your Campus.</h1>
-
-          {/* Glass Form Card */}
-          <div className={styles['form-card']}>
-            {/* Floating Icon inspired by the image */}
-            <div className={styles['floating-icon']}>
-              <svg
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                width="28"
-                height="28"
-              >
-                <path d="M12 3L1 9L5 11.18V17.18L12 21L19 17.18V11.18L21 10.09V17H23V9L12 3ZM18.82 9L12 12.72L5.18 9L12 5.28L18.82 9ZM17 15.99L12 18.72L7 15.99V12.27L12 15L17 12.27V15.99Z" />
-              </svg>
+          <div className={styles.authFormWrapper}>
+            <div className={styles.marketingBadge}>
+              <span className={styles.dot}></span>
+              Students-only marketplace — now launching
             </div>
 
-            <h2>Join Yahora</h2>
+            <h1 className={styles.gradientHeading}>Buy &amp; Sell on Your Campus.</h1>
 
-            {step === 1 ? (
-              <form onSubmit={handleRequestOtp}>
-                <p className={styles.subtitle}>
-                  Enter your university email to get started
-                </p>
-
-                <label className={styles['input-label']}>UNIVERSITY EMAIL ADDRESS</label>
-                <div className={styles['modern-input-group']}>
-                  <input
-                    type="email"
-                    placeholder="yourUniID@university.domain"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className={`${styles['inside-btn']} ${styles['brand-gradient']}`}
-                    disabled={loading}
-                  >
-                    {loading ? "Sending…" : "Send Code"}
-                  </button>
-                </div>
-
-                {message && <p className={`${styles['form-message']} ${styles.error}`}>{message}</p>}
-
-                <div
-                  className={`${styles['text-center']} ${styles['mt-2']}`}
-                  style={{
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: "10px",
-                    alignItems: "center",
-                  }}
+            {/* Glass Form Card */}
+            <div className={styles.formCard}>
+              <div className={styles.floatingIcon}>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  width="28"
+                  height="28"
                 >
-                  <div className={styles.UniDemo}>
-                    <button
-                      type="button"
-                      className={styles['cute-btn']}
-                      onClick={() => setIsModalOpen(true)}
-                    >
-                      See Supported Universities
-                    </button>
+                  <path d="M12 3L1 9L5 11.18V17.18L12 21L19 17.18V11.18L21 10.09V17H23V9L12 3ZM18.82 9L12 12.72L5.18 9L12 5.28L18.82 9ZM17 15.99L12 18.72L7 15.99V12.27L12 15L17 12.27V15.99Z" />
+                </svg>
+              </div>
 
-                    {/* NEW: Demo Options Wrapper */}
-                    <div style={{ position: "relative" }}>
+              <h2>Join Yahora</h2>
+
+              {step === 1 ? (
+                <form onSubmit={handleRequestOtp}>
+                  <p className={styles.subtitle}>
+                    Enter your university email to get started
+                  </p>
+
+                  <label className={styles.inputLabel}>UNIVERSITY EMAIL ADDRESS</label>
+                  <div className={styles.modernInputGroup}>
+                    <input
+                      type="email"
+                      placeholder="yourUniID@university.domain"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      required
+                    />
+                    <button
+                      type="submit"
+                      className={`${styles.insideBtn} ${styles.brandGradient}`}
+                      disabled={loading}
+                    >
+                      {loading ? "Sending…" : "Send Code"}
+                    </button>
+                  </div>
+
+                  {message && (
+                    <p className={`${styles.formMessage} ${styles.error}`}>{message}</p>
+                  )}
+
+                  <div
+                    className={`${styles.textCenter} ${styles.mt2}`}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "10px",
+                      alignItems: "center",
+                    }}
+                  >
+                    <div className={styles.uniDemo}>
                       <button
                         type="button"
-                        className={`${styles['text-btn']}`}
-                        onClick={() => setShowDemoOptions(!showDemoOptions)}
+                        className={styles.cuteBtn}
+                        onClick={() => setIsModalOpen(true)}
                       >
-                        ✨ Explore Live Demo
+                        See Supported Universities
+                      </button>
+
+                      <button
+                        type="button"
+                        className={styles.textBtn}
+                        onClick={() => setShowDemoOptions(true)}
+                      >
+                        <Sparkles size={16} /> Explore Live Demo
                       </button>
                     </div>
-
-                    {/* The Popup */}
-                    {showDemoOptions && (
-                      <div className={styles['demo-popup']}>
-                        <button
-                          type="button"
-                          className={styles['demo-popup-btn']}
-                          onClick={handleDemoLogin}
-                          disabled={demoLoading}
-                        >
-                          {demoLoading
-                            ? "Creating Sandbox..."
-                            : "🚀 Enter Interactive Sandbox"}
-                        </button>
-                        <a
-                          href="https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK"
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className={`${styles['demo-popup-btn']} ${styles['video-btn']}`}
-                        >
-                          📺 View Demo Video
-                        </a>
-                      </div>
-                    )}
                   </div>
-                </div>
-                <UniversityModal
-                  isOpen={isModalOpen}
-                  onClose={() => setIsModalOpen(false)}
-                />
-              </form>
-            ) : (
-              <form onSubmit={handleVerifyOtp}>
-                <p className={styles.subtitle}>
-                  Enter the 6-digit code sent to{" "}
-                  <strong style={{ color: "var(--purple-dark)" }}>
-                    {email}
-                  </strong>
-                </p>
-
-                <label className={styles['input-label']}>8-DIGIT VERIFICATION CODE</label>
-                <div className={styles['modern-input-group']}>
-                  <input
-                    type="text"
-                    placeholder="• • • • • • • •"
-                    value={otp}
-                    onChange={(e) => setOtp(e.target.value)}
-                    required
-                    maxLength={8}
-                    className={styles['otp-input']}
+                  <UniversityModal
+                    isOpen={isModalOpen}
+                    onClose={() => setIsModalOpen(false)}
                   />
-                  <button
-                    type="submit"
-                    className={`${styles['inside-btn']} ${styles['brand-gradient']}`}
-                    disabled={loading}
-                  >
-                    {loading ? "Verifying…" : "Verify"}
-                  </button>
-                </div>
-
-                {message && (
-                  <p
-                    className={`${styles['form-message']} ${message.includes("sent") ? styles.success : styles.error}`}
-                  >
-                    {message}
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyOtp}>
+                  <p className={styles.subtitle}>
+                    Enter the 6-digit code sent to{" "}
+                    <strong style={{ color: "var(--purple-dark)" }}>
+                      {email}
+                    </strong>
                   </p>
-                )}
 
-                <button
-                  type="button"
-                  className={`${styles['text-btn']} ${styles['mt-2']}`}
-                  onClick={() => setStep(1)}
-                >
-                  ← Wrong email? Go back
-                </button>
-              </form>
-            )}
+                  <label className={styles.inputLabel}>8-DIGIT VERIFICATION CODE</label>
+                  <div className={styles.modernInputGroup}>
+                    <input
+                      type="text"
+                      placeholder="• • • • • • • •"
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value)}
+                      required
+                      maxLength={8}
+                      className={styles.otpInput}
+                    />
+                    <button
+                      type="submit"
+                      className={`${styles.insideBtn} ${styles.brandGradient}`}
+                      disabled={loading}
+                    >
+                      {loading ? "Verifying…" : "Verify"}
+                    </button>
+                  </div>
+
+                  {message && (
+                    <p
+                      className={`${styles.formMessage} ${
+                        message.includes("sent") ? styles.success : styles.error
+                      }`}
+                    >
+                      {message}
+                    </p>
+                  )}
+
+                  <button
+                    type="button"
+                    className={`${styles.textBtn} ${styles.mt2}`}
+                    onClick={() => setStep(1)}
+                  >
+                    ← Wrong email? Go back
+                  </button>
+                </form>
+              )}
+            </div>
+
+            {/* App Download Buttons */}
+            <div className={styles.appDownloads}>
+              <button className={`${styles.appBtn} ${styles.androidBtn}`}>
+                <img src="/playstore.svg" alt="playstore" />
+                Android App
+                <span className={styles.comingSoon}>Soon</span>
+              </button>
+              <button className={`${styles.appBtn} ${styles.iosBtn}`}>
+                <img src="/apple.svg" alt="apple" />
+                iOS App
+                <span className={styles.comingSoon}>Soon</span>
+              </button>
+            </div>
           </div>
+        </div>
 
-          {/* App Download Buttons */}
-          <div className={styles['app-downloads']}>
-            <button className={`${styles['app-btn']} ${styles['android-btn']}`}>
-              <img src="/playstore.svg" alt="playstore" />
-              Android App
-              <span className={styles['coming-soon']}>Soon</span>
-            </button>
-            <button className={`${styles['app-btn']} ${styles['ios-btn']}`}>
-              <img src="/apple.svg" alt="apple" />
-              iOS App
-              <span className={styles['coming-soon']}>Soon</span>
-            </button>
+        {/* ── Right Side: Video ── */}
+        <div className={styles.authRight}>
+          <div className={styles.videoContainer}>
+            <video
+              ref={videoRef}
+              autoPlay
+              loop
+              muted
+              playsInline
+              className={styles.featureVideo}
+              src="https://iwhtzhejyhaqctoqsolz.supabase.co/storage/v1/object/public/yahora%20videos/yahora_login_page_girl.mp4"
+            >
+              Your browser does not support the video tag.
+            </video>
+            <div className={styles.videoOverlay}>
+              <h3>Keep the Story Going</h3>
+              <p>Because Every Item Has a Memory.</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* ── Right Side: Video ── */}
-      <div className={styles['auth-right']}>
-        <div className={styles['video-container']}>
-          <video
-            ref={videoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            className={styles['feature-video']}
-            src="https://iwhtzhejyhaqctoqsolz.supabase.co/storage/v1/object/public/yahora%20videos/yahora_login_page_girl.mp4"
+      {/* ── Demo Options Modal ── */}
+      {showDemoOptions && (
+        <div 
+          className={styles.modalOverlay} 
+          onClick={() => setShowDemoOptions(false)}
+        >
+          <div 
+            className={styles.modalContent} 
+            onClick={(e) => e.stopPropagation()}
           >
-            Your browser does not support the video tag.
-          </video>
-          <div className={styles['video-overlay']}>
-            <h3>Keep the Story Going</h3>
-            <p>Because Every Item Has a Memory.</p>
+            <button 
+              className={styles.closeModalBtn} 
+              onClick={() => setShowDemoOptions(false)}
+            >
+              <X size={20} />
+            </button>
+            
+            <h3 className={styles.modalTitle}>Choose Demo Experience</h3>
+            
+            <button
+              type="button"
+              className={styles.demoPopupBtn}
+              onClick={handleDemoLogin}
+              disabled={demoLoading}
+            >
+              <div className={styles.popupBtnTitle}>
+                <Rocket size={18} /> 
+                {demoLoading ? "Creating Sandbox..." : "Sandbox Preview"}
+              </div>
+              <span className={styles.popupBtnSubtext}>
+                Limited Access • Live Environment
+              </span>
+            </button>
+            
+            <a
+              href="https://www.youtube.com/watch?v=YOUR_YOUTUBE_LINK"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={`${styles.demoPopupBtn} ${styles.videoBtn}`}
+            >
+              <div className={styles.popupBtnTitle}>
+                <MonitorPlay size={18} /> Recorded Demo
+              </div>
+              <span className={styles.popupBtnSubtext}>
+                Full Walkthrough • Actual Recording
+              </span>
+            </a>
           </div>
         </div>
-      </div>
-    </div>
+      )}
+    </>
   );
 };
 
