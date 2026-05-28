@@ -4,7 +4,7 @@ import { supabase } from '../config/supabaseClient.js';
 
 export const startCronJobs = () => {
     // Schedule: Runs at 00:00 (midnight) every single day
-    cron.schedule('* * * * *', async () => {
+    cron.schedule('0 0 * * *', async () => {
         console.log('🧹 [CRON] Starting weekly demo user cleanup...');
         
         try {
