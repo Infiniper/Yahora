@@ -181,11 +181,11 @@ export default function Messages() {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [activeEmojiRow, setActiveEmojiRow] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
-
-  /* ── Refs ── */
   const messagesContainerRef = useRef(null);
   const chatInputRef = useRef(null);
   const emojiPickerRef = useRef(null);
+  const activeChatRef = useRef(activeChat);
+  const currentUserIdRef = useRef(currentUserId);
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -193,6 +193,14 @@ export default function Messages() {
         messagesContainerRef.current.scrollHeight;
     }
   };
+
+  useEffect(() => {
+    activeChatRef.current = activeChat;
+  }, [activeChat]);
+
+  useEffect(() => {
+    currentUserIdRef.current = currentUserId;
+  }, [currentUserId]);
 
   useEffect(() => scrollToBottom(), [messages]);
 
@@ -329,10 +337,9 @@ export default function Messages() {
       window.removeEventListener("yahora-presence", handlePresenceSync);
   }, []);
 
-  /* ── 4. Realtime ── */
+  /* ── 4. Realtime (Socket Never Closes) ── */
   useEffect(() => {
-    if (!currentUserId) return;
-
+    // We don't check currentUserId here directly so the hook doesn't re-run.
     const msgChannel = supabase
       .channel("realtime:messages")
       .on(
@@ -340,32 +347,36 @@ export default function Messages() {
         { event: "INSERT", schema: "public", table: "messages" },
         (payload) => {
           const newMsg = payload.new;
+          
+          // Read the absolute latest state from the refs!
+          const chat = activeChatRef.current;
+          const myId = currentUserIdRef.current;
 
-          if (activeChat && newMsg.sender_id === activeChat.contact_id) {
+          if (!myId) return;
+
+          // Stop typing indicator if the contact replied
+          if (chat && newMsg.sender_id === chat.contact_id) {
             setIsTyping(false);
           }
 
-          if (
-            newMsg.sender_id === currentUserId ||
-            newMsg.receiver_id === currentUserId
-          ) {
+          if (newMsg.sender_id === myId || newMsg.receiver_id === myId) {
             if (
-              activeChat &&
-              newMsg.product_id === activeChat.product_id &&
-              (newMsg.sender_id === activeChat.contact_id ||
-                newMsg.receiver_id === activeChat.contact_id)
+              chat &&
+              newMsg.product_id === chat.product_id &&
+              (newMsg.sender_id === chat.contact_id || newMsg.receiver_id === chat.contact_id)
             ) {
+              // Prevent duplicate messages
               setMessages((prev) => {
                 if (prev.some((m) => m.id === newMsg.id)) return prev;
                 return [...prev, newMsg];
               });
-
-              if (newMsg.receiver_id === currentUserId) {
+              
+              if (newMsg.receiver_id === myId) {
                 fetch(`${API_BASE_URL}/messages/read`, {
                   method: "PUT",
                   headers: { "Content-Type": "application/json" },
                   body: JSON.stringify({
-                    userId: currentUserId,
+                    userId: myId,
                     contactId: newMsg.sender_id,
                     productId: newMsg.product_id,
                   }),
@@ -373,14 +384,13 @@ export default function Messages() {
               }
             }
 
+            // Update Inbox
             setInbox((prev) => {
               const chatIndex = prev.findIndex(
                 (c) =>
                   c.product_id === newMsg.product_id &&
-                  (c.contact_id === newMsg.sender_id ||
-                    c.contact_id === newMsg.receiver_id),
+                  (c.contact_id === newMsg.sender_id || c.contact_id === newMsg.receiver_id)
               );
-
               let updatedInbox = [...prev];
               let updatedChat = null;
 
@@ -388,37 +398,37 @@ export default function Messages() {
                 updatedChat = updatedInbox.splice(chatIndex, 1)[0];
                 updatedChat.last_message = newMsg.content;
                 updatedChat.last_message_time = newMsg.created_at;
-
+                
                 const isChatActive =
-                  activeChat &&
-                  activeChat.product_id === newMsg.product_id &&
-                  activeChat.contact_id === newMsg.sender_id;
-
-                if (newMsg.receiver_id === currentUserId && !isChatActive) {
-                  updatedChat.unread_count =
-                    Number(updatedChat.unread_count || 0) + 1;
+                  chat &&
+                  chat.product_id === newMsg.product_id &&
+                  chat.contact_id === newMsg.sender_id;
+                  
+                if (newMsg.receiver_id === myId && !isChatActive) {
+                  updatedChat.unread_count = Number(updatedChat.unread_count || 0) + 1;
                 }
               }
-
               if (updatedChat) updatedInbox.unshift(updatedChat);
               return updatedInbox;
             });
           }
-        },
+        }
       )
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "messages" },
         (payload) => {
           setMessages((prev) =>
-            prev.map((msg) => (msg.id === payload.new.id ? payload.new : msg)),
+            prev.map((msg) => (msg.id === payload.new.id ? payload.new : msg))
           );
-        },
+        }
       )
       .subscribe();
 
-    return () => supabase.removeChannel(msgChannel);
-  }, [currentUserId, activeChat]);
+    return () => {
+      supabase.removeChannel(msgChannel);
+    };
+  }, []); // 👈 MAGIC FIX: Empty array means the socket opens ONCE and never drops messages!
 
   /* ── Send Message ── */
   const handleSendMessage = async (e) => {
