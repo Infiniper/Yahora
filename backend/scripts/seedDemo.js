@@ -143,7 +143,7 @@ const DUMMY_PRODUCTS = [
 
   {
     title:    'MacBook Air M2 — Midnight (8GB / 256GB)',
-    price:    72000,
+    price:    52000,
     category: 'electronics',
     condition:'Mint',
     desc:     'Purchased last semester and barely used — battery health sits at 98%. Comes with original MagSafe charger, silicone sleeve, and retail box. No scratches, no dents. Ideal for developers, designers, and final-year project work. Genuine reason for selling: switching to a desktop setup.',
@@ -157,7 +157,7 @@ const DUMMY_PRODUCTS = [
   },
   {
     title:    'Dell XPS 15 — i7 12th Gen, 16 GB RAM, 512 GB NVMe',
-    price:    55000,
+    price:    38000,
     category: 'electronics',
     condition:'Like New',
     desc:     'Premium ultrabook used for data-science coursework and ML experiments. NVIDIA GeForce GTX 1650, stunning 4K OLED display. Comes with original Dell bag, charger, and mouse. Moving abroad after final semester — must sell before May 30.',
