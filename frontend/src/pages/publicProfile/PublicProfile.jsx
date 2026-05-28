@@ -6,7 +6,7 @@ import ProductCard from "../../components/ProductCard/ProductCard";
 
 const API_BASE_URL = `${import.meta.env.VITE_API_BASE_URL}/api`;
 
-function DisplayAvatar({ src, name, size }) {
+function DisplayAvatar({ src, name, size, onClick }) {
   // Generate beautiful fallback avatar data
   const initials = (name || "User")
     .split(" ")
@@ -20,7 +20,11 @@ function DisplayAvatar({ src, name, size }) {
 
   return (
     <div className={styles.avatarWrap} style={{ "--av-size": size + "px" }}>
-      <div className={styles.avatarRing}>
+      <div 
+        className={styles.avatarRing} 
+        onClick={onClick}
+        style={{ cursor: onClick ? "pointer" : "default" }}
+      >
         {src ? (
           <img src={src} alt="avatar" className={styles.avatarImg} />
         ) : (
@@ -49,6 +53,9 @@ export default function PublicProfile() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [isDashboard, setIsDashboard] = useState(false);
+  
+  // NEW: State for the Image Modal
+  const [isImageModalOpen, setIsImageModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchProfile = async () => {
@@ -234,6 +241,7 @@ export default function PublicProfile() {
             src={profile.avatar_url}
             name={profile.full_name}
             size={160}
+            onClick={() => setIsImageModalOpen(true)}
           />
           <div className={styles.heroText}>
             <div className={styles.heroEyebrow}>Verified Campus Seller</div>
@@ -334,7 +342,6 @@ export default function PublicProfile() {
           className={styles.sidebar}
           style={{
             position: "relative",
-
             top: "17px",
           }}
         >
@@ -343,6 +350,7 @@ export default function PublicProfile() {
               src={profile.avatar_url}
               name={profile.full_name}
               size={140}
+              onClick={() => setIsImageModalOpen(true)}
             />
             <div className={styles.sidebarName}>{profile.full_name}</div>
             <div className={styles.sidebarUni}>
@@ -423,6 +431,32 @@ export default function PublicProfile() {
           </div>
         </div>
       </div>
+
+      {/* NEW: IMAGE ZOOM MODAL */}
+      {isImageModalOpen && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.85)",
+            zIndex: 99999,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "zoom-out",
+            animation: "fadeIn 0.2s ease"
+          }}
+          onClick={() => setIsImageModalOpen(false)}
+        >
+          <div onClick={(e) => e.stopPropagation()} style={{ cursor: "default" }}>
+            <DisplayAvatar 
+              src={profile.avatar_url} 
+              name={profile.full_name} 
+              size={Math.min(window.innerWidth * 0.8, 350)} 
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
