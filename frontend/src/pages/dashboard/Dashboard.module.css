@@ -321,8 +321,10 @@
 }
 .ui1Btn {
   display: flex;
-  direction: row;
-  gap: 35px;
+  flex-direction: row; 
+  gap: 20px; 
+  flex-wrap: wrap; 
+  justify-content: center;
 }
 /* ══════════════════════════════════════════════
    UI 2 — DASHBOARD / SPLIT VIEW
